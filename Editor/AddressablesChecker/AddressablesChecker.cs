@@ -1,4 +1,6 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressablesChecker
+﻿using UniCore.Runtime.ProfilerTools;
+
+namespace UniModules.UniGame.AddressableTools.Editor.AddressablesChecker
 {
     using System.Collections.Generic;
     using UniCore.Runtime.ProfilerTools;

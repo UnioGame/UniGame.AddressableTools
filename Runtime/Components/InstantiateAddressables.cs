@@ -2,7 +2,7 @@
 {
     using Core.Runtime.DataFlow.Extensions;
     using Cysharp.Threading.Tasks;
-    using UniGreenModules.UniGame.AddressableTools.Runtime.Extensions;
+    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 

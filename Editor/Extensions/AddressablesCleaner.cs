@@ -1,4 +1,6 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.Extensions
+﻿using UniCore.Runtime.ProfilerTools;
+
+namespace UniModules.UniGame.AddressableTools.Editor.Extensions
 {
     using System;
     using System.IO;

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UniGreenModules.UniGame.AddressableTools.Runtime.AssetReferencies
+namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
 {
     using System;
 

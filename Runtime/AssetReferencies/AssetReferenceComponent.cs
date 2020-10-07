@@ -1,7 +1,7 @@
 namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
 {
     using System;
-    using UniGreenModules.UniGame.AddressableTools.Runtime.AssetReferencies;
+    using UniModules.UniGame.AddressableTools.Runtime.AssetReferencies;
     using UnityEngine;
 #if UNITY_EDITOR
     using UnityEditor;

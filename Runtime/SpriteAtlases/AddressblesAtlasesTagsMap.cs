@@ -2,7 +2,7 @@
 {
     using System;
     using AssetReferencies;
-    using UniGreenModules.UniGame.Core.Runtime.DataStructure;
+    using UniModules.UniGame.Core.Runtime.DataStructure;
 
     [Serializable]
     public class AddressblesAtlasesTagsMap : SerializableDictionary<string, AssetReferenceSpriteAtlas>

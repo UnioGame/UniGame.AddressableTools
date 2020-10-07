@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UniCore.Runtime.ProfilerTools;
+using UnityEngine;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
@@ -13,10 +14,10 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     using Core.Runtime.ScriptableObjects;
     using Cysharp.Threading.Tasks;
     using UniCore.Runtime.ProfilerTools;
-    using UniGreenModules.UniCore.Runtime.Attributes;
-    using UniGreenModules.UniCore.Runtime.DataFlow;
-    using UniGreenModules.UniCore.Runtime.Rx.Extensions;
-    using UniGreenModules.UniGame.AddressableTools.Runtime.Extensions;
+    using UniModules.UniCore.Runtime.Attributes;
+    using UniModules.UniCore.Runtime.DataFlow;
+    using UniModules.UniCore.Runtime.Rx.Extensions;
+    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
     using UniRx;
     using UnityEngine.U2D;
 

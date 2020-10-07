@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UniGreenModules.UniGame.AddressableTools.Editor.AddressablesAssetDrawer.Examples
+namespace UniModules.UniGame.AddressableTools.Editor.AddressablesAssetDrawer.Examples
 {
     using System.Collections.Generic;
     using Runtime.Attributes;

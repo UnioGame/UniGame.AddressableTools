@@ -1,4 +1,4 @@
-﻿namespace UniGreenModules.UniGame.AddressableTools.Runtime.Extensions
+﻿namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 {
     using System.Collections.Generic;
     using Core.Runtime.Extension;

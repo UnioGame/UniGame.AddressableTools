@@ -1,4 +1,4 @@
-﻿namespace UniGreenModules.AddressableTools.Pooling
+﻿namespace UniModules.AddressableTools.Pooling
 {
     public static class AddressablePoolingExtensions
     {

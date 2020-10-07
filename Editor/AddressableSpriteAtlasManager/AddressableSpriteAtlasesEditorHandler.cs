@@ -1,4 +1,6 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManager
+﻿using UniCore.Runtime.ProfilerTools;
+
+namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManager
 {
     using System.Collections;
     using System.Collections.Generic;
@@ -8,7 +10,7 @@
     using Runtime.AssetReferencies;
     using Runtime.SpriteAtlases;
     using UniCore.Runtime.ProfilerTools;
-    using UniGreenModules.UniCore.EditorTools.Editor.Utility;
+    using UniModules.UniCore.EditorTools.Editor.Utility;
     using Unity.EditorCoroutines.Editor;
     using UnityEditor;
     using UnityEditor.AddressableAssets;

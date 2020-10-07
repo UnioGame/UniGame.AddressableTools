@@ -1,4 +1,4 @@
-﻿namespace UniGreenModules.UniGame.AddressableTools.Editor.Inspector
+﻿namespace UniModules.UniGame.AddressableTools.Editor.Inspector
 {
     using System.Collections.Generic;
     using System.Reflection;
