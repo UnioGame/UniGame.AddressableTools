@@ -30,11 +30,6 @@
                 return default;
             }
 
-            var dependencies = Addressables.DownloadDependenciesAsync(sceneReference.RuntimeKey);
-            dependencies.AddTo(lifeTime);
-            if (dependencies.Task != null)
-                await dependencies.Task;
-
             var scenePreviouslyRequested = sceneReference.OperationHandle.IsValid();
             var sceneHandle = scenePreviouslyRequested ?
                 sceneReference.OperationHandle.Convert<SceneInstance>() :
@@ -44,7 +39,7 @@
 
             await sceneHandle.Task;
 
-            return sceneHandle.IsValid() ? sceneHandle.Result : default;
+            return sceneHandle.Status == AsyncOperationStatus.Succeeded ? sceneHandle.Result : default;
         }
 
         public static void UnloadReference(this AssetReference reference)
