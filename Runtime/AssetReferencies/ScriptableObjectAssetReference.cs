@@ -3,6 +3,7 @@
     using System;
     using AddressableTools.Runtime.AssetReferencies;
     using UnityEngine;
+    using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 #if ODIN_INSPECTOR
 
@@ -15,7 +16,7 @@
     }
     
     [Serializable]
-    public class AssetReferenceScriptableObject<T,TApi> : DisposableAssetReference<T> 
+    public class AssetReferenceScriptableObject<T,TApi> : AssetReferenceT<T> 
         where T : ScriptableObject
     {
         public AssetReferenceScriptableObject(string guid) : base(guid) {}
@@ -37,7 +38,7 @@
     }
 
     [Serializable]
-    public class AssetReferenceScriptableObject : DisposableAssetReference<ScriptableObject> 
+    public class AssetReferenceScriptableObject : AssetReferenceT<ScriptableObject> 
     {
         public AssetReferenceScriptableObject(string guid) : base(guid) {}
     }
