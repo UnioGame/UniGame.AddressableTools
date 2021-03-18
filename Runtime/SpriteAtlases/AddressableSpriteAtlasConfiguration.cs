@@ -23,7 +23,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
     [CreateAssetMenu(menuName = "UniGame/Addressables/SpriteAtlasConfiguration",fileName = nameof(AddressableSpriteAtlasConfiguration))]
     public class AddressableSpriteAtlasConfiguration : 
-        DisposableScriptableObject, IAddressableSpriteAtlasHandler
+        LifetimeScriptableObject, IAddressableSpriteAtlasHandler
     {
         #region inspector
         
