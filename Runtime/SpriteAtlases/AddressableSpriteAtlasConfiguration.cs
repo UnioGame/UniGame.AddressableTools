@@ -137,9 +137,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
             return result;
         }
-
-        protected override void OnDispose() => _lifeTimeDefinition.Release();
-
+        
         protected override void OnActivate()
         {
             _atlasesLifetime = new LifeTimeDefinition();
