@@ -1,8 +1,8 @@
 namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
 {
     using System;
-    using UniModules.UniGame.AddressableTools.Runtime.AssetReferencies;
     using UnityEngine;
+    using UnityEngine.AddressableAssets;
 #if UNITY_EDITOR
     using UnityEditor;
 #endif
@@ -26,7 +26,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
     }
 
     [Serializable]
-    public class AssetReferenceComponent<TAsset,TApi> : DisposableAssetReference<TAsset> 
+    public class AssetReferenceComponent<TAsset,TApi> : AssetReferenceT<TAsset> 
         where TAsset : Component
         where TApi : class
     {

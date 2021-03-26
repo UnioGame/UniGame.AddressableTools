@@ -23,7 +23,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
     [CreateAssetMenu(menuName = "UniGame/Addressables/SpriteAtlasConfiguration",fileName = nameof(AddressableSpriteAtlasConfiguration))]
     public class AddressableSpriteAtlasConfiguration : 
-        DisposableScriptableObject, IAddressableSpriteAtlasHandler
+        LifetimeScriptableObject, IAddressableSpriteAtlasHandler
     {
         #region inspector
         
@@ -137,9 +137,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
             return result;
         }
-
-        protected override void OnDispose() => _lifeTimeDefinition.Release();
-
+        
         protected override void OnActivate()
         {
             _atlasesLifetime = new LifeTimeDefinition();
