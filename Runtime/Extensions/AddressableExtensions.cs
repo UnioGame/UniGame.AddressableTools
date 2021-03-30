@@ -203,7 +203,7 @@
             return handle.Result;
         }
 
-        public static async UniTask<(TAsset, TResult)> LoadAssetTaskAsync<TAsset, TResult>(
+        public static async UniTask<(TAsset asset, TResult result)> LoadAssetTaskAsync<TAsset, TResult>(
             this AssetReference assetReference, ILifeTime lifeTime)
             where TAsset : Object
             where TResult : class
@@ -257,6 +257,12 @@
             return await LoadAssetTaskAsync<T>(assetReference as AssetReference, lifeTime);
         }
 
+        public static async UniTask<GameObject> LoadGameObjectAssetTaskAsync(this AssetReference assetReference, ILifeTime lifeTime)
+        {
+            var result = await LoadAssetTaskAsync<GameObject>(assetReference, lifeTime);
+            return result;
+        }
+        
         public static async UniTask<T> LoadGameObjectAssetTaskAsync<T>(this AssetReferenceT<T> assetReference, ILifeTime lifeTime)
             where T : Component
         {
