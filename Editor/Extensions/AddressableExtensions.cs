@@ -1,4 +1,6 @@
-﻿namespace UniModules.UniGame.AddressableExtensions.Editor
+﻿using UniModules.UniGame.Core.EditorTools.Editor.AssetOperations;
+
+namespace UniModules.UniGame.AddressableExtensions.Editor
 {
     using System.Collections.Generic;
     using UnityEditor;
@@ -30,7 +32,7 @@
             if (source == null || !AssetDatabase.Contains(source))
                 return;
 
-            var entry = source.GetAddressableAssetEntry();
+            var entry = source.GetOrCreateAddressableAssetEntry();
             if (entry != null && entry.labels.Contains(label)) {
                 entry.labels.Remove(label);
                 
@@ -38,15 +40,19 @@
             }
         }
 
+        public static IReadOnlyList<string> GetAllAddressablesLabels(this Object source)
+        {
+            return AddressableAssetSettingsDefaultObject.Settings.GetLabels();
+        }
+
         public static void AddAddressableAssetLabel(this Object source, string label)
         {
             if (source == null || !AssetDatabase.Contains(source))
                 return;
 
-            var entry = source.GetAddressableAssetEntry();
+            var entry = source.GetOrCreateAddressableAssetEntry();
             if (entry != null && !entry.labels.Contains(label)) {
                 entry.labels.Add(label);
-                
                 AddressableAssetSettingsDefaultObject.Settings.SetDirty(AddressableAssetSettings.ModificationEvent.LabelAdded, entry, true);
             }
         }
@@ -56,7 +62,7 @@
             if (source == null || !AssetDatabase.Contains(source))
                 return;
 
-            var entry = source.GetAddressableAssetEntry();
+            var entry = source.GetOrCreateAddressableAssetEntry();
             if (entry != null) {
                 entry.address = address;
             }
@@ -76,7 +82,7 @@
             if (source == null || !AssetDatabase.Contains(source))
                 return;
 
-            var entry = source.GetAddressableAssetEntry();
+            var entry = source.GetOrCreateAddressableAssetEntry();
             if (entry != null && !source.IsInAddressableAssetGroup(group.Name)) {
                 entry.parentGroup = group;
             }
@@ -120,6 +126,22 @@
             return entry?.parentGroup;
         }
 
+        public static AddressableAssetEntry GetOrCreateAddressableAssetEntry(this Object source)
+        {
+            if (source == null || !AssetDatabase.Contains(source))
+                return null;
+
+            var entry = source.GetAddressableAssetEntry();
+            if (entry == null)
+            {
+                var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+                var guid = source.GetGUID();
+                addressableSettings.CreateOrMoveEntry(guid, addressableSettings.DefaultGroup);
+            }
+
+            return entry;
+        }
+        
         public static AddressableAssetEntry GetAddressableAssetEntry(this Object source)
         {
             if (source == null || !AssetDatabase.Contains(source))
