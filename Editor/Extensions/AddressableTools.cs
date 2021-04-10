@@ -69,6 +69,13 @@
             return entry;
         }
 
+        public static AddressableAssetEntry MarkDirty(this AddressableAssetEntry entry)
+        {
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+            addressableSettings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryModified, entry, true);
+            return entry;
+        }
+
         public static AddressableAssetEntry CreateAssetEntry<T>(T source) where T : Object
         {
             if (source == null || !AssetDatabase.Contains(source))

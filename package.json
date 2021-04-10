@@ -4,7 +4,7 @@
   "displayName": "UniGame Addressables Tools",
   "description": "Tools for Unity Addressables System",
   "unity": "2019.1",
-  "version": "2021.0.1",
+  "version": "2021.0.5",
   "keywords": [],
   "dependencies": {
     "com.unigame.neuecc.unirx": "7.1.1",

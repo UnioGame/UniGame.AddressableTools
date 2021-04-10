@@ -160,8 +160,13 @@
 
             var dependencies = Addressables.DownloadDependenciesAsync(assetReference.RuntimeKey);
             dependencies.AddTo(lifeTime);
+            
             if (dependencies.Task != null)
-                await dependencies.Task;
+            {
+                await dependencies
+                    .Task
+                    .AsUniTask();
+            }
 
             var isComponent = typeof(T).IsComponent();
             var asset = isComponent ?

@@ -1,4 +1,5 @@
-﻿using UniModules.UniGame.Core.EditorTools.Editor.AssetOperations;
+﻿using UniModules.UniCore.EditorTools.Editor.Utility;
+using UniModules.UniGame.Core.EditorTools.Editor.AssetOperations;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
 {
@@ -73,7 +74,10 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             if (source == null || !AssetDatabase.Contains(source))
                 return;
             
-            var group = !AddressableTools.GroupExists(groupName) ? AddressableTools.CreateGroup(groupName) : AddressableTools.GetGroup(groupName);
+            var group = !AddressableTools.GroupExists(groupName) ?
+                AddressableTools.CreateGroup(groupName) : 
+                AddressableTools.GetGroup(groupName);
+            
             source.SetAddressableAssetGroup(group);
         }
         
@@ -82,10 +86,9 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             if (source == null || !AssetDatabase.Contains(source))
                 return;
 
-            var entry = source.GetOrCreateAddressableAssetEntry();
-            if (entry != null && !source.IsInAddressableAssetGroup(group.Name)) {
-                entry.parentGroup = group;
-            }
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+            addressableSettings.CreateOrMoveEntry(source.GetGUID(), group);
+            
         }
 
         public static HashSet<string> GetAddressableAssetLabels(this Object source)
