@@ -288,9 +288,7 @@
             where TResult : class
         {
             yetRequested = assetReference.OperationHandle.IsValid();
-            yetRequested = false;
             var handle = !yetRequested ? assetReference.LoadAssetAsync<TResult>() : assetReference.OperationHandle.Convert<TResult>();
-
             return handle;
         }
 
@@ -367,9 +365,6 @@
         }
         
         #endregion
-
-
-
-
+        
     }
 }
