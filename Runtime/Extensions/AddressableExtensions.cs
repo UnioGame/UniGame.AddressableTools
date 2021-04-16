@@ -163,9 +163,7 @@
             
             if (dependencies.Task != null)
             {
-                await dependencies
-                    .Task
-                    .AsUniTask();
+                await dependencies.Task;
             }
 
             var isComponent = typeof(T).IsComponent();
@@ -289,10 +287,8 @@
         public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this AssetReference assetReference, out bool yetRequested)
             where TResult : class
         {
-            // TODO патч addressables:1.5.1 сломал шаринг ссылок, а именно если операция уже запрошена, возвращается текущий handle
-            // от ассет AssetReference счётчик ссылок не увеличивается, поэтому при подвешивании ссылки на LifeTime надо
-            // руками увеличивать счётчик, если выйдет патч меняющий это поведение костыль надо выпилить
             yetRequested = assetReference.OperationHandle.IsValid();
+            yetRequested = false;
             var handle = !yetRequested ? assetReference.LoadAssetAsync<TResult>() : assetReference.OperationHandle.Convert<TResult>();
 
             return handle;
