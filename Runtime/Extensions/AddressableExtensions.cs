@@ -288,7 +288,9 @@
             where TResult : class
         {
             yetRequested = assetReference.OperationHandle.IsValid();
-            var handle = !yetRequested ? assetReference.LoadAssetAsync<TResult>() : assetReference.OperationHandle.Convert<TResult>();
+            var handle = yetRequested ? 
+                assetReference.OperationHandle.Convert<TResult>():
+                assetReference.LoadAssetAsync<TResult>();
             return handle;
         }
 
@@ -302,8 +304,6 @@
             {
                 if (handle.IsValid() == false)
                     return;
-                // if(handle.Result is IDisposable disposable)
-                //     disposable.Dispose();
                 Addressables.Release(handle);
             });
             return handle;
