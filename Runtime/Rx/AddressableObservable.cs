@@ -1,16 +1,17 @@
-﻿namespace UniGame.Addressables.Reactive
+﻿using Cysharp.Threading.Tasks;
+using UniModules.UniCore.Runtime.Common;
+using UniModules.UniCore.Runtime.ObjectPool.Runtime;
+
+namespace UniGame.Addressables.Reactive
 {
     using System;
-    using System.Collections;
     using UniCore.Runtime.ProfilerTools;
-    using UniModules.UniCore.Runtime.Attributes;
     using UniModules.UniCore.Runtime.DataFlow;
     using UniModules.UniCore.Runtime.ObjectPool.Runtime.Extensions;
     using UniModules.UniCore.Runtime.ObjectPool.Runtime.Interfaces;
     using UniModules.UniGame.AddressableTools.Runtime.Extensions;
     using UniModules.UniGame.Core.Runtime.Extension;
     using UniModules.UniGame.Core.Runtime.Rx;
-    using UniModules.UniRoutine.Runtime;
     using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
     using UniRx;
     using UnityEngine;
@@ -31,33 +32,12 @@
         [SerializeField] protected RecycleReactiveProperty<TApi> value = new RecycleReactiveProperty<TApi>();
 
         [SerializeField] protected TAddressable reference;
-
-        [SerializeField] protected FloatRecycleReactiveProperty progress = new FloatRecycleReactiveProperty();
-     
-        #if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.InlineEditor(Sirenix.OdinInspector.InlineEditorModes.SmallPreview)]
-        #endif
-        [ReadOnlyValue]
-        [SerializeField] protected TData asset;
         
-        [SerializeField]
-        protected LifeTimeDefinition lifeTimeDefinition = new LifeTimeDefinition();
-
         #endregion
-        
-        private RoutineHandle routineHandler;
-
-        protected RecycleReactiveProperty<bool> isReady = new RecycleReactiveProperty<bool>();
         
         protected RecycleReactiveProperty<AsyncOperationStatus> status = new RecycleReactiveProperty<AsyncOperationStatus>();
         
         #region public properties
-
-        public IReadOnlyReactiveProperty<AsyncOperationStatus> Status => status;
-        
-        public IReadOnlyReactiveProperty<float> Progress => progress;
-
-        public IReadOnlyReactiveProperty<bool> IsReady => isReady;
 
         public IReadOnlyReactiveProperty<TApi> Value => value;
         
@@ -69,19 +49,14 @@
         /// initialize property with target Addressable Asset 
         /// </summary>
         /// <param name="addressable"></param>
-        public void Initialize(TAddressable addressable)
+        public IAddressableObservable<TApi> Initialize(TAddressable addressable)
         {
-            lifeTimeDefinition = lifeTimeDefinition ?? new LifeTimeDefinition();
-            progress = progress ?? new FloatRecycleReactiveProperty();
             status = status ?? new RecycleReactiveProperty<AsyncOperationStatus>();
             value = value ?? new RecycleReactiveProperty<TApi>();
             
-            lifeTimeDefinition.Release();
-            
             reference = addressable;
             
-            lifeTimeDefinition.AddCleanUpAction(CleanUp);
-            
+            return this;
         }
 
         public IDisposable Subscribe(IObserver<TApi> observer)
@@ -90,20 +65,25 @@
                 value.Value = default;
                 return Disposable.Empty;
             }
-            
-            var disposableValue = value.
-                Subscribe(observer);
 
-            routineHandler = LoadReference(lifeTimeDefinition).
-                Execute().
-                AddTo(lifeTimeDefinition);
+            var disposableActon = ClassPool.Spawn<DisposableAction>();
+            var lifeTime = LifeTime.Create();
+            var disposableValue = value.Subscribe(observer);
             
-            return disposableValue;
+            disposableActon.Initialize(() =>
+            {
+                lifeTime.Despawn();
+                disposableValue.Dispose();
+            });
+            
+            LoadReference(lifeTime).Forget();
+            
+            return disposableActon;
         }
 
         public void Dispose() => this.Despawn();
         
-        public void Release() => lifeTimeDefinition.Terminate();
+        public void Release() => CleanUp();
 
         #endregion
         
@@ -120,11 +100,11 @@
             return true;
         }
         
-        private IEnumerator LoadReference(ILifeTime lifeTime)
+        private async UniTask LoadReference(ILifeTime lifeTime)
         {
             if (!ValidateReference()) {
                 value.Value = default;
-                yield break;
+                return;
             }
 
             var targetType = typeof(TData);
@@ -132,43 +112,21 @@
 
             var isComponent = targetType.IsComponent() || apiType.IsComponent();
 
-            var routine = isComponent
-                ? LoadHandle<GameObject>(lifeTime,x => value.Value = x.GetComponent<TApi>()) 
-                : LoadHandle<TData>(lifeTime,x => value.Value = x as TApi);
+            var valueData = isComponent
+                ? await reference.LoadGameObjectAssetTaskAsync<TApi>(lifeTime)
+                : await reference.LoadAssetTaskApiAsync<TData,TApi>(lifeTime);
+
+            await UniTask.SwitchToMainThread();
             
-            yield return routine;
+            value.Value = valueData;
         }
 
-        private IEnumerator LoadHandle<TValue>(ILifeTime lifeTime,Action<TValue> result) 
-            where TValue : Object
-        {
-            var handler = reference.LoadAssetAsyncOrExposeHandle<TValue>(out var yetRequested)
-                .AddTo(lifeTime, yetRequested);
-            
-            while (handler.IsDone == false) {
-                progress.Value = handler.PercentComplete;
-                status.Value   = handler.Status;
-                yield return null;
-            }
-            
-            isReady.Value = true;
-            result(handler.Result);
-        }
 
         private void CleanUp()
         {
-            routineHandler.Cancel();
             status.Release();
             status.Value = AsyncOperationStatus.None;
-            
-            progress.Release();
-            progress.Value = 0;
-            
-            isReady.Release();
-            isReady.Value = false;
-            
             reference = null;
-            
             value.Release();
         }
         

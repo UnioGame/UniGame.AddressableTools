@@ -1,4 +1,6 @@
-﻿namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
+﻿using UniRx;
+
+namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 {
     using System.Collections.Generic;
     using Core.Runtime.Extension;
@@ -161,16 +163,14 @@
             var dependencies = Addressables.DownloadDependenciesAsync(assetReference.RuntimeKey);
             dependencies.AddTo(lifeTime);
             
-            if (dependencies.Task != null)
-            {
-                await dependencies.Task;
-            }
+            await dependencies.ToUniTask();
 
             var isComponent = typeof(T).IsComponent();
+            
             var asset = isComponent ?
                 await LoadAssetAsync<GameObject>(assetReference, lifeTime) :
                 await LoadAssetAsync<T>(assetReference, lifeTime);
-
+            
             var result = default(T);
             if (asset == null)
                 return result;
@@ -178,7 +178,7 @@
             result = asset is GameObject gameObjectAsset && isComponent ?
                 gameObjectAsset.GetComponent<T>() :
                 asset as T;
-
+            
             return result;
 
         }
@@ -215,6 +215,14 @@
             return (result, result as TResult);
         }
 
+        public static async UniTask<TResult> LoadAssetTaskApiAsync<TAsset, TResult>(
+            this AssetReference assetReference, ILifeTime lifeTime)
+            where TAsset : Object
+            where TResult : class
+        {
+            var result = await assetReference.LoadAssetTaskAsync<TAsset>(lifeTime);
+            return result as TResult;
+        }
 
         public static async UniTask<T> LoadAssetTaskAsync<T>(
             this AssetReferenceGameObject assetReference,
@@ -352,15 +360,11 @@
         public static async UniTask<Object> LoadAssetAsync<TResult>(AssetReference assetReference, ILifeTime lifeTime)
             where TResult : Object
         {
-            var result = default(TResult);
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<TResult>(out var yetRequested);
             handle.AddTo(lifeTime, yetRequested);
 
-            if (handle.Task != null)
-            {
-                result = await handle.Task;
-            }
-
+            var result = await handle.ToUniTask();
+            
             return result;
         }
         

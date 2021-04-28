@@ -8,12 +8,6 @@ namespace UniGame.Addressables.Reactive
         IObservable<TData>, 
         IDisposable
     {
-        IReadOnlyReactiveProperty<AsyncOperationStatus> Status { get; }
-
-        IReadOnlyReactiveProperty<float> Progress  { get; }
-
-        IReadOnlyReactiveProperty<bool> IsReady  { get; }
-
         IReadOnlyReactiveProperty<TData> Value { get; }
     }
     
