@@ -36,10 +36,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             var sceneHandle = scenePreviouslyRequested ?
                 sceneReference.OperationHandle.Convert<SceneInstance>() :
                 sceneReference.LoadSceneAsync(loadSceneMode, activateOnLoad, priority);
+            
             //add to resource unloading
             sceneHandle.AddTo(lifeTime, scenePreviouslyRequested);
 
-            await sceneHandle.Task;
+            await sceneHandle.ToUniTask();
 
             return sceneHandle.Status == AsyncOperationStatus.Succeeded ? sceneHandle.Result : default;
         }
@@ -144,7 +145,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         public static async UniTask<List<string>> ResetAddressablesCacheForUpdatedContent(this object _)
         {
             var handle = Addressables.CheckForCatalogUpdates();
-            var updatedIds = await handle.Task;
+            var updatedIds = await handle.ToUniTask();
             if (updatedIds == null || updatedIds.Count == 0)
                 return updatedIds;
             Addressables.ClearDependencyCacheAsync(updatedIds);
@@ -187,23 +188,13 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         {
             var handle = Addressables.LoadAssetsAsync<Object>(label, null);
             handle.AddTo(lifeTime);
-            if (handle.Task != null)
-            {
-                return await handle.Task;
-            }
-
-            return handle.Result;
+            return await handle.ToUniTask();
         }
 
         public static async UniTask<T> ConvertToUniTask<T>(this AsyncOperationHandle<T> handle, ILifeTime lifeTime) where T : class
         {
             handle.AddTo(lifeTime);
-            if (handle.Task != null)
-            {
-                return await handle.Task;
-            }
-
-            return handle.Result;
+            return await handle.ToUniTask();
         }
 
         public static async UniTask<(TAsset asset, TResult result)> LoadAssetTaskAsync<TAsset, TResult>(
