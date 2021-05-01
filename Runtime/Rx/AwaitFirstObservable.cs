@@ -1,10 +1,14 @@
 using System;
+using UniModules.UniCore.Runtime.Extension;
+using UniModules.UniCore.Runtime.Rx.Extensions;
+using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
 using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 using UniRx;
 using UniRx.Operators;
 
 namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
 {
+
     public class AwaitFirstObservable<T> : OperatorObservableBase<T>
     {
         readonly IObservable<T> _source;
@@ -15,9 +19,9 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
         public AwaitFirstObservable(IObservable<T> source,ILifeTime lifeTime, bool useDefault)
             : base(source.IsRequiredSubscribeOnCurrentThread())
         {
-            this._source = source;
+            _source = source;
             _lifeTime = lifeTime;
-            this._useDefault = useDefault;
+            _useDefault = useDefault;
         }
 
         public AwaitFirstObservable(IObservable<T> source,ILifeTime lifeTime, Func<T, bool> predicate, bool useDefault)
@@ -31,14 +35,12 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            if (_predicate == null)
-            {
-                return _source.Subscribe(new AwaitFirst(this, observer, cancel));
-            }
-            else
-            {
-                return _source.Subscribe(new AwaitFirst(this, observer, cancel));
-            }
+            
+            var disposable = _predicate == null ? 
+                _source.Subscribe(new AwaitFirst(this, observer, cancel).AddTo(_lifeTime)) : 
+                _source.Subscribe(new AwaitFirst_(this, observer, cancel).AddTo(_lifeTime));
+            _lifeTime.AddDispose(disposable);
+            return Disposable.Empty;
         }
 
         class AwaitFirst : OperatorObserverBase<T, T>
@@ -49,7 +51,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
             public AwaitFirst(AwaitFirstObservable<T> parent, IObserver<T> observer, IDisposable cancel) : base(observer, cancel)
             {
                 this.parent = parent;
-                this.notPublished = true;
+                notPublished = true;
             }
 
             public override void OnNext(T value)
@@ -58,16 +60,13 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
                 {
                     notPublished = false;
                     observer.OnNext(value);
-                    try { observer.OnCompleted(); }
-                    finally { Dispose(); }
-                    return;
+                    observer.OnCompleted();
                 }
             }
 
             public override void OnError(Exception error)
             {
-                try { observer.OnError(error); }
-                finally { Dispose(); }
+                observer.OnError(error);
             }
 
             public override void OnCompleted()
@@ -85,13 +84,11 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
                 {
                     if (notPublished)
                     {
-                        try { observer.OnError(new InvalidOperationException("sequence is empty")); }
-                        finally { Dispose(); }
+                        observer.OnError(new InvalidOperationException("sequence is empty")); 
                     }
                     else
                     {
-                        try { observer.OnCompleted(); }
-                        finally { Dispose(); }
+                        observer.OnCompleted();
                     }
                 }
             }
@@ -106,7 +103,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
             public AwaitFirst_(AwaitFirstObservable<T> parent, IObserver<T> observer, IDisposable cancel) : base(observer, cancel)
             {
                 this.parent = parent;
-                this.notPublished = true;
+                notPublished = true;
             }
 
             public override void OnNext(T value)
@@ -120,8 +117,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
                     }
                     catch (Exception ex)
                     {
-                        try { observer.OnError(ex); }
-                        finally { Dispose(); }
+                        observer.OnError(ex);
                         return;
                     }
 
@@ -129,16 +125,14 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
                     {
                         notPublished = false;
                         observer.OnNext(value);
-                        try { observer.OnCompleted(); }
-                        finally { Dispose(); }
+                        observer.OnCompleted();
                     }
                 }
             }
 
             public override void OnError(Exception error)
             {
-                try { observer.OnError(error); }
-                finally { Dispose(); }
+                observer.OnError(error);
             }
 
             public override void OnCompleted()
@@ -149,20 +143,17 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
                     {
                         observer.OnNext(default(T));
                     }
-                    try { observer.OnCompleted(); }
-                    finally { Dispose(); }
+                    observer.OnCompleted();
                 }
                 else
                 {
                     if (notPublished)
                     {
-                        try { observer.OnError(new InvalidOperationException("sequence is empty")); }
-                        finally { Dispose(); }
+                        observer.OnError(new InvalidOperationException("sequence is empty"));
                     }
                     else
                     {
-                        try { observer.OnCompleted(); }
-                        finally { Dispose(); }
+                        observer.OnCompleted();
                     }
                 }
             }
