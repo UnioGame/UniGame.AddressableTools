@@ -1,7 +1,5 @@
 using System;
-using UniModules.UniCore.Runtime.Extension;
 using UniModules.UniCore.Runtime.Rx.Extensions;
-using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
 using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 using UniRx;
 using UniRx.Operators;
@@ -40,6 +38,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
                 _source.Subscribe(new AwaitFirst(this, observer, cancel).AddTo(_lifeTime)) : 
                 _source.Subscribe(new AwaitFirst_(this, observer, cancel).AddTo(_lifeTime));
             _lifeTime.AddDispose(disposable);
+            
             return Disposable.Empty;
         }
 
