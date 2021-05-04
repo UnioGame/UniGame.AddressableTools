@@ -7,7 +7,7 @@ using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 public static class ObservableAsyncExtensions 
 {
 
-    public static async UniTask<TValue> AwaitFirstAsync<TValue>(IObservable<TValue> value, ILifeTime lifeTime,
+    public static async UniTask<TValue> AwaitFirstAsync<TValue>(this IObservable<TValue> value, ILifeTime lifeTime,
         Func<TValue, bool> predicate = null)
     {
         var firstAwaiter = ClassPool.Spawn<AwaitFirstAsyncOperation<TValue>>();
