@@ -1,3 +1,5 @@
+using UnityEngine.AddressableAssets;
+
 namespace UniGame.Addressables.Reactive
 {
     using System;
@@ -8,7 +10,12 @@ namespace UniGame.Addressables.Reactive
         IObservable<TData>, 
         IDisposable
     {
-        IReadOnlyReactiveProperty<TData> Value { get; }
+        #region unity editor
+
+        public AssetReference AssetReference { get; }
+
+        #endregion
+        
     }
     
 }

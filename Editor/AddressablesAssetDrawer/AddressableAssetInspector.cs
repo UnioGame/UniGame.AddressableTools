@@ -11,7 +11,7 @@
     using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 
-    [CustomPropertyDrawer(typeof(ShowAssetReferenceAttribute),true)]
+    [CustomPropertyDrawer(typeof(DrawAssetReferenceAttribute),true)]
     public class AddressableAssetInspector : PropertyDrawer
     {
         private const float FieldHeight = 20;

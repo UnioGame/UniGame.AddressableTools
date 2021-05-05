@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UniModules.UniGame.AddressableTools.Runtime.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class ShowAssetReferenceAttribute : PropertyAttribute
+    public class DrawAssetReferenceAttribute : PropertyAttribute
     {
 
     }

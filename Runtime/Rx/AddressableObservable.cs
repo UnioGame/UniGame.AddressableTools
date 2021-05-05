@@ -11,12 +11,10 @@ namespace UniGame.Addressables.Reactive
     using UniModules.UniCore.Runtime.ObjectPool.Runtime.Interfaces;
     using UniModules.UniGame.AddressableTools.Runtime.Extensions;
     using UniModules.UniGame.Core.Runtime.Extension;
-    using UniModules.UniGame.Core.Runtime.Rx;
     using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
     using UniRx;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
-    using UnityEngine.ResourceManagement.AsyncOperations;
     using Object = UnityEngine.Object;
 
     [Serializable]
@@ -29,19 +27,12 @@ namespace UniGame.Addressables.Reactive
     {
         #region inspector
 
-        [SerializeField] protected RecycleReactiveProperty<TApi> value = new RecycleReactiveProperty<TApi>();
-
-        [SerializeField] protected TAddressable reference;
+        [SerializeField] 
+        protected TAddressable reference;
         
         #endregion
-        
-        protected RecycleReactiveProperty<AsyncOperationStatus> status = new RecycleReactiveProperty<AsyncOperationStatus>();
-        
-        #region public properties
 
-        public IReadOnlyReactiveProperty<TApi> Value => value;
-        
-        #endregion
+        private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
         
         #region public methods
         
@@ -51,39 +42,37 @@ namespace UniGame.Addressables.Reactive
         /// <param name="addressable"></param>
         public IAddressableObservable<TApi> Initialize(TAddressable addressable)
         {
-            status = status ?? new RecycleReactiveProperty<AsyncOperationStatus>();
-            value = value ?? new RecycleReactiveProperty<TApi>();
+            _lifeTime = _lifeTime ?? new LifeTimeDefinition();
             
             reference = addressable;
             
+            _lifeTime.AddCleanUpAction(() => reference = null);
             return this;
         }
 
+        public AssetReference AssetReference => reference;
+        
         public IDisposable Subscribe(IObserver<TApi> observer)
         {
             if (!ValidateReference()) {
-                value.Value = default;
                 return Disposable.Empty;
             }
 
             var disposableActon = ClassPool.Spawn<DisposableAction>();
             var lifeTime = LifeTime.Create();
-            var disposableValue = value.Subscribe(observer);
+
+            disposableActon.Initialize(() => lifeTime.Despawn());
             
-            disposableActon.Initialize(() =>
-            {
-                lifeTime.Despawn();
-                disposableValue.Dispose();
-            });
-            
-            LoadReference(lifeTime).Forget();
+            LoadReference(observer,lifeTime)
+                .AttachExternalCancellation(_lifeTime.AsCancellationToken())
+                .Forget();
             
             return disposableActon;
         }
 
         public void Dispose() => this.Despawn();
         
-        public void Release() => CleanUp();
+        public void Release() => _lifeTime.Release();
 
         #endregion
         
@@ -91,19 +80,19 @@ namespace UniGame.Addressables.Reactive
 
         private bool ValidateReference()
         {
-            if (reference == null || reference.RuntimeKeyIsValid() == false) {
-                GameLog.LogWarning($"AddressableObservable : LOAD Addressable Failed {reference}");
-                status.Value = AsyncOperationStatus.Failed;
-                return false;
-            }
+            if (reference != null && reference.RuntimeKeyIsValid()) 
+                return true;
+            
+            GameLog.LogWarning($"AddressableObservable : LOAD Addressable Failed {reference}");
 
-            return true;
+            return false;
+
         }
         
-        private async UniTask LoadReference(ILifeTime lifeTime)
+        private async UniTask LoadReference(IObserver<TApi> observer,ILifeTime lifeTime)
         {
             if (!ValidateReference()) {
-                value.Value = default;
+                observer.OnError(new MissingReferenceException($"Asset reference of {this.GetType().Name} is wrong"));
                 return;
             }
 
@@ -118,24 +107,11 @@ namespace UniGame.Addressables.Reactive
 
             await UniTask.SwitchToMainThread();
             
-            value.Value = valueData;
+            observer.OnNext(valueData);
         }
-
-
-        private void CleanUp()
-        {
-            status.Release();
-            status.Value = AsyncOperationStatus.None;
-            reference = null;
-            value.Release();
-        }
+        
         
         #endregion
 
-        #region deconstructor
-        
-        ~AddressableObservable() => Release();
-        
-        #endregion
     }
 }
