@@ -24,7 +24,6 @@
             return observable;
         }
         
-        
         public static IAddressableObservable<TApi> ToObservable<TApi>(this AssetReference reference) 
             where TApi : class
         {
