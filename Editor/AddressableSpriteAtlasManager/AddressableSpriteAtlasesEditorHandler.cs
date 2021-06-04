@@ -92,7 +92,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
                 var atlas = atlasRef.editorAsset;
 
                 if (map.ContainsKey(atlas.tag)) {
-                    GameLog.LogError($"{atlas.tag} [{atlasRef.AssetGUID}] is already contained in map ({handler.name})!", atlas);
+                    if(map[atlas.tag].editorAsset != atlas)
+                        GameLog.LogError($"{atlas.tag} [{atlasRef.AssetGUID}] is already contained in map ({handler.name}) with different asset reference!", atlas);
                     continue;
                 }
 
