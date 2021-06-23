@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using UniModules.UniCore.EditorTools.Editor.Utility;
 using UniModules.UniGame.AddressableExtensions.Editor;
@@ -7,62 +9,125 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace UniModules.UniBuild.Commands
+namespace UniModules.UniBuild.Commands.Editor.Addressables
 {
-    
     public struct AddressableAssetEntryError
     {
+        public AddressableErrorType  ErrorType;
         public AddressableAssetEntry Entry;
+        public AddressableAssetGroup Group;
         public string                Error;
     }
-    
+
+    public enum AddressableErrorType
+    {
+        None = 0,
+        GuidError,
+        MissingEntry
+    }
+
+    [InitializeOnLoad]
     public static class AddressablesAssetsFix
     {
-        [MenuItem(itemName: "UniGame/Addressables/Validate Addressables Guid's")]
-        public static void Validate()
+        private const string EmptyAddressableEntry = "- {fileID: 0}";
+        private static AddressableAssetEntryError emptyError = new AddressableAssetEntryError()
         {
-            var status = ValidateAddressablesGuid();
-            PrintStatus(status.isValid,status.errors,LogType.Error);
+            Entry     = null,
+            Error     = string.Empty,
+            Group     = null,
+            ErrorType = AddressableErrorType.None
+        };
+    
+        private static AddressableAssetEntryError missingAddressableEntryError = new AddressableAssetEntryError()
+        {
+            Entry     = null,
+            Error     = "Missing Addressable Entry",
+            Group     = null,
+            ErrorType = AddressableErrorType.MissingEntry
+        };
+
+        static AddressablesAssetsFix()
+        {
+            FixAddressablesErrors();
         }
 
-        [MenuItem(itemName: "UniGame/Addressables/Fix Addressables Guid's")]
-        public static void FixAddressablesGuids()
+        [MenuItem(itemName: "UniGame/Addressables/Validate Addressables Errors")]
+        public static void Validate()
         {
-            var status = ValidateAddressablesGuid();
-            PrintStatus(status.isValid,status.errors,LogType.Warning);
-            FixAddressablesGuids(status.errors);
+            var errors  = new List<AddressableAssetEntryError>();
+        
+            errors = ValidateMissingReferences(errors);
+            var isValid = errors.Count <= 0;
+            PrintStatus(isValid, errors, LogType.Error);
+            if (!isValid)
+                return;
+        
+            errors = ValidateAddressablesGuid(errors);
+            isValid = errors.Count <= 0;
+            PrintStatus(isValid, errors, LogType.Error);
+        }
+
+        [MenuItem(itemName: "UniGame/Addressables/Fix Addressables Errors")]
+        public static void FixAddressablesErrors()
+        {
+            var errors  = new List<AddressableAssetEntryError>();
+            errors = ValidateMissingReferences(errors);
+            FixMissingReferences(errors);
+        
+            errors = ValidateAddressablesGuid(errors);
+            FixAddressablesGuids(errors);
+        
+            var isValid = errors.Count <= 0;
+            PrintStatus(isValid, errors, LogType.Warning);
         }
 
         public static void FixAddressablesGuids(List<AddressableAssetEntryError> errors)
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (!settings) return;
-        
+
+            errors = errors.Where(x => x.ErrorType == AddressableErrorType.GuidError).ToList();
+            foreach (var assetEntryError in errors)
+            {
+                var entry = assetEntryError.Entry;
+                settings.RemoveAssetEntry(entry.guid);
+            }
+
+            settings.MarkDirty();
+            AssetDatabase.Refresh();
+
             foreach (var assetEntryError in errors)
             {
                 var entry      = assetEntryError.Entry;
-                settings.RemoveAssetEntry(entry.guid);
-            }
-        
-            settings.MarkDirty();
-            AssetDatabase.Refresh();
-        
-            foreach (var assetEntryError in errors)
-            {
-                var entry             = assetEntryError.Entry;
-                var asset             = AssetDatabase.LoadAssetAtPath<Object>(entry.AssetPath);
-                var assetGroup        = entry.parentGroup;
-            
+                var asset      = AssetDatabase.LoadAssetAtPath<Object>(entry.AssetPath);
+                var assetGroup = assetEntryError.Group;
+
                 asset.SetAddressableAssetGroup(assetGroup);
                 var assetEntry = asset.GetAddressableAssetEntry();
                 Debug.Log($"create addressable entry {assetEntry?.parentGroup.name} : {assetEntry?.guid} {assetEntry?.AssetPath} ");
             }
-        
+
             settings.MarkDirty();
             AssetDatabase.Refresh();
         }
-    
-        public static void PrintStatus(bool isValid,List<AddressableAssetEntryError> errors,LogType logType)
+
+        public static void FixMissingReferences(List<AddressableAssetEntryError> errors)
+        {
+            if (errors.All(x => x.ErrorType != AddressableErrorType.MissingEntry))
+                return;
+        
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (!settings) return;
+            var settingsPath    = settings.AssetPath;
+            var settingsContent = File.ReadAllLines(settingsPath).Where(x => !x.Contains(EmptyAddressableEntry));
+        
+            File.WriteAllLines(settingsPath,settingsContent);
+
+            settings.MarkDirty();
+            AssetDatabase.Refresh();
+        }
+
+        public static void PrintStatus(bool isValid, List<AddressableAssetEntryError> errors, LogType logType)
         {
             if (isValid)
             {
@@ -78,7 +143,7 @@ namespace UniModules.UniBuild.Commands
             }
 
             var errorMessage = builder.ToString();
-        
+
             switch (logType)
             {
                 case LogType.Error:
@@ -98,13 +163,28 @@ namespace UniModules.UniBuild.Commands
                     break;
             }
         }
-    
-        public static (bool isValid,List<AddressableAssetEntryError> errors) ValidateAddressablesGuid()
+
+        public static List<AddressableAssetEntryError> ValidateMissingReferences(List<AddressableAssetEntryError> errors)
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
-            var errors   = new List<AddressableAssetEntryError>();
+            if (!settings) return errors;
+
+            var settingsPath    = settings.AssetPath;
+            var settingsContent = File.ReadAllText(settingsPath);
+
+            if (!settingsContent.Contains(EmptyAddressableEntry))
+                return errors;
+
+            var error = missingAddressableEntryError;
         
-            if (!settings) return (true,errors);
+            errors.Add(error);
+            return errors;
+        }
+
+        public static List<AddressableAssetEntryError> ValidateAddressablesGuid(List<AddressableAssetEntryError> errors)
+        {
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (!settings) return errors;
 
             var groups = settings.groups;
             foreach (var addressableAssetGroup in groups)
@@ -113,33 +193,39 @@ namespace UniModules.UniBuild.Commands
                 foreach (var entry in entries)
                 {
                     var entryStatus = Validate(entry);
-                    if(!string.IsNullOrEmpty(entryStatus.Error))
+                    if (!string.IsNullOrEmpty(entryStatus.Error))
                         errors.Add(entryStatus);
                 }
             }
 
-            return (errors.Count <= 0, errors);
+            return errors;
         }
 
         public static AddressableAssetEntryError Validate(AddressableAssetEntry entry)
         {
-            var assetByPath   = AssetDatabase.LoadAssetAtPath<Object>(entry.AssetPath);
-            var assetGuidPath = AssetDatabase.GUIDToAssetPath(entry.guid);
-            var assetByGuid   = AssetDatabase.LoadAssetAtPath<Object>(assetGuidPath);
-            var entryParentGroup         = entry.parentGroup;
+            if (entry == null)
+            {
+                return missingAddressableEntryError;
+            }
+        
+            var assetByPath      = AssetDatabase.LoadAssetAtPath<Object>(entry.AssetPath);
+            var assetGuidPath    = AssetDatabase.GUIDToAssetPath(entry.guid);
+            var assetByGuid      = AssetDatabase.LoadAssetAtPath<Object>(assetGuidPath);
+            var entryParentGroup = entry.parentGroup;
 
             var isValid = assetByGuid == assetByPath;
-            if (isValid) return new AddressableAssetEntryError();
+            if (isValid) return emptyError;
 
             var errorMessage =
                 $"ERROR ADDRESSABLE REF AT GROUP : {entryParentGroup.Name} : {entry.address} \n\t {assetByGuid?.name}: {entry.guid}  by GUID != \n\t {assetByPath?.name} : {entry.AssetPath} by PATH ";
 
             return new AddressableAssetEntryError()
             {
+                ErrorType = AddressableErrorType.GuidError,
                 Entry = entry,
+                Group = entryParentGroup,
                 Error = errorMessage
             };
         }
-    
     }
 }
