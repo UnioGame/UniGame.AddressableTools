@@ -38,6 +38,17 @@ namespace UniModules.AddressableTools.Pooling
             var source = await objectSource.LoadAssetTaskAsync(lifeTime);
             return source.Spawn(true,position,rotation,parent,stayPosition);
         }
+        
+        public static async UniTask<GameObject> SpawnActiveAsync(
+            this AssetReferenceT<GameObject> objectSource,
+            ILifeTime lifeTime, 
+            Transform parent = null, 
+            bool stayPosition = false)
+        {
+            var source = await objectSource.LoadAssetTaskAsync(lifeTime);
+            var sourceTransform = source.transform;
+            return source.Spawn(true,sourceTransform.position,sourceTransform.rotation,parent,stayPosition);
+        }
 
         public static async UniTask<GameObject> SpawnAsync(this AssetReferenceT<GameObject> objectSource,
             ILifeTime lifeTime, 
