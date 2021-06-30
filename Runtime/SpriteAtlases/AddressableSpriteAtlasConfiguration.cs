@@ -1,11 +1,15 @@
-﻿using UniCore.Runtime.ProfilerTools;
+﻿using System.Diagnostics;
+using UniCore.Runtime.ProfilerTools;
+using UniModules.UniCore.Runtime.Common;
+using UniModules.UniGame.Core.Runtime.DataFlow;
+using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+using UniModules.UniGame.Core.Runtime.Interfaces;
 using UnityEngine;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
 #if UNITY_EDITOR
     using System.Reflection;
@@ -23,7 +27,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
     [CreateAssetMenu(menuName = "UniGame/Addressables/SpriteAtlasConfiguration",fileName = nameof(AddressableSpriteAtlasConfiguration))]
     public class AddressableSpriteAtlasConfiguration : 
-        LifetimeScriptableObject, IAddressableSpriteAtlasHandler
+        LifetimeScriptableObject, 
+        IAddressableSpriteAtlasHandler
     {
         #region inspector
         
@@ -42,12 +47,19 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         private LifeTimeDefinition _atlasesLifetime;
 
+        private Dictionary<string, MergedLifeTime> _atlasesLifeTimeMap = new Dictionary<string, MergedLifeTime>(128);
 
         public IDisposable Execute()
         {
             Observable.FromEvent(
                     x => SpriteAtlasManager.atlasRequested += OnSpriteAtlasRequested,
                     x => SpriteAtlasManager.atlasRequested -= OnSpriteAtlasRequested).
+                Subscribe().
+                AddTo(LifeTime);
+            
+            Observable.FromEvent(
+                    x => SpriteAtlasManager.atlasRegistered += OnSpriteAtlasRegistered,
+                    x => SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered).
                 Subscribe().
                 AddTo(LifeTime);
 
@@ -59,14 +71,21 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             }
             
 #if UNITY_EDITOR
-            if(isFastMode) {
-                foreach (var atlasPair in atlasesTagsMap) {
-                    RegisterAtlas(atlasPair.Value.editorAsset);
-                }
+            if (!isFastMode) return this;
+            
+            foreach (var atlasPair in atlasesTagsMap) {
+                RegisterAtlas(atlasPair.Value.editorAsset);
             }
 #endif
 
             return this;
+        }
+
+        public void BindAtlasesLifeTime(ILifeTime lifeTime, IAddressableAtlasesState atlasesState)
+        {
+            
+            
+           
         }
         
         public void Unload() => _atlasesLifetime.Release();
@@ -96,6 +115,13 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                     atlasesTagsMap.Remove(key);
             }
 #endif
+        }
+
+        public void OnSpriteAtlasRegistered(SpriteAtlas atlas)
+        {
+#if UNITY_EDITOR
+            UnityEngine.Debug.Log($"SpriteAtlasConfiguration : {nameof(OnSpriteAtlasRegistered)} : {atlas.tag}");
+#endif            
         }
 
         private async void OnSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
@@ -155,5 +181,27 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         private void RegisterAtlas(SpriteAtlas atlas) => RegisterMethod?.Invoke(null, new object[] {atlas});
         
 #endif
+    }
+
+    [Serializable]
+    public class AddressableAtlasesState : IAddressableAtlasesState
+    {
+        [SerializeField] public List<string> atlasTags = new List<string>();
+
+        public IReadOnlyList<string> AtlasTags => atlasTags;
+    } 
+    
+    
+    [Serializable]
+    [CreateAssetMenu(menuName = "UniGame/Addressables/AddressableAtlasesState", fileName = nameof(AddressableAtlasesState))]
+    public class AddressableAtlasesStateAsset : LifetimeScriptableObject, IAddressableAtlasesState
+    {
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.InlineProperty]
+#endif
+        
+        public AddressableAtlasesState atlases = new AddressableAtlasesState();
+        
+        public IReadOnlyList<string> AtlasTags => atlases.AtlasTags;
     }
 }
