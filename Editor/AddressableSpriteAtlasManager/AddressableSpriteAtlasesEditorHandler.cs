@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UniCore.Runtime.ProfilerTools;
+using UniRx;
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManager
 {
@@ -22,6 +23,14 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
     {
         private const int FastModeIndex = 0;
 
+        [InitializeOnLoadMethod]
+        public static void Initialize()
+        {
+            MessageBroker.Default
+                .Receive<UpdateAddressableAtlasesMessage>()
+                .Subscribe(x => Reimport());
+        }
+        
         [MenuItem("UniGame/Addressables/Reimport Atlases")]
         public static void Reimport()
         {

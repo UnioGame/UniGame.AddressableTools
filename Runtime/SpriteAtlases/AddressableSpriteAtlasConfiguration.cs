@@ -94,7 +94,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 {
                     if (unionLifeTime == _atlasesLifetime)
                     {
-                        _atlasesLifeTimeMap[atlasTag] = lifeTime.ToUnionLifeTime();
+                        unionLifeTime = lifeTime.ToUnionLifeTime();
+                        unionLifeTime.AddCleanUpAction(() => _atlasesLifeTimeMap.Remove(atlasTag));
+                        
+                        _atlasesLifeTimeMap[atlasTag] = unionLifeTime;
+                        
                         continue;
                     }
                     unionLifeTime.Add(lifeTime);
