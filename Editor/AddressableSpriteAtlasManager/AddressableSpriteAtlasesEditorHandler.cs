@@ -1,4 +1,5 @@
-﻿using UniCore.Runtime.ProfilerTools;
+﻿using System.IO;
+using UniCore.Runtime.ProfilerTools;
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManager
 {
@@ -30,12 +31,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
                 Select(x => new AssetReferenceSpriteAtlas(AssetEditorTools.GetGUID(x))).
                 ToList();
 
-            var atlasManagers = AssetEditorTools.GetAssets<AddressableSpriteAtlasConfiguration>();
-
-            foreach (var manager in atlasManagers) {
-                SetupMap(manager,addressableAtlases);
-                manager.MarkDirty();
-            }
+            UpdateAtlasMap(addressableAtlases);
+            UpdateAtlasStates();
         }
 
         [InitializeOnLoadMethod]
@@ -51,6 +48,41 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
             AddressableAssetSettings.OnModificationGlobal += OnModification;
         }
 
+
+        private static void UpdateAtlasStates()
+        {
+            var atlasHandles = AssetEditorTools.GetAssets<AddressableAtlasesStateAsset>();
+            foreach (var atlasesStateAsset in atlasHandles)
+            {
+                var atlases = atlasesStateAsset.atlases;
+                var atlasesLocations = atlasesStateAsset.assetFolders.Where(Directory.Exists).ToArray();
+                var atlasTags = AssetEditorTools
+                    .GetAssets<SpriteAtlas>(atlasesLocations)
+                    .Select(x => x.tag)
+                    .ToList();
+
+                atlasTags.AddRange(atlasesStateAsset.assets
+                    .Where(File.Exists)
+                    .Select(AssetDatabase.LoadAssetAtPath<SpriteAtlas>)
+                    .Where(x => x)
+                    .Select(x => x.tag));
+                
+                atlases.atlasTags.Clear();
+                atlases.atlasTags.AddRange(atlasTags);
+                
+                atlasesStateAsset.MarkDirty();
+            }
+        }
+        
+        private static void UpdateAtlasMap(List<AssetReferenceSpriteAtlas> atlases)
+        {
+            var atlasManagers = AssetEditorTools.GetAssets<AddressableSpriteAtlasConfiguration>();
+            foreach (var manager in atlasManagers) {
+                SetupMap(manager,atlases);
+                manager.MarkDirty();
+            }
+        }
+        
         private static IEnumerator UpdateMode()
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -90,14 +122,24 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
 
             foreach (var atlasRef in atlases) {
                 var atlas = atlasRef.editorAsset;
-
-                if (map.ContainsKey(atlas.tag)) {
-                    if(map[atlas.tag].editorAsset != atlas)
-                        GameLog.LogError($"{atlas.tag} [{atlasRef.AssetGUID}] is already contained in map ({handler.name}) with different asset reference!", atlas);
-                    continue;
+                var tag = atlas.tag;
+                
+                if (map.ContainsKey(atlas.tag))
+                {
+                    var atlasReference = map[atlas.tag];
+                    var assetReference = atlasReference.assetReference;
+                    if (assetReference.editorAsset == atlas && string.Equals(tag, atlasReference.tag))
+                    {
+                        continue;
+                    }
                 }
 
-                map[atlas.tag] = atlasRef;
+                map[atlas.tag] = new AtlasReference()
+                {
+                    tag = atlas.tag,
+                    assetReference = atlasRef
+                };
+                
             }
             
             handler.Validate();
