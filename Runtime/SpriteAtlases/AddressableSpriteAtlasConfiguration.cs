@@ -44,6 +44,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         public bool useSceneLifeTime = false;
 
         [SerializeField]
+        public bool enableLifeTimeOverride = true;
+
+        [SerializeField]
         [ReadOnlyValue]
         public bool isFastMode;
 
@@ -190,6 +193,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         private ILifeTime GetAtlasLifeTime(string atlasTag,bool immortal)
         {
             if (immortal) return LifeTime;
+
+            if (enableLifeTimeOverride == false) return _atlasesLifetime;
+            
             if (useSceneLifeTime) return SceneManager.GetActiveScene().GetSceneLifeTime();
 
             if (_atlasesLifeTimeMap.TryGetValue(atlasTag, out var atlasLifeTime))
