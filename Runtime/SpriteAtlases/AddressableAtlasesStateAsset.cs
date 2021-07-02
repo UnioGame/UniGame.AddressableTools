@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UniModules.UniGame.Core.Runtime.ScriptableObjects;
 using UniRx;
-using UnityEditor;
 using UnityEngine;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
@@ -29,8 +28,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #endif
         public AddressableAtlasesState atlases = new AddressableAtlasesState();
 
-        public string id;
-
         #endregion
 
         public IReadOnlyList<string> AtlasTags => atlases.AtlasTags;
@@ -43,12 +40,5 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             MessageBroker.Default.Publish(new UpdateAddressableAtlasesMessage());
         }
 
-        public void Validate() => OnValidate();
-
-        private void OnValidate()
-        {
-            if (string.IsNullOrEmpty(id))
-                id = GUID.Generate().ToString();
-        }
     }
 }
