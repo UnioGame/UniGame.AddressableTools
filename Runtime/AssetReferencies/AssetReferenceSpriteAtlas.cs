@@ -4,6 +4,9 @@
     using UnityEngine.AddressableAssets;
     using UnityEngine.U2D;
 
+#if ODIN_INSPECTOR
+    [Sirenix.OdinInspector.DrawWithUnity]    
+#endif
     [Serializable]
     public class AssetReferenceSpriteAtlas : AssetReferenceT<SpriteAtlas>
     {
