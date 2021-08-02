@@ -5,7 +5,7 @@
     using Core.EditorTools.Editor.DrawersTools;
     using Runtime.Attributes;
     using UniCore.EditorTools.Editor.PropertiesDrawers;
-    using UniCore.EditorTools.Editor.Utility;
+    using UniModules.Editor;
     using UnityEditor;
     using UnityEngine;
     using UnityEngine.AddressableAssets;

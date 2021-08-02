@@ -8,11 +8,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
     using System.Collections.Generic;
     using System.Linq;
     using AddressableExtensions.Editor;
-    using Core.EditorTools.Editor.AssetOperations;
+    using UniModules.Editor;
     using Runtime.AssetReferencies;
     using Runtime.SpriteAtlases;
     using UniCore.Runtime.ProfilerTools;
-    using UniModules.UniCore.EditorTools.Editor.Utility;
     using Unity.EditorCoroutines.Editor;
     using UnityEditor;
     using UnityEditor.AddressableAssets;

@@ -1,5 +1,4 @@
-﻿using UniModules.UniCore.EditorTools.Editor.Utility;
-using UniModules.UniGame.Core.EditorTools.Editor.AssetOperations;
+﻿using UniModules.Editor;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
 {

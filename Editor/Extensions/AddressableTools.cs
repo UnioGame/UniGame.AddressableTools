@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Core.EditorTools.Editor.AssetOperations;
+    using UniModules.Editor;
     using UnityEditor;
     using UnityEditor.AddressableAssets;
     using UnityEditor.AddressableAssets.Settings;

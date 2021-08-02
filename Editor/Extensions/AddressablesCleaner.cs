@@ -1,11 +1,8 @@
 ﻿using UniCore.Runtime.ProfilerTools;
 
-namespace UniModules.UniGame.AddressableTools.Editor.Extensions
+namespace UniModules.Editor.Addressables.Extensions
 {
     using System;
-    using System.IO;
-    using Core.EditorTools.Editor.Tools;
-    using UniCore.Runtime.ProfilerTools;
     using UnityEditor;
     using UnityEditor.AddressableAssets.Build;
     using UnityEditor.AddressableAssets.Settings;

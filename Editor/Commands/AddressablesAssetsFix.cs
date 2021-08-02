@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using UniModules.UniCore.EditorTools.Editor.Utility;
+using UniModules.Editor;
 using UniModules.UniGame.AddressableExtensions.Editor;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
