@@ -1,4 +1,5 @@
-﻿using UniRx;
+﻿using System;
+using UniModules.UniGame.Core.Runtime.Rx;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 {
@@ -197,8 +198,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             return await handle.ToUniTask();
         }
 
-        public static async UniTask<(TAsset asset, TResult result)> LoadAssetTaskAsync<TAsset, TResult>(
-            this AssetReference assetReference, ILifeTime lifeTime)
+        public static async UniTask<(TAsset asset, TResult result)> LoadAssetTaskAsync<TAsset, TResult>(this AssetReference assetReference, ILifeTime lifeTime)
             where TAsset : Object
             where TResult : class
         {
@@ -206,8 +206,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             return (result, result as TResult);
         }
 
-        public static async UniTask<TResult> LoadAssetTaskApiAsync<TAsset, TResult>(
-            this AssetReference assetReference, ILifeTime lifeTime)
+        public static async UniTask<TResult> LoadAssetTaskApiAsync<TAsset, TResult>(this AssetReference assetReference, ILifeTime lifeTime)
             where TAsset : Object
             where TResult : class
         {
@@ -352,14 +351,33 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             where TResult : Object
         {
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<TResult>(out var yetRequested);
+            return await LoadAssetAsync(handle, yetRequested, lifeTime);
+        }
+        
+        public static async UniTask<Object> LoadAssetAsync<TResult>(AsyncOperationHandle<TResult> handle,bool yetRequested, ILifeTime lifeTime,IProgress<float> progress = null)
+            where TResult : Object
+        {
             handle.AddTo(lifeTime, yetRequested);
 
-            var result = await handle.ToUniTask();
-            
+            var result = await handle.ToUniTask(progress,PlayerLoopTiming.Update,lifeTime.TokenSource);
             return result;
         }
         
         #endregion
         
+    }
+
+    public class AsyncHandlesDownloadProgress : IProgress<float>
+    {
+
+        public void Initialize()
+        {
+            
+        }
+        
+        public void Report(float value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
