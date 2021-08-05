@@ -1,5 +1,5 @@
 ﻿using System;
-using UniModules.UniGame.Core.Runtime.Rx;
+using UniRx;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 {
@@ -153,7 +153,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             return updatedIds;
         }
 
-        public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, ILifeTime lifeTime)
+        public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, 
+            ILifeTime lifeTime, 
+            IProgress<HandleStatus> progress = null)
             where T : Object
         {
             if (assetReference.RuntimeKeyIsValid() == false)
@@ -162,16 +164,28 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 return null;
             }
 
-            var dependencies = Addressables.DownloadDependenciesAsync(assetReference.RuntimeKey);
-            dependencies.AddTo(lifeTime);
-            
-            await dependencies.ToUniTask();
-
+            IPoolableAsyncHandleStatus asyncProgress = null;
             var isComponent = typeof(T).IsComponent();
+
+            var dependencies = Addressables
+                .DownloadDependenciesAsync(assetReference.RuntimeKey)
+                .AddTo(lifeTime);
             
-            var asset = isComponent ?
-                await LoadAssetAsync<GameObject>(assetReference, lifeTime) :
-                await LoadAssetAsync<T>(assetReference, lifeTime);
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<Object>(out var yetRequested);
+
+            if (progress != null)
+            {
+                var handlesList = ClassPool.Spawn<List<IAsyncHandleStatus>>();
+                handlesList.Add(new AsyncHandleStatus().BindToHandle(dependencies));
+                handlesList.Add(new AsyncHandleStatus<Object>().BindToHandle(handle));
+                asyncProgress = ClassPool.Spawn<AsyncHandlesStatus>().BindToHandle(handlesList);
+                asyncProgress.Subscribe(x => NotifyProgress(x, progress));
+            }
+
+            await dependencies.ToUniTask();
+            var asset = await LoadAssetAsync(handle, yetRequested, lifeTime);
+            
+            asyncProgress?.DespawnHandleStatus();
             
             var result = default(T);
             if (asset == null)
@@ -185,6 +199,18 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 
         }
 
+        public static void NotifyProgress(IAsyncHandleStatus progressData,IProgress<HandleStatus> progress )
+        {
+            progress.Report(new HandleStatus()
+            {
+                Status = progressData.Status,
+                DownloadedBytes = progressData.DownloadedBytes,
+                IsDone = progressData.IsDone,
+                OperationException = progressData.OperationException,
+                TotalBytes = progressData.TotalBytes,
+            });
+        }
+        
         public static async UniTask<IList<Object>> LoadAssetsByLabel(string label, ILifeTime lifeTime)
         {
             var handle = Addressables.LoadAssetsAsync<Object>(label, null);
@@ -314,24 +340,20 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             {
                 if (handle.IsValid() == false)
                     return;
-                // if(handle.Asset is IDisposable disposable)
-                //     disposable.Dispose();
                 Addressables.Release(handle);
             });
             return lifeTime;
         }
 
-        public static ILifeTime AddTo(this AsyncOperationHandle handle, ILifeTime lifeTime)
+        public static AsyncOperationHandle AddTo(this AsyncOperationHandle handle, ILifeTime lifeTime)
         {
             lifeTime.AddCleanUpAction(() =>
             {
                 if (handle.IsValid() == false)
                     return;
-                // if(handle.Result is IDisposable disposable)
-                //     disposable.Dispose();
                 Addressables.Release(handle);
             });
-            return lifeTime;
+            return handle;
         }
 
         public static ILifeTime AddTo(this AssetReference handle, ILifeTime lifeTime)
@@ -340,8 +362,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             {
                 if (handle.IsValid() == false)
                     return;
-                // if(handle.Asset is IDisposable disposable)
-                //     disposable.Dispose();
                 Addressables.Release(handle);
             });
             return lifeTime;
@@ -365,19 +385,5 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         
         #endregion
         
-    }
-
-    public class AsyncHandlesDownloadProgress : IProgress<float>
-    {
-
-        public void Initialize()
-        {
-            
-        }
-        
-        public void Report(float value)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

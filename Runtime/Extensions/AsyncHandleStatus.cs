@@ -1,12 +1,24 @@
 ﻿using System;
 using UniModules.UniCore.Runtime.DataFlow;
+using UniModules.UniCore.Runtime.ObjectPool.Runtime.Extensions;
 using UniModules.UniCore.Runtime.Rx.Extensions;
 using UniRx;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 {
-    public class AsyncHandleDownloadHandle  : IAsyncHandleStatus
+    public struct HandleStatus
+    {
+        public AsyncOperationStatus Status;
+        public long TotalBytes;
+        public long DownloadedBytes;
+        public bool IsDone;
+        public Exception OperationException;
+        
+        public float Percent => (TotalBytes > 0) ? ((float)DownloadedBytes / (float)TotalBytes) : (IsDone ? 1.0f : 0f);
+    }
+    
+    public class AsyncHandleStatus  : IPoolableAsyncHandleStatus
     {
         private readonly LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
         
@@ -14,6 +26,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         private AsyncOperationHandle _handle;
         private DownloadStatus _statusValue;
         private Exception _exception;
+        private AsyncOperationStatus _operationStatus;
 
         public long TotalBytes => _statusValue.TotalBytes;
         
@@ -21,9 +34,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         public bool IsDone => _statusValue.IsDone;
         public float Percent => _statusValue.Percent;
 
+        public AsyncOperationStatus Status => _operationStatus;
+        
         public Exception OperationException => _exception;
         
-        public void BindToHandle(AsyncOperationHandle handle)
+        public AsyncHandleStatus BindToHandle(AsyncOperationHandle handle)
         {
             Release();
 
@@ -37,11 +52,18 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 .AddTo(_lifeTime);
             
             _handle.Completed += OnComplete;
+
+            return this;
         }
 
         public void Release()
         {
             _lifeTime.Release();
+        }
+
+        public void DespawnHandleStatus()
+        {
+            this.Despawn();
         }
 
         private void OnUpdate()
@@ -50,6 +72,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             if (!_handle.IsValid())
                 return;
 
+            _operationStatus = _handle.Status;
             _statusValue = _handle.GetDownloadStatus();
             _exception = _handle.OperationException;
             _status.OnNext(this);
@@ -76,7 +99,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         
     }
     
-    public class AsyncHandleDownloadHandle<TObject>  : IAsyncHandleStatus
+    public class AsyncHandleStatus<TObject>  : IPoolableAsyncHandleStatus
     {
         private readonly LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
         
@@ -84,16 +107,18 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         private AsyncOperationHandle _handle;
         private DownloadStatus _statusValue;
         private Exception _exception;
-
+        private AsyncOperationStatus _operationStatus;
+        
         public long TotalBytes => _statusValue.TotalBytes;
         
         public long DownloadedBytes => _statusValue.DownloadedBytes;
         public bool IsDone => _statusValue.IsDone;
         public float Percent => _statusValue.Percent;
 
+        public AsyncOperationStatus Status => _operationStatus;
         public Exception OperationException => _exception;
         
-        public void BindToHandle(AsyncOperationHandle<TObject> handle)
+        public AsyncHandleStatus<TObject> BindToHandle(AsyncOperationHandle<TObject> handle)
         {
             Release();
 
@@ -107,6 +132,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 .AddTo(_lifeTime);
             
             _handle.Completed += OnComplete;
+
+            return this;
         }
 
         public void Release()
@@ -120,11 +147,17 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             if (!_handle.IsValid())
                 return;
 
+            _operationStatus = _handle.Status;
             _statusValue = _handle.GetDownloadStatus();
             _exception = _handle.OperationException;
             _status.OnNext(this);
         }
 
+        public void DespawnHandleStatus()
+        {
+            this.Despawn();
+        }
+        
         public IDisposable Subscribe(IObserver<IAsyncHandleStatus> observer)
         {
             return _status.Subscribe(observer);
