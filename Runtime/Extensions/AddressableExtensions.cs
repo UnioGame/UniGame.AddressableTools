@@ -79,7 +79,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 
         public static async UniTask<IEnumerable<TResult>> LoadAssetsTaskAsync<TSource, TResult, TAsset>(
             this IEnumerable<TAsset> assetReference,
-            IList<TResult> resultContainer, ILifeTime lifeTime)
+            IList<TResult> resultContainer, 
+            ILifeTime lifeTime)
             where TResult : class
             where TAsset : AssetReference
             where TSource : Object
