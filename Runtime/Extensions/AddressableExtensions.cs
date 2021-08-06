@@ -163,21 +163,44 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 GameLog.LogError($"AssetReference key is NULL {assetReference}");
                 return null;
             }
-
-            IPoolableAsyncHandleStatus asyncProgress = null;
+            
             var isComponent = typeof(T).IsComponent();
+
+            var asset = isComponent 
+                ? await LoadAssetTaskInternalAsync<GameObject>(assetReference, lifeTime, progress)
+                : await LoadAssetTaskInternalAsync<T>(assetReference, lifeTime, progress);
+            
+            if (asset == null)
+                return default(T);
+
+            var result = asset is GameObject gameObjectAsset && isComponent ?
+                gameObjectAsset.GetComponent<T>() :
+                asset as T;
+            
+            return result;
+        }
+
+        private static async UniTask<Object> LoadAssetTaskInternalAsync<T>(
+            this AssetReference assetReference,
+            ILifeTime lifeTime,
+            IProgress<HandleStatus> progress = null)
+            where T : Object
+        {
+            
+            IPoolableAsyncHandleStatus asyncProgress = null;
 
             var dependencies = Addressables
                 .DownloadDependenciesAsync(assetReference.RuntimeKey)
                 .AddTo(lifeTime);
-            
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<Object>(out var yetRequested);
+
+            var yetRequested = false;
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out yetRequested);
 
             if (progress != null)
             {
                 var handlesList = ClassPool.Spawn<List<IAsyncHandleStatus>>();
                 handlesList.Add(new AsyncHandleStatus().BindToHandle(dependencies));
-                handlesList.Add(new AsyncHandleStatus<Object>().BindToHandle(handle));
+                handlesList.Add(new AsyncHandleStatus<T>().BindToHandle(handle));
                 asyncProgress = ClassPool.Spawn<AsyncHandlesStatus>().BindToHandle(handlesList);
                 asyncProgress.Subscribe(x => NotifyProgress(x, progress));
             }
@@ -186,19 +209,10 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             var asset = await LoadAssetAsync(handle, yetRequested, lifeTime);
             
             asyncProgress?.DespawnHandleStatus();
-            
-            var result = default(T);
-            if (asset == null)
-                return result;
 
-            result = asset is GameObject gameObjectAsset && isComponent ?
-                gameObjectAsset.GetComponent<T>() :
-                asset as T;
-            
-            return result;
-
+            return asset;
         }
-
+        
         public static void NotifyProgress(IAsyncHandleStatus progressData,IProgress<HandleStatus> progress )
         {
             progress.Report(new HandleStatus()
