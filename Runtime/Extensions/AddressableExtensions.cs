@@ -194,8 +194,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 .DownloadDependenciesAsync(assetReference.RuntimeKey)
                 .AddTo(lifeTime);
 
-            var yetRequested = false;
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out yetRequested);
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
 
             if (progress != null)
             {
@@ -206,7 +205,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 asyncProgress.Subscribe(x => NotifyProgress(x, progress));
             }
 
-            await dependencies.ToUniTask();
+            await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.TokenSource);
+            
             var asset = await LoadAssetAsync(handle, yetRequested, lifeTime);
             
             asyncProgress?.DespawnHandleStatus();
@@ -381,14 +381,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             });
             return lifeTime;
         }
-        
-        public static async UniTask<Object> LoadAssetAsync<TResult>(AssetReference assetReference, ILifeTime lifeTime)
-            where TResult : Object
-        {
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<TResult>(out var yetRequested);
-            return await LoadAssetAsync(handle, yetRequested, lifeTime);
-        }
-        
+
         public static async UniTask<Object> LoadAssetAsync<TResult>(AsyncOperationHandle<TResult> handle,bool yetRequested, ILifeTime lifeTime,IProgress<float> progress = null)
             where TResult : Object
         {
