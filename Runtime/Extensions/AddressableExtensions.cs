@@ -188,25 +188,24 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             where T : Object
         {
             
-            IPoolableAsyncHandleStatus asyncProgress = null;
 
             var dependencies = Addressables
                 .DownloadDependenciesAsync(assetReference.RuntimeKey)
                 .AddTo(lifeTime);
 
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
-
-            if (progress != null)
-            {
-                var handlesList = ClassPool.Spawn<List<IAsyncHandleStatus>>();
-                handlesList.Add(new AsyncHandleStatus().BindToHandle(dependencies));
-                handlesList.Add(new AsyncHandleStatus<T>().BindToHandle(handle));
-                asyncProgress = ClassPool.Spawn<AsyncHandlesStatus>().BindToHandle(handlesList);
-                asyncProgress.Subscribe(x => NotifyProgress(x, progress));
-            }
+            IPoolableAsyncHandleStatus asyncProgress = null;
+            // if (progress != null)
+            // {
+            //     var handlesList = ClassPool.Spawn<List<IAsyncHandleStatus>>();
+            //     handlesList.Add(new AsyncHandleStatus().BindToHandle(dependencies));
+            //     handlesList.Add(new AsyncHandleStatus<T>().BindToHandle(handle));
+            //     asyncProgress = ClassPool.Spawn<AsyncHandlesStatus>().BindToHandle(handlesList);
+            //     asyncProgress.Subscribe(x => NotifyProgress(x, progress));
+            // }
 
             await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.TokenSource);
             
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
             var asset = await LoadAssetAsync(handle, yetRequested, lifeTime);
             
             asyncProgress?.DespawnHandleStatus();
