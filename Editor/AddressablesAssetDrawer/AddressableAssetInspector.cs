@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Reflection;
-    using Core.EditorTools.Editor.DrawersTools;
+    using UniModules.UniGame.Editor.DrawersTools;
     using Runtime.Attributes;
     using UniCore.EditorTools.Editor.PropertiesDrawers;
     using UniModules.Editor;
