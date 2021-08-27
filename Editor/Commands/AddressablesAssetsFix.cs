@@ -175,6 +175,9 @@ public static class AddressablesAssetsFix
         var groups = settings.groups;
         foreach (var addressableAssetGroup in groups)
         {
+            if(addressableAssetGroup == null)
+                continue;
+            
             var entries = addressableAssetGroup.entries;
             foreach (var entry in entries)
             {
