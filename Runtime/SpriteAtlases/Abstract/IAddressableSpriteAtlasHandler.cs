@@ -1,15 +1,14 @@
-﻿using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+﻿namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
-    using System;
+    using Cysharp.Threading.Tasks;
+    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
     using Abstract;
 
     public interface IAddressableSpriteAtlasHandler : IAddressablesAtlasesLoader
     {
         void BindAtlasesLifeTime(ILifeTime lifeTime, IAddressableAtlasesState atlasesState);
-        
-        IDisposable Execute();
+
+        UniTask Execute();
         
         void Unload();
         

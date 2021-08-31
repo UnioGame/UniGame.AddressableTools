@@ -35,6 +35,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         public List<AssetReferenceSpriteAtlas> immortalAtlases = new List<AssetReferenceSpriteAtlas>();
         
         [SerializeField]
+#if ODIN_INSPECTOR_3
+        [Sirenix.OdinInspector.Searchable]
+#endif
         public AddressblesAtlasesTagsMap atlasesTagsMap = new AddressblesAtlasesTagsMap();
         
         [SerializeField]
@@ -56,7 +59,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         private Dictionary<string, UnionLifeTime> _atlasesLifeTimeMap = new Dictionary<string, UnionLifeTime>(128);
 
-        public IDisposable Execute()
+        public async UniTask Execute()
         {
             Observable.FromEvent(x => SpriteAtlasManager.atlasRequested += OnSpriteAtlasRequested,
                     x => SpriteAtlasManager.atlasRequested -= OnSpriteAtlasRequested).
@@ -69,24 +72,20 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 Subscribe().
                 AddTo(LifeTime);
 
-            if (preloadImmortalAtlases) {
-                //load immortal immediate
-                foreach (var referenceSpriteAtlas in immortalAtlases) {
-                    referenceSpriteAtlas
-                        .LoadAssetTaskAsync(LifeTime)
-                        .Forget();
-                }
+            if (preloadImmortalAtlases)
+            {
+                await UniTask
+                    .WhenAll(immortalAtlases
+                    .Select(x => x.LoadAssetTaskAsync(LifeTime)));
             }
             
 #if UNITY_EDITOR
-            if (!isFastMode) return this;
+            if (!isFastMode) return;
             
             foreach (var atlasPair in atlasesTagsMap) {
                 RegisterAtlas(atlasPair.Value.assetReference.editorAsset);
             }
 #endif
-
-            return this;
         }
 
         public void BindAtlasesLifeTime(ILifeTime lifeTime, IAddressableAtlasesState atlasesState)
@@ -198,7 +197,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
             if (enableLifeTimeOverride == false) return _atlasesLifetime;
             
-            if (useSceneLifeTime) return SceneManager.GetActiveScene().GetSceneLifeTime();
+            if (useSceneLifeTime) return SceneManager
+                .GetActiveScene()
+                .GetSceneLifeTime();
 
             if (_atlasesLifeTimeMap.TryGetValue(atlasTag, out var atlasLifeTime))
                 return atlasLifeTime;
