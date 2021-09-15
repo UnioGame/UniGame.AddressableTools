@@ -1,13 +1,13 @@
-﻿using System.Diagnostics;
-using UniCore.Runtime.ProfilerTools;
-using UniModules.UniGame.Core.Runtime.DataFlow;
-using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
-using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UniCore.Runtime.ProfilerTools;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
+    using System.Diagnostics;
+    using UniModules.UniGame.Core.Runtime.DataFlow;
+    using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
+    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+    using UnityEngine;
+    using UnityEngine.SceneManagement;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -18,9 +18,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     using Core.Runtime.ScriptableObjects;
     using Cysharp.Threading.Tasks;
     using UniModules.UniCore.Runtime.Attributes;
-    using UniModules.UniCore.Runtime.DataFlow;
     using UniModules.UniCore.Runtime.Rx.Extensions;
-    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
+    using Extensions;
     using UniRx;
     using UnityEngine.U2D;
 
@@ -112,7 +111,10 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             }
         }
         
-        public void Unload() => _atlasesLifetime.Release();
+        public void Unload()
+        {
+            _atlasesLifetime.Release();
+        }
 
         public async UniTask<bool> RequestSpriteAtlas(string guid)
         {
@@ -146,6 +148,16 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #if UNITY_EDITOR
             UnityEngine.Debug.Log($"SpriteAtlasConfiguration : {nameof(OnSpriteAtlasRegistered)} : {atlas.tag}");
 #endif            
+        }
+
+        protected override void OnReset()
+        {
+            Unload();
+            
+            foreach (var atlasLifeTime in _atlasesLifeTimeMap)
+                atlasLifeTime.Value.Terminate();
+            
+            _atlasesLifeTimeMap.Clear();
         }
 
         private async void OnSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
@@ -211,12 +223,14 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         {
             _atlasesLifetime?.Terminate();
             _atlasesLifetime = new UnionLifeTime();
+            _atlasesLifeTimeMap ??= new Dictionary<string, UnionLifeTime>(128);
             _lifeTimeDefinition.AddCleanUpAction(() => _atlasesLifetime.Release());
 
             foreach (var atlasItem in atlasesTagsMap)
             {
                 _atlasesLifeTimeMap[atlasItem.Key] = _atlasesLifetime;
             }
+            
         }
 
 #if UNITY_EDITOR
