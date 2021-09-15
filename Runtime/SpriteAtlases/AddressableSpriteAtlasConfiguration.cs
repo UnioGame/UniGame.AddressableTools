@@ -54,12 +54,20 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         #endregion
 
+        private bool isInitialized = false;
         private UnionLifeTime _atlasesLifetime;
-
         private Dictionary<string, UnionLifeTime> _atlasesLifeTimeMap = new Dictionary<string, UnionLifeTime>(128);
 
+        private Dictionary<string, SpriteAtlas> _immortalAtlasesMap =
+            new Dictionary<string, SpriteAtlas>(8);
+        
         public async UniTask Execute()
         {
+            if (isInitialized)
+                return;
+
+            isInitialized = true;
+            
             Observable.FromEvent(x => SpriteAtlasManager.atlasRequested += OnSpriteAtlasRequested,
                     x => SpriteAtlasManager.atlasRequested -= OnSpriteAtlasRequested).
                 Subscribe().
@@ -73,9 +81,15 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
             if (preloadImmortalAtlases)
             {
-                await UniTask
+                _immortalAtlasesMap ??= new Dictionary<string, SpriteAtlas>(8);
+                var immortals = await UniTask
                     .WhenAll(immortalAtlases
                     .Select(x => x.LoadAssetTaskAsync(LifeTime)));
+                
+                foreach (var atlas in immortals)
+                {
+                    _immortalAtlasesMap[atlas.tag] = atlas;
+                }
             }
             
 #if UNITY_EDITOR
@@ -153,9 +167,13 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         protected override void OnReset()
         {
             Unload();
-            
-            foreach (var atlasLifeTime in _atlasesLifeTimeMap)
-                atlasLifeTime.Value.Terminate();
+
+            foreach (var atlases in _atlasesLifeTimeMap)
+            {
+                var tag = atlases.Key;
+                if(!_immortalAtlasesMap.ContainsKey(tag))
+                    atlases.Value.Terminate();
+            }
             
             _atlasesLifeTimeMap.Clear();
         }
