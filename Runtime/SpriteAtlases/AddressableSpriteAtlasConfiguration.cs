@@ -58,8 +58,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         private UnionLifeTime _atlasesLifetime;
         private Dictionary<string, UnionLifeTime> _atlasesLifeTimeMap = new Dictionary<string, UnionLifeTime>(128);
 
-        private Dictionary<string, SpriteAtlas> _immortalAtlasesMap =
-            new Dictionary<string, SpriteAtlas>(8);
+        private Dictionary<string, SpriteAtlas> _immortalAtlasesMap = new Dictionary<string, SpriteAtlas>(8);
         
         public async UniTask Execute()
         {
@@ -67,17 +66,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 return;
 
             isInitialized = true;
-            
-            Observable.FromEvent(x => SpriteAtlasManager.atlasRequested += OnSpriteAtlasRequested,
-                    x => SpriteAtlasManager.atlasRequested -= OnSpriteAtlasRequested).
-                Subscribe().
-                AddTo(LifeTime);
-            
-            Observable.FromEvent(
-                    x => SpriteAtlasManager.atlasRegistered += OnSpriteAtlasRegistered,
-                    x => SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered).
-                Subscribe().
-                AddTo(LifeTime);
+            LifeTime.AddCleanUpAction(() => this.isInitialized = false);
+
+            BindToAtlasManager();
 
             if (preloadImmortalAtlases)
             {
@@ -164,10 +155,13 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #endif            
         }
 
+
         protected override void OnReset()
         {
             Unload();
 
+            isInitialized = false;
+            
             foreach (var atlases in _atlasesLifeTimeMap)
             {
                 var tag = atlases.Key;
@@ -191,11 +185,17 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             atlasAction(atlas);
         }
 
+        private void BindToAtlasManager()
+        {
+            SpriteAtlasManager.atlasRequested -= OnSpriteAtlasRequested;
+            SpriteAtlasManager.atlasRequested += OnSpriteAtlasRequested;
+            LifeTime.AddCleanUpAction(() => SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered);
+        }
+        
+        
         private async UniTask<SpriteAtlas> LoadAtlas(string guid)
         {
-            var atlasReferencePair = atlasesTagsMap
-                .FirstOrDefault(x => x.Value.assetReference.AssetGUID == guid);
-            
+            var atlasReferencePair = atlasesTagsMap.FirstOrDefault(x => x.Value.assetReference.AssetGUID == guid);
             
             var assetReference = atlasReferencePair.Value.assetReference;
             if (assetReference == null)
@@ -249,6 +249,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 _atlasesLifeTimeMap[atlasItem.Key] = _atlasesLifetime;
             }
             
+            BindToAtlasManager();
         }
 
 #if UNITY_EDITOR
