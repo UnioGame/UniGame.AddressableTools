@@ -147,13 +147,10 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #endif
         }
 
-        public void OnSpriteAtlasRegistered(SpriteAtlas atlas)
+        public void ProceedSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
         {
-#if UNITY_EDITOR
-            UnityEngine.Debug.Log($"SpriteAtlasConfiguration : {nameof(OnSpriteAtlasRegistered)} : {atlas.tag}");
-#endif            
+            OnSpriteAtlasRequested(tag,atlasAction).AttachExternalCancellation(LifeTime.TokenSource).Forget();
         }
-
 
         protected override void OnReset()
         {
@@ -170,27 +167,42 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             
             _atlasesLifeTimeMap.Clear();
         }
+        
+        
+        private void OnSpriteAtlasRegistered(SpriteAtlas atlas)
+        {
+#if UNITY_EDITOR
+            UnityEngine.Debug.Log($"SpriteAtlasConfiguration : {nameof(OnSpriteAtlasRegistered)} : {atlas.tag}");
+#endif            
+        }
 
-        private async void OnSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
+        private async UniTask OnSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
         {
             if (atlasesTagsMap.TryGetValue(tag, out var atlasReference) == false)
                 return;
 
             var assetReference = atlasReference.assetReference;
-            var atlas = await LoadAtlas(assetReference.AssetGUID);
-            if (atlas == null)
-                return;
+            var atlas = await LoadAtlas(assetReference.AssetGUID)
+                .AttachExternalCancellation(LifeTime.TokenSource);
+            
+            if (atlas == null) return;
             
             atlasAction(atlas);
         }
 
         private void BindToAtlasManager()
         {
-            SpriteAtlasManager.atlasRequested -= OnSpriteAtlasRequested;
-            SpriteAtlasManager.atlasRequested += OnSpriteAtlasRequested;
-            LifeTime.AddCleanUpAction(() => SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered);
+            SpriteAtlasManager.atlasRequested -= ProceedSpriteAtlasRequested;
+            SpriteAtlasManager.atlasRequested += ProceedSpriteAtlasRequested;
+            SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered;
+            SpriteAtlasManager.atlasRegistered += OnSpriteAtlasRegistered;
+            
+            LifeTime.AddCleanUpAction(() =>
+            {
+                SpriteAtlasManager.atlasRequested -= ProceedSpriteAtlasRequested;
+                SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered;
+            });
         }
-        
         
         private async UniTask<SpriteAtlas> LoadAtlas(string guid)
         {
@@ -239,12 +251,18 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             _atlasesLifetime = new UnionLifeTime();
             _atlasesLifeTimeMap ??= new Dictionary<string, UnionLifeTime>(128);
             
-            LifeTime.AddCleanUpAction(_atlasesLifetime.Release);
+            LifeTime.AddCleanUpAction(CleanUp);
 
             foreach (var atlasItem in atlasesTagsMap)
                 _atlasesLifeTimeMap[atlasItem.Key] = _atlasesLifetime;
             
             BindToAtlasManager();
+        }
+        
+        private void CleanUp()
+        {
+            _atlasesLifetime?.Release();
+            _atlasesLifeTimeMap?.Clear();
         }
 
 #if UNITY_EDITOR
