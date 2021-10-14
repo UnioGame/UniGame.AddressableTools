@@ -78,9 +78,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                     .Select(x => x.LoadAssetTaskAsync(LifeTime)));
                 
                 foreach (var atlas in immortals)
-                {
                     _immortalAtlasesMap[atlas.tag] = atlas;
-                }
+                
             }
             
 #if UNITY_EDITOR
@@ -201,7 +200,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             if (assetReference == null)
                 return null;
             
-            var atlasReference = atlasReferencePair.Value;
             var tag            = atlasReferencePair.Key;
             
             GameLog.Log($"ATLAS: OnSpriteAtlasRequested : TAG {tag} GUID {guid}", Color.blue);
@@ -227,14 +225,12 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
             if (enableLifeTimeOverride == false) return _atlasesLifetime;
             
-            if (useSceneLifeTime) return SceneManager
-                .GetActiveScene()
-                .GetSceneLifeTime();
+            if (useSceneLifeTime) 
+                return SceneManager.GetActiveScene()
+                    .GetSceneLifeTime();
 
-            if (_atlasesLifeTimeMap.TryGetValue(atlasTag, out var atlasLifeTime))
-                return atlasLifeTime;
-            
-            return _atlasesLifetime;
+            return _atlasesLifeTimeMap.TryGetValue(atlasTag, out var atlasLifeTime) 
+                ? atlasLifeTime : _atlasesLifetime;
         }
         
         protected override void OnActivate()
@@ -242,12 +238,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             _atlasesLifetime?.Terminate();
             _atlasesLifetime = new UnionLifeTime();
             _atlasesLifeTimeMap ??= new Dictionary<string, UnionLifeTime>(128);
-            _lifeTimeDefinition.AddCleanUpAction(() => _atlasesLifetime.Release());
+            
+            LifeTime.AddCleanUpAction(_atlasesLifetime.Release);
 
             foreach (var atlasItem in atlasesTagsMap)
-            {
                 _atlasesLifeTimeMap[atlasItem.Key] = _atlasesLifetime;
-            }
             
             BindToAtlasManager();
         }
