@@ -9,7 +9,7 @@
     {
         
     }
-
+    
     [Serializable]
     public struct AtlasReference
     {
