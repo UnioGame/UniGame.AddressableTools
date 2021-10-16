@@ -1,4 +1,5 @@
 ﻿
+using System.Linq;
 using UniModules.UniCore.Runtime.Rx.Extensions;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
@@ -9,8 +10,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     
     using UnityEngine;
     using System.Collections.Generic;
-    using System.Linq;
-    using AssetReferencies;
     using Core.Runtime.ScriptableObjects;
     using Cysharp.Threading.Tasks;
     using UniModules.UniCore.Runtime.Attributes;
@@ -24,11 +23,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         #region inspector
 
         [SerializeField] 
-        public List<AssetReferenceSpriteAtlas> immortalAtlases = new List<AssetReferenceSpriteAtlas>();
+        public List<AtlasReference> immortalAtlases = new List<AtlasReference>();
 
         [SerializeField]
 #if ODIN_INSPECTOR_3
-        [Sirenix.OdinInspector.Searchable]
+        [Searchable]
 #endif
         public AddressblesAtlasesTagsMap atlasesTagsMap = new AddressblesAtlasesTagsMap();
 
@@ -45,6 +44,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         [SerializeField]
 #if ODIN_INSPECTOR
         [InlineProperty]
+        [HideLabel]
+        [VerticalGroup("Active Handles")]
 #endif
         public AddressableSpriteAtlasHandler _addressableAtlasHandle;
         
@@ -79,8 +80,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         public void Validate()
         {
 #if UNITY_EDITOR
-            immortalAtlases.RemoveAll(x => x == null || x.editorAsset == null);
-
+            immortalAtlases.RemoveAll(x => x.assetReference == null || x.assetReference.editorAsset == null);
+            immortalAtlases.ForEach(x => x.UpdateTag());
+            
             var keys = atlasesTagsMap.Keys.ToList();
             foreach (var key in keys)
             {

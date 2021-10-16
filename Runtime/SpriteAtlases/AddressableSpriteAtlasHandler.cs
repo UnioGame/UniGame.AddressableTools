@@ -1,4 +1,6 @@
 ﻿using UniCore.Runtime.ProfilerTools;
+using UniModules.UniCore.Runtime.Rx.Extensions;
+using UnityEngine.AddressableAssets;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
@@ -8,35 +10,45 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     using System.Reflection;
     using Cysharp.Threading.Tasks;
     using UniModules.UniCore.Runtime.DataFlow;
-    using Extensions;
     using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
     using UniModules.UniGame.Core.Runtime.Interfaces;
     using UnityEngine;
     using UnityEngine.U2D;
 
+#if ODIN_INSPECTOR
+    using Sirenix.OdinInspector;
+#endif
+    
     [Serializable]
     public class AddressableSpriteAtlasHandler : ILifeTimeContext, IDisposable
     {
         private AddressableSpriteAtlasConfiguration _configuration;
-        private Dictionary<string, SpriteAtlas> _loadedAtlases = new Dictionary<string, SpriteAtlas>(8);
+        
+        private Dictionary<string, SpriteAtlasHandle> _loadedAtlases = new Dictionary<string, SpriteAtlasHandle>(8);
         private Dictionary<string, SpriteAtlas> _registeredAtlases = new Dictionary<string, SpriteAtlas>(8);
+        private Dictionary<string, string> _registeredAtlasesGuidMap = new Dictionary<string, string>(8);
         private LifeTimeDefinition _lifeTime;
         private AddressblesAtlasesTagsMap _atlasesReferenceMap;
 
+#if ODIN_INSPECTOR
+        [InlineProperty]
+#endif
+        public List<SpriteAtlasHandle> activeHandles = new List<SpriteAtlasHandle>();
+
         public bool IsRuntime { get; private set; }
-        
-        public ILifeTime LifeTime => _lifeTime??= new LifeTimeDefinition();
-        
+
+        public ILifeTime LifeTime => _lifeTime ??= new LifeTimeDefinition();
+
         public void Bind(AddressableSpriteAtlasConfiguration configuration)
         {
             IsRuntime = true;
-            
-            _lifeTime??= new LifeTimeDefinition();
+
+            _lifeTime ??= new LifeTimeDefinition();
             _configuration = configuration;
             _atlasesReferenceMap = _configuration.atlasesTagsMap;
-            
+
             BindToAtlasManager();
-            
+
             PreloadAtlases()
                 .AttachExternalCancellation(LifeTime.TokenSource)
                 .Forget();
@@ -46,6 +58,14 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         public void Dispose() => _lifeTime?.Terminate();
 
+        public void Validate()
+        {
+            foreach (var activeHandle in activeHandles)
+            {
+                
+            }
+        }
+        
         private void UpdateEditorAtlasMode()
         {
 #if UNITY_EDITOR
@@ -57,25 +77,15 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             }
 #endif
         }
-        
+
         private async UniTask PreloadAtlases()
         {
             var preload = _configuration.preloadImmortalAtlases;
             var preloadAtlases = _configuration.immortalAtlases;
-            
             if (preload)
-            {
-                var immortals = await UniTask
-                    .WhenAll(preloadAtlases.Select(x => x.LoadAssetTaskAsync(LifeTime)));
-                foreach (var atlas in immortals)
-                {
-                    if (_loadedAtlases.TryGetValue(atlas.tag, out var atlasAsset) && atlasAsset)
-                        return;
-                    RegisterAtlas(atlas.tag, atlas);
-                }
-            }
+                await UniTask.WhenAll(preloadAtlases.Select(x => LoadAtlas(x.tag,x.assetReference)));
         }
-        
+
         private void BindToAtlasManager()
         {
             SpriteAtlasManager.atlasRequested -= ProceedSpriteAtlasRequested;
@@ -89,7 +99,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered;
             });
         }
-        
+
         public void ProceedSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
         {
             GetSpriteAtlas(tag, atlasAction)
@@ -97,75 +107,107 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 .Forget();
         }
 
-        private async UniTask<SpriteAtlas> GetSpriteAtlas(string tag,Action<SpriteAtlas> atlasAction)
+        private async UniTask<SpriteAtlas> GetSpriteAtlas(string tag, Action<SpriteAtlas> atlasAction)
         {
             var atlas = await LoadAtlas(tag);
 
-            if (atlas == null)
-                GameLog.LogError($"ATLAS: Null Atlas Result by TAG {tag}");
-            else
+            if (atlas)
             {
                 atlasAction(atlas);
-                GameLog.Log($"ATLAS: Register NEW TAG : {tag}");
+                GameLog.Log($"ATLAS: Register NEW TAG : {tag}",Color.magenta);
+                return atlas;
             }
 
+            GameLog.LogError($"ATLAS: Null Atlas Result by TAG {tag}");
             return atlas;
         }
-        
+
         private async UniTask<SpriteAtlas> LoadAtlas(string tag)
         {
             if (_atlasesReferenceMap.TryGetValue(tag, out var atlasReference) == false)
                 return null;
-            
+
             var assetReference = atlasReference.assetReference;
-            if (assetReference == null || assetReference.RuntimeKeyIsValid() == false)
-                return null;
-
             var guid = assetReference.AssetGUID;
-            
-            GameLog.Log($"ATLAS: OnSpriteAtlasRequested : TAG {tag} GUID {guid}", Color.blue);
 
-            if (_registeredAtlases.TryGetValue(tag, out var registeredAtlas))
-            {
-                if (!registeredAtlas) 
-                    _registeredAtlases.Remove(tag);
-                return registeredAtlas;
-            }
+            GameLog.Log($"ATLAS: OnSpriteAtlasRequested : TAG {tag} GUID {guid}", Color.magenta);
             
-            if (_loadedAtlases.TryGetValue(guid, out var loadedAtlas))
-            {
-                if (!loadedAtlas) 
-                    _loadedAtlases.Remove(guid);
-                return loadedAtlas;
-            }
-
-            var result = await assetReference.LoadAssetTaskAsync(LifeTime);
-            return RegisterAtlas(tag,result);
+            var spriteAtlas = await LoadAtlas(tag, assetReference);
+            return spriteAtlas;
         }
 
-        private SpriteAtlas RegisterAtlas(string tag, SpriteAtlas atlasAsset)
+        private async UniTask<SpriteAtlas> LoadAtlas(string tag, AssetReferenceT<SpriteAtlas> assetReference)
         {
-            //atlasAsset =  UnityEngine.Object.Instantiate(atlasAsset);
-            _loadedAtlases[tag] = atlasAsset;
-            return atlasAsset;
+            if (_registeredAtlases.TryGetValue(tag, out var registeredAtlas))
+                return registeredAtlas;
+
+            var cached = LoadCached(tag);
+            if (cached.result)
+            {
+                AddEditorHandle(cached.handle);
+                return cached.handle.spriteAtlas;
+            }
+
+            UnloadAtlas(tag);
+
+            var handle = await new SpriteAtlasHandle().Load(assetReference);
+            handle.AddTo(LifeTime);
+            
+            _loadedAtlases[tag] = handle;
+            handle.LifeTime.AddCleanUpAction(() => RemoveCached(tag));
+            AddEditorHandle(handle);
+
+            return handle.spriteAtlas;
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        private void AddEditorHandle(SpriteAtlasHandle handle)
+        {
+#if UNITY_EDITOR
+            if (activeHandles.Contains(handle))
+                return;
+            activeHandles.Add(handle);
+            handle.LifeTime.AddCleanUpAction(() => activeHandles.Remove(handle));
+#endif
+        }
+
+        private (bool result, SpriteAtlasHandle handle) LoadCached(string tag)
+        {
+            if (!_loadedAtlases.TryGetValue(tag, out var atlasHandle)) 
+                return (false, null);
+
+            var atlas = atlasHandle.spriteAtlas;
+            var hasAtlas = atlas != null;
+            return (hasAtlas, atlasHandle);
+        }
+
+        private void UnloadAtlas(string tag)
+        {
+            if (_loadedAtlases.TryGetValue(tag, out var atlasHandle))
+                atlasHandle.Dispose();
+        }
+
+        private void RemoveCached(string tag)
+        {
+            _loadedAtlases.Remove(tag);
+            _registeredAtlases.Remove(tag);
         }
 
         private void OnSpriteAtlasRegistered(SpriteAtlas atlas)
         {
 #if UNITY_EDITOR
-            GameLog.Log($"SpriteAtlasConfiguration : {nameof(OnSpriteAtlasRegistered)} : {atlas.tag}",Color.magenta);
+            GameLog.Log($"ATLAS: SpriteAtlasConfiguration : {nameof(OnSpriteAtlasRegistered)} : {atlas.tag}",Color.magenta);
 #endif
-            
             _registeredAtlases[atlas.tag] = atlas;
         }
-        
-        
-#if UNITY_EDITOR
 
+
+#if UNITY_EDITOR
         private static MethodInfo _registerMethod;
+        private const string AtlasRegisterMethodName = "Register";
 
         private static MethodInfo RegisterMethod => (_registerMethod = _registerMethod == null
-            ? typeof(SpriteAtlasManager).GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic)
+            ? typeof(SpriteAtlasManager).GetMethod(AtlasRegisterMethodName, BindingFlags.Static | BindingFlags.NonPublic)
             : _registerMethod);
 
         [Conditional("UNITY_EDITOR")]

@@ -48,10 +48,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
                 CachedAsset = AssetDatabase.LoadAssetAtPath(assetPath, mainType);
                 
                 var baseAsset = CachedAsset as GameObject;
-                if (baseAsset == null)
-                    return null;
-                
-                return baseAsset.GetComponent<TAsset>();
+                return baseAsset == null 
+                    ? null 
+                    : baseAsset.GetComponent<TAsset>();
             }
         }
 #endif
