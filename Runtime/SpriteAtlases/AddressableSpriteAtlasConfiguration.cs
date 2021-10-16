@@ -33,14 +33,17 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         [SerializeField] 
         public bool preloadImmortalAtlases = true;
+        
         [SerializeField] 
         public bool useSceneLifeTime = false;
-        [SerializeField] 
-        public bool enableLifeTimeOverride = true;
+        
         [SerializeField] 
         [ReadOnlyValue] 
         public bool isFastMode;
 
+        [SerializeField]
+        public bool disposeOnReset = true;
+        
         [SerializeField]
 #if ODIN_INSPECTOR
         [InlineProperty]
@@ -48,11 +51,18 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         [VerticalGroup("Active Handles")]
 #endif
         public AddressableSpriteAtlasHandler _addressableAtlasHandle;
+
+#if UNITY_EDITOR
+        public static AddressableSpriteAtlasConfiguration AddressableAtlasConfigurationAsset;
+#endif
         
         #endregion
         
         public UniTask Execute()
         {
+#if UNITY_EDITOR
+            AddressableAtlasConfigurationAsset = this;
+#endif
             Initialize();
             return UniTask.CompletedTask;
         }
@@ -80,6 +90,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         public void Validate()
         {
 #if UNITY_EDITOR
+            _addressableAtlasHandle?.Validate();
             immortalAtlases.RemoveAll(x => x.assetReference == null || x.assetReference.editorAsset == null);
             immortalAtlases.ForEach(x => x.UpdateTag());
             
@@ -93,13 +104,19 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #endif
         }
 
-        protected override void OnActivate() => Initialize();
+        protected sealed override void OnActivate()
+        {
+        }
 
+        protected sealed override void OnReset()
+        {
+            if (!disposeOnReset) return;
+            Unload();
+        }
+        
         private void Initialize()
         {
-            if (!Application.isPlaying)
-                return;
-            _addressableAtlasHandle ??= new AddressableSpriteAtlasHandler();
+            _addressableAtlasHandle = new AddressableSpriteAtlasHandler();
             _addressableAtlasHandle.Bind(this);
         }
  

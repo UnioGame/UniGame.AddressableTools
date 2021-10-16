@@ -26,7 +26,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         
         private Dictionary<string, SpriteAtlasHandle> _loadedAtlases = new Dictionary<string, SpriteAtlasHandle>(8);
         private Dictionary<string, SpriteAtlas> _registeredAtlases = new Dictionary<string, SpriteAtlas>(8);
-        private Dictionary<string, string> _registeredAtlasesGuidMap = new Dictionary<string, string>(8);
         private LifeTimeDefinition _lifeTime;
         private AddressblesAtlasesTagsMap _atlasesReferenceMap;
 
@@ -39,11 +38,12 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         public ILifeTime LifeTime => _lifeTime ??= new LifeTimeDefinition();
 
-        public void Bind(AddressableSpriteAtlasConfiguration configuration)
+        public AddressableSpriteAtlasHandler Bind(AddressableSpriteAtlasConfiguration configuration)
         {
             IsRuntime = true;
 
             _lifeTime ??= new LifeTimeDefinition();
+            
             _configuration = configuration;
             _atlasesReferenceMap = _configuration.atlasesTagsMap;
 
@@ -54,16 +54,17 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 .Forget();
 
             UpdateEditorAtlasMode();
+
+            LifeTime.AddCleanUpAction(CleanUp);
+
+            return this;
         }
 
         public void Dispose() => _lifeTime?.Terminate();
 
         public void Validate()
         {
-            foreach (var activeHandle in activeHandles)
-            {
-                
-            }
+            activeHandles.RemoveAll(x => x.spriteAtlas == null);
         }
         
         private void UpdateEditorAtlasMode()
@@ -92,12 +93,14 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             SpriteAtlasManager.atlasRequested += ProceedSpriteAtlasRequested;
             SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered;
             SpriteAtlasManager.atlasRegistered += OnSpriteAtlasRegistered;
+        }
 
-            LifeTime.AddCleanUpAction(() =>
-            {
-                SpriteAtlasManager.atlasRequested -= ProceedSpriteAtlasRequested;
-                SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered;
-            });
+        private void CleanUp()
+        {
+            SpriteAtlasManager.atlasRequested -= ProceedSpriteAtlasRequested;
+            SpriteAtlasManager.atlasRegistered -= OnSpriteAtlasRegistered;
+            
+            activeHandles.Clear();
         }
 
         public void ProceedSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
@@ -151,10 +154,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             UnloadAtlas(tag);
 
             var handle = await new SpriteAtlasHandle().Load(assetReference);
-            handle.AddTo(LifeTime);
-            
             _loadedAtlases[tag] = handle;
+
+            LifeTime.AddCleanUpAction(() => UnloadAtlas(tag));
             handle.LifeTime.AddCleanUpAction(() => RemoveCached(tag));
+            
             AddEditorHandle(handle);
 
             return handle.spriteAtlas;

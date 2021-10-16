@@ -32,9 +32,16 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
         public AddressableSpriteAtlasConfiguration configuration;
 
+
+        [Sirenix.OdinInspector.Button("Reload Config")]
+        public void Reload()
+        {
+            configuration = AddressableSpriteAtlasConfiguration.AddressableAtlasConfigurationAsset;
+        }
+        
         protected void InitializeWindow(AddressableSpriteAtlasConfiguration configurationAsset)
         {
-            configuration = configurationAsset;
+            Reload();
         }
     }
 }
