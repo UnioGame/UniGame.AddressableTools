@@ -1,24 +1,21 @@
 ﻿
-using System.Linq;
-using UniModules.UniCore.Runtime.Rx.Extensions;
-
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;
 #endif
     
+    using System.Linq;
+    using UniModules.UniCore.Runtime.Rx.Extensions;
     using UnityEngine;
     using System.Collections.Generic;
     using Core.Runtime.ScriptableObjects;
-    using Cysharp.Threading.Tasks;
     using UniModules.UniCore.Runtime.Attributes;
 
     [CreateAssetMenu(menuName = "UniGame/Addressables/SpriteAtlasConfiguration",
         fileName = nameof(AddressableSpriteAtlasConfiguration))]
     public class AddressableSpriteAtlasConfiguration :
-        LifetimeScriptableObject,
-        IAddressableSpriteAtlasHandler
+        LifetimeScriptableObject
     {
         #region inspector
 
@@ -50,21 +47,23 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         [HideLabel]
         [VerticalGroup("Active Handles")]
 #endif
-        public AddressableSpriteAtlasHandler _addressableAtlasHandle;
+        public AddressableSpriteAtlasService _addressableAtlasHandle;
 
 #if UNITY_EDITOR
         public static AddressableSpriteAtlasConfiguration AddressableAtlasConfigurationAsset;
 #endif
         
         #endregion
+
+        public IAddressableAtlasService AtlasService => _addressableAtlasHandle;
         
-        public UniTask Execute()
+        public void Initialize()
         {
 #if UNITY_EDITOR
             AddressableAtlasConfigurationAsset = this;
 #endif
-            Initialize();
-            return UniTask.CompletedTask;
+            _addressableAtlasHandle = new AddressableSpriteAtlasService();
+            _addressableAtlasHandle.Initialize(this);
         }
 
 #if ODIN_INSPECTOR
@@ -113,13 +112,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             if (!disposeOnReset) return;
             Unload();
         }
-        
-        private void Initialize()
-        {
-            _addressableAtlasHandle = new AddressableSpriteAtlasHandler();
-            _addressableAtlasHandle.Bind(this);
-        }
- 
+
 
     }
 }
