@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UniCore.Runtime.ProfilerTools;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
@@ -52,6 +53,29 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
                 }
             }
         }
+
+#if UNITY_EDITOR
+
+        [InitializeOnLoadMethod]
+        private static void InitializeEditor()
+        {
+            void OnPlayModeChanged(PlayModeStateChange playMode)
+            {
+                switch (playMode)
+                {
+                    case PlayModeStateChange.EnteredEditMode:
+                    case PlayModeStateChange.ExitingPlayMode:
+                        AtlasService?.Dispose();
+                        _atlasService = null;
+                        break;
+                }
+            }
+
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        }
+        
+#endif
         
         #endregion
 
