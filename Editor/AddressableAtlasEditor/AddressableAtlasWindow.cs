@@ -6,6 +6,7 @@ using Sirenix.OdinInspector.Editor;
 using UniModules.Editor;
 using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases;
 using UnityEditor;
+using UnityEngine;
 
 namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressableAtlasEditor
 {
@@ -16,33 +17,24 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         [MenuItem("UniGame/Tools/Addressable Atlas Window")]
         public static void OpenWindow()
         {
-            OpenWindow(AssetEditorTools.GetAsset<AddressableSpriteAtlasConfiguration>());
-        }
-
-        public static void OpenWindow(AddressableSpriteAtlasConfiguration configuration)
-        {
             var window = GetWindow<AddressableAtlasWindow>();
-            window.InitializeWindow(configuration);
-            window.Show();
+            window.Reload();
+            window.Show();;
         }
 
         #endregion
         
-        
-        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
-        public AddressableSpriteAtlasConfiguration configuration;
+        [InlineProperty]
+        [SerializeReference]
+        public IAddressableAtlasService atlasService;
 
-
-        [Sirenix.OdinInspector.Button("Reload Config")]
+        [Button("Reload Config")]
         public void Reload()
         {
-            configuration = AddressableSpriteAtlasConfiguration.AddressableAtlasConfigurationAsset;
+            atlasService = AddressableSpriteAtlasAsset.AtlasService;
         }
         
-        protected void InitializeWindow(AddressableSpriteAtlasConfiguration configurationAsset)
-        {
-            Reload();
-        }
+        protected void InitializeWindow(AddressableSpriteAtlasAsset configurationAsset) => Reload();
     }
 }
 

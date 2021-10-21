@@ -52,11 +52,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
             }
 
             EditorCoroutineUtility.StartCoroutineOwnerless(UpdateMode());
-
             AddressableAssetSettings.OnModificationGlobal += OnModification;
         }
 
-
+        [MenuItem("UniGame/Addressables/Reimport All Atlases States")]
         private static void UpdateAtlasStates()
         {
             var atlasHandles = AssetEditorTools.GetAssets<AddressableAtlasesStateAsset>();
@@ -77,14 +76,13 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
                 
                 atlases.atlasTags.Clear();
                 atlases.atlasTags.AddRange(atlasTags);
-                
                 atlasesStateAsset.MarkDirty();
             }
         }
         
         private static void UpdateAtlasMap(List<AssetReferenceSpriteAtlas> atlases)
         {
-            var atlasManagers = AssetEditorTools.GetAssets<AddressableSpriteAtlasConfiguration>();
+            var atlasManagers = AssetEditorTools.GetAssets<AddressableSpriteAtlasAsset>();
             foreach (var manager in atlasManagers) {
                 SetupMap(manager,atlases);
                 manager.MarkDirty();
@@ -113,19 +111,18 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
 
         private static void SetFastModeToManagers(bool isFastMode)
         {
-            var atlasManagers = AssetEditorTools.GetAssets<AddressableSpriteAtlasConfiguration>();
+            var atlasManagers = AssetEditorTools.GetAssets<AddressableSpriteAtlasAsset>();
             
             foreach (var manager in atlasManagers) {
-                manager.isFastMode = isFastMode;
+                manager.settings.isFastMode = isFastMode;
                 manager.MarkDirty();
-                
                 GameLog.Log($"Set fast mode [{isFastMode}] to {manager.name}");
             }
         }
 
-        private static void SetupMap(AddressableSpriteAtlasConfiguration handler, IReadOnlyList<AssetReferenceSpriteAtlas> atlases)
+        private static void SetupMap(AddressableSpriteAtlasAsset handler, IReadOnlyList<AssetReferenceSpriteAtlas> atlases)
         {
-            var map = handler.atlasesTagsMap;
+            var map = handler.settings.atlasesTagsMap;
             map.Clear();
 
             foreach (var atlasRef in atlases) {
