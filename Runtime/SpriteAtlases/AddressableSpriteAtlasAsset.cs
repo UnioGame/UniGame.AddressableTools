@@ -26,6 +26,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
 #if ODIN_INSPECTOR
         [InlineProperty]
+        [HideLabel]
 #endif
         [SerializeField]
         public AddressableAtlasSettings settings;
