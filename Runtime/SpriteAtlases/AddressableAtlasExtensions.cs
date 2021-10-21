@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+
 namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases;
@@ -6,6 +8,16 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Sprite
 
     public static class AddressableAtlasExtensions
     {
+
+        public static ILifeTime BindAtlasLifeTime(this ILifeTime lifeTime,
+            IEnumerable<IAddressableAtlasesState> atlasesStates)
+        {
+            foreach (var state in atlasesStates)
+                BindAtlasLifeTime(lifeTime, state);
+            
+            return lifeTime;
+        }
+
         public static ILifeTime BindAtlasLifeTime(this ILifeTime lifeTime, IAddressableAtlasesState atlasesState)
         {
             var service = AddressableSpriteAtlasAsset.AtlasService;
