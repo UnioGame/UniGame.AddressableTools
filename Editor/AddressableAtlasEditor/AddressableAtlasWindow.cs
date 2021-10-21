@@ -26,6 +26,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         
         [InlineProperty]
         [SerializeReference]
+        [HideLabel]
         public IAddressableAtlasService atlasService;
 
         [Button("Reload Config")]

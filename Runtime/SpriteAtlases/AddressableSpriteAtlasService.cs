@@ -27,12 +27,14 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
 #if ODIN_INSPECTOR
         [InlineProperty]
+        [HideLabel]
 #endif
         [SerializeField]
         public AddressableAtlasSettings configuration;
         
 #if ODIN_INSPECTOR
         [InlineProperty]
+        [Searchable]
 #endif
         public List<SpriteAtlasHandle> activeHandles = new List<SpriteAtlasHandle>();
         
