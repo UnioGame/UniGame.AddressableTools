@@ -4,6 +4,10 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;
 #endif
+
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
     
     using System.Linq;
     using UniModules.UniCore.Runtime.Rx.Extensions;
@@ -40,30 +44,28 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         [SerializeField]
         public bool disposeOnReset = true;
+
+        #endregion
         
-        [SerializeField]
+        
 #if ODIN_INSPECTOR
         [InlineProperty]
         [HideLabel]
         [VerticalGroup("Active Handles")]
 #endif
-        public AddressableSpriteAtlasService _addressableAtlasHandle;
+        public static AddressableSpriteAtlasService addressableAtlasHandle;
 
-#if UNITY_EDITOR
-        public static AddressableSpriteAtlasConfiguration AddressableAtlasConfigurationAsset;
-#endif
-        
-        #endregion
-
-        public IAddressableAtlasService AtlasService => _addressableAtlasHandle;
+        public IAddressableAtlasService AtlasService => addressableAtlasHandle;
         
         public void Initialize()
         {
 #if UNITY_EDITOR
-            AddressableAtlasConfigurationAsset = this;
+            if (EditorApplication.isPlaying == false)
+                return;
 #endif
-            _addressableAtlasHandle = new AddressableSpriteAtlasService();
-            _addressableAtlasHandle.Initialize(this);
+            if (addressableAtlasHandle != null) return;
+            addressableAtlasHandle = new AddressableSpriteAtlasService();
+            addressableAtlasHandle.Initialize(this);
         }
 
 #if ODIN_INSPECTOR
@@ -80,16 +82,16 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #endif
         public void Unload()
         {
-            _addressableAtlasHandle.Cancel();
-            _addressableAtlasHandle = null;
+            addressableAtlasHandle.Cancel();
+            addressableAtlasHandle = null;
+            AddressableAtlasConfigurationAsset = null;
         }
-        
         
         [ContextMenu("Validate")]
         public void Validate()
         {
 #if UNITY_EDITOR
-            _addressableAtlasHandle?.Validate();
+            addressableAtlasHandle?.Validate();
             immortalAtlases.RemoveAll(x => x.assetReference == null || x.assetReference.editorAsset == null);
             immortalAtlases.ForEach(x => x.UpdateTag());
             
@@ -102,11 +104,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             }
 #endif
         }
-
-        protected sealed override void OnActivate()
-        {
-        }
-
+        
         protected sealed override void OnReset()
         {
             if (!disposeOnReset) return;
