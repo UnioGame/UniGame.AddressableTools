@@ -1,4 +1,5 @@
-﻿using UniCore.Runtime.ProfilerTools;
+﻿using System.Linq;
+using UniCore.Runtime.ProfilerTools;
 using UniGame.UniNodes.GameFlow.Runtime;
 using UniModules.UniGame.AddressableTools.Runtime.Extensions;
 using UniModules.UniGame.Core.Runtime.DataFlow;
@@ -22,23 +23,34 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     [Serializable]
     public class AddressableSpriteAtlasService : GameService, IAddressableAtlasService
     {
-        private AddressableSpriteAtlasConfiguration _configuration;
-
-        private Dictionary<string, SpriteAtlasHandle> _loadedAtlases = new Dictionary<string, SpriteAtlasHandle>(8);
-        private Dictionary<string, SpriteAtlas> _registeredAtlases = new Dictionary<string, SpriteAtlas>(8);
-        private Dictionary<string, UnionLifeTime> _atlasLifeTime = new Dictionary<string, UnionLifeTime>(8);
-
-        private AddressblesAtlasesTagsMap _atlasesReferenceMap;
+        #region inspector
 
 #if ODIN_INSPECTOR
         [InlineProperty]
+        [HideLabel]
+#endif
+        [SerializeField]
+        public AddressableAtlasSettings configuration;
+        
+#if ODIN_INSPECTOR
+        [InlineProperty]
+        [Searchable]
 #endif
         public List<SpriteAtlasHandle> activeHandles = new List<SpriteAtlasHandle>();
+        
+        #endregion
 
-        public AddressableSpriteAtlasService Initialize(AddressableSpriteAtlasConfiguration configuration)
+        private AddressblesAtlasesTagsMap _atlasesReferenceMap;
+        
+        private Dictionary<string, SpriteAtlasHandle> _loadedAtlases = new Dictionary<string, SpriteAtlasHandle>(8);
+        private Dictionary<string, SpriteAtlas> _registeredAtlases = new Dictionary<string, SpriteAtlas>(8);
+        private Dictionary<string, UnionLifeTime> _atlasLifeTime = new Dictionary<string, UnionLifeTime>(8);
+        
+
+        public AddressableSpriteAtlasService Initialize(AddressableAtlasSettings data)
         {
-            _configuration = configuration;
-            _atlasesReferenceMap = _configuration.atlasesTagsMap;
+            configuration = data;
+            _atlasesReferenceMap = configuration.atlasesTagsMap;
 
             BindToAtlasManager();
 
@@ -69,7 +81,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         private void UpdateEditorAtlasMode()
         {
 #if UNITY_EDITOR
-            if (!_configuration.isFastMode) return;
+            if (!configuration.isFastMode) return;
 
             foreach (var atlasPair in _atlasesReferenceMap)
             {
@@ -94,8 +106,8 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         private async UniTask PreloadAtlases()
         {
-            var preload = _configuration.preloadImmortalAtlases;
-            var preloadAtlases = _configuration.immortalAtlases;
+            var preload = configuration.preload;
+            var preloadAtlases = configuration.preloadAtlases;
             if (preload)
                 await UniTask.WhenAll(preloadAtlases.Select(x => LoadAtlas(x.tag, x.assetReference)));
         }
@@ -183,11 +195,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         private void AddEditorHandle(SpriteAtlasHandle handle)
         {
 #if UNITY_EDITOR
-            if (activeHandles.Contains(handle))
+            if (activeHandles.Contains(handle) || activeHandles.Any(x => x.tag == handle.tag))
                 return;
+            
             activeHandles.Add(handle);
-            GetAtlasLifeTime(handle.tag)
-                .AddCleanUpAction(() => activeHandles.Remove(handle));
+            GetAtlasLifeTime(handle.tag).AddCleanUpAction(() => activeHandles.Remove(handle));
 #endif
         }
 

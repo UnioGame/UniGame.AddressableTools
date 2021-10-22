@@ -1,6 +1,8 @@
 ﻿using Cysharp.Threading.Tasks;
 using UniModules.UniCore.Runtime.Common;
 using UniModules.UniCore.Runtime.ObjectPool.Runtime;
+using UniModules.UniCore.Runtime.Rx.Extensions;
+using UniModules.UniGame.Core.Runtime.Rx;
 
 namespace UniGame.Addressables.Reactive
 {
@@ -17,62 +19,48 @@ namespace UniGame.Addressables.Reactive
     using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 
-    [Serializable]
     public class AddressableObservable<TAddressable,TData,TApi> : 
-        IAddressableObservable<TApi> ,
-        IPoolable
+        IAddressableObservable<TApi> 
         where TAddressable : AssetReference 
         where TData : Object
         where TApi : class
     {
-        #region inspector
-
-        [SerializeField] 
-        protected TAddressable reference;
         
-        #endregion
+        private TAddressable _reference;
+        private LifeTimeDefinition _lifeTime;
+        private RecycleReactiveProperty<TApi> _addressableObservable;
 
-        private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
+        public AddressableObservable(TAddressable addressable)
+        {
+            _lifeTime = new LifeTimeDefinition();
+            _addressableObservable = new RecycleReactiveProperty<TApi>().AddTo(_lifeTime);
+            _reference = addressable;
+        }
         
         #region public methods
-        
-        /// <summary>
-        /// initialize property with target Addressable Asset 
-        /// </summary>
-        /// <param name="addressable"></param>
-        public IAddressableObservable<TApi> Initialize(TAddressable addressable)
-        {
-            _lifeTime = _lifeTime ?? new LifeTimeDefinition();
-            
-            reference = addressable;
-            
-            _lifeTime.AddCleanUpAction(() => reference = null);
-            return this;
-        }
 
-        public AssetReference AssetReference => reference;
+        public AssetReference AssetReference => _reference;
         
         public IDisposable Subscribe(IObserver<TApi> observer)
         {
             if (!ValidateReference()) {
+                observer.OnError(new MissingReferenceException($"Asset reference of {this.GetType().Name} is wrong"));
                 return Disposable.Empty;
             }
 
-            var disposableActon = ClassPool.Spawn<DisposableAction>();
-            var lifeTime = LifeTime.Create();
+            var disposable = _addressableObservable.Subscribe(observer);
 
-            disposableActon.Initialize(() => lifeTime.Despawn());
+            if (_addressableObservable.HasValue)
+                return disposable;
             
-            LoadReference(observer,lifeTime)
+            LoadReference(_lifeTime)
                 .AttachExternalCancellation(_lifeTime.AsCancellationToken())
                 .Forget();
             
-            return disposableActon;
+            return disposable;
         }
 
-        public void Dispose() => this.Despawn();
-        
-        public void Release() => _lifeTime.Release();
+        public void Dispose() => _lifeTime.Terminate();
 
         #endregion
         
@@ -80,34 +68,29 @@ namespace UniGame.Addressables.Reactive
 
         private bool ValidateReference()
         {
-            if (reference != null && reference.RuntimeKeyIsValid()) 
+            if (_reference != null && _reference.RuntimeKeyIsValid()) 
                 return true;
             
-            GameLog.LogWarning($"AddressableObservable : LOAD Addressable Failed {reference}");
+            GameLog.LogWarning($"AddressableObservable : LOAD Addressable Failed {_reference}");
 
             return false;
 
         }
         
-        private async UniTask LoadReference(IObserver<TApi> observer,ILifeTime lifeTime)
+        private async UniTask LoadReference(ILifeTime lifeTime)
         {
-            if (!ValidateReference()) {
-                observer.OnError(new MissingReferenceException($"Asset reference of {this.GetType().Name} is wrong"));
-                return;
-            }
-
             var targetType = typeof(TData);
             var apiType = typeof(TApi);
 
             var isComponent = targetType.IsComponent() || apiType.IsComponent();
 
             var valueData = isComponent
-                ? await reference.LoadGameObjectAssetTaskAsync<TApi>(lifeTime)
-                : await reference.LoadAssetTaskApiAsync<TData,TApi>(lifeTime);
+                ? await _reference.LoadGameObjectAssetTaskAsync<TApi>(lifeTime)
+                : await _reference.LoadAssetTaskApiAsync<TData,TApi>(lifeTime);
 
             await UniTask.SwitchToMainThread();
-            
-            observer.OnNext(valueData);
+
+            _addressableObservable.Value = valueData;
         }
         
         
