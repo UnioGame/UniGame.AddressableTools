@@ -159,6 +159,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             IProgress<HandleStatus> progress = null)
             where T : Object
         {
+            if (lifeTime.IsTerminated)
+                return default(T);
+            
             if (assetReference.RuntimeKeyIsValid() == false)
             {
                 GameLog.LogError($"AssetReference key is NULL {assetReference}");

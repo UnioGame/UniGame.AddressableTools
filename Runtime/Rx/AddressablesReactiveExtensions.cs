@@ -11,39 +11,34 @@
             where TData : Object , TApi
             where TApi : class
         {
-            var observable = ClassPool.Spawn<AddressableObservable<AssetReferenceT<TData>, TData,TApi>>();
-            observable.Initialize(reference);
+            var observable = new AddressableObservable<AssetReferenceT<TData>, TData, TApi>(reference);
             return observable;
         }
         
         public static IAddressableObservable<TData> ToObservable<TData>(this AssetReferenceT<TData> reference) 
             where TData : Object
         {
-            var observable = ClassPool.Spawn<AddressableObservable<AssetReferenceT<TData>, TData,TData>>();
-            observable.Initialize(reference);
+            var observable = new AddressableObservable<AssetReferenceT<TData>, TData, TData>(reference);
             return observable;
         }
         
         public static IAddressableObservable<TApi> ToObservable<TApi>(this AssetReference reference) 
             where TApi : class
         {
-            var observable = ClassPool.Spawn<AddressableObservable<AssetReference, Object,TApi>>();
-            observable.Initialize(reference);
+            var observable = new AddressableObservable<AssetReference, Object, TApi>(reference);
             return observable;
         }
         
         public static IAddressableObservable<TApi> ToObservable<TApi>(this AssetReferenceGameObject reference) 
             where TApi : class
         {
-            var observable = ClassPool.Spawn<AddressableObservable<AssetReference, GameObject,TApi>>();
-            observable.Initialize(reference);
+            var observable = new AddressableObservable<AssetReference, GameObject,TApi>(reference);
             return observable;
         }
         
-        public static IAddressableObservable<Object> ToObservable(this AssetReference reference) 
+        public static IAddressableObservable<Object> ToObservable(this AssetReference reference)
         {
-            var observable = ClassPool.Spawn<AddressableObservable<AssetReference, Object,Object>>();
-            observable.Initialize(reference);
+            var observable = new AddressableObservable<AssetReference, Object, Object>(reference);
             return observable;
         }
 
