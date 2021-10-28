@@ -22,13 +22,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
     {
         private const int FastModeIndex = 0;
 
-        [InitializeOnLoadMethod]
-        public static void Initialize()
-        {
-            MessageBroker.Default
-                .Receive<UpdateAddressableAtlasesMessage>()
-                .Subscribe(x => Reimport());
-        }
         
         [MenuItem("UniGame/Addressables/Reimport Atlases")]
         public static void Reimport()
@@ -46,6 +39,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManag
         [InitializeOnLoadMethod]
         private static void SubscribeOnAddressableMode()
         {
+            MessageBroker.Default
+                .Receive<UpdateAddressableAtlasesMessage>()
+                .Subscribe(x => Reimport());
+            
             if (!AddressableAssetSettingsDefaultObject.SettingsExists) {
                 GameLog.LogError("Addressable Asset Settings doesn't exist!");
                 return;

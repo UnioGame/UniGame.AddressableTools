@@ -38,6 +38,7 @@ public static class AddressablesAssetsFix
         errors = ValidateMissingReferences(errors);
         var isValid = errors.Count <= 0;
         PrintStatus(isValid, errors, LogType.Error);
+        
         if (!isValid)
             return;
         
