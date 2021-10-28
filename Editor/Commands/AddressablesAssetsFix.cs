@@ -11,8 +11,6 @@ using UnityEngine;
 
 namespace UniModules.UniBuild.Commands
 {
-    
-[InitializeOnLoad]
 public static class AddressablesAssetsFix
 {
     private const string EmptyAddressableEntry = "- {fileID: 0}";
@@ -31,11 +29,6 @@ public static class AddressablesAssetsFix
         Group     = null,
         ErrorType = AddressableErrorType.MissingEntry
     };
-
-    static AddressablesAssetsFix()
-    {
-        FixAddressablesErrors();
-    }
 
     [MenuItem(itemName: "UniGame/Addressables/Validate Addressables Errors")]
     public static void Validate()
