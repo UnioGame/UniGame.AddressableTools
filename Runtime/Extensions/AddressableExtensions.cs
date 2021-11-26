@@ -341,15 +341,18 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
         {
             if (incrementRefCount)
                 Addressables.ResourceManager.Acquire(handle);
-            lifeTime.AddCleanUpAction(() =>
-            {
-                if (handle.IsValid() == false)
-                    return;
-                Addressables.Release(handle);
-            });
+            lifeTime.AddCleanUpAction(() => ReleaseHandle(handle).Forget());
             return handle;
         }
 
+        public static async UniTask ReleaseHandle<TAsset>(this AsyncOperationHandle<TAsset> handle)
+        {
+            if (handle.IsValid() == false)
+                return;
+            await UniTask.SwitchToMainThread();
+            Addressables.Release(handle);
+        }
+        
         public static ILifeTime AddTo<TAsset>(this AssetReferenceT<TAsset> handle, ILifeTime lifeTime)
             where TAsset : Object
         {
