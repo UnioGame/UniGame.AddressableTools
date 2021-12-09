@@ -64,7 +64,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             {
                 switch (playMode)
                 {
-                    case PlayModeStateChange.EnteredEditMode:
                     case PlayModeStateChange.ExitingPlayMode:
                         AtlasService?.Dispose();
                         _atlasService = null;

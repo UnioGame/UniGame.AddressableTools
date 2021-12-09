@@ -11,8 +11,6 @@ using UnityEngine;
 
 namespace UniModules.UniBuild.Commands
 {
-    
-[InitializeOnLoad]
 public static class AddressablesAssetsFix
 {
     private const string EmptyAddressableEntry = "- {fileID: 0}";
@@ -32,11 +30,6 @@ public static class AddressablesAssetsFix
         ErrorType = AddressableErrorType.MissingEntry
     };
 
-    static AddressablesAssetsFix()
-    {
-        FixAddressablesErrors();
-    }
-
     [MenuItem(itemName: "UniGame/Addressables/Validate Addressables Errors")]
     public static void Validate()
     {
@@ -45,6 +38,7 @@ public static class AddressablesAssetsFix
         errors = ValidateMissingReferences(errors);
         var isValid = errors.Count <= 0;
         PrintStatus(isValid, errors, LogType.Error);
+        
         if (!isValid)
             return;
         
@@ -56,6 +50,8 @@ public static class AddressablesAssetsFix
     [MenuItem(itemName: "UniGame/Addressables/Fix Addressables Errors")]
     public static void FixAddressablesErrors()
     {
+        RemoveMissingGroupReferences();
+        
         var errors  = new List<AddressableAssetEntryError>();
         errors = ValidateMissingReferences(errors);
         FixMissingReferences(errors);
@@ -66,6 +62,38 @@ public static class AddressablesAssetsFix
         var isValid = errors.Count <= 0;
         PrintStatus(isValid, errors, LogType.Warning);
     }
+    
+    [MenuItem(itemName: "UniGame/Addressables/Remove Missing References")]
+    public static bool RemoveMissingGroupReferences()
+    {
+        var result = false;
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        var groups = settings.groups;
+        
+        List<int> missingGroupsIndices = new List<int>();
+        for (int i = 0; i < groups.Count; i++)
+        {
+            var g = groups[i];
+            if (g == null)
+                missingGroupsIndices.Add(i);
+        }
+        
+        if (missingGroupsIndices.Count > 0)
+        {
+            Debug.Log("Addressable settings contains " + missingGroupsIndices.Count + " group reference(s) that are no longer there. Removing reference(s).");
+            for (int i = missingGroupsIndices.Count - 1; i >= 0; i--)
+            {
+                groups.RemoveAt(missingGroupsIndices[i]);
+            }
+
+            result = true;
+            settings.MarkDirty();
+        }
+
+        result = false;
+        return result;
+    }
+
 
     public static void FixAddressablesGuids(List<AddressableAssetEntryError> errors)
     {
