@@ -66,6 +66,7 @@ public static class AddressablesAssetsFix
     [MenuItem(itemName: "UniGame/Addressables/Remove Missin References")]
     public static bool RemoveMissingGroupReferences()
     {
+        var result = false;
         var settings = AddressableAssetSettingsDefaultObject.Settings;
         var groups = settings.groups;
         
@@ -84,10 +85,13 @@ public static class AddressablesAssetsFix
             {
                 groups.RemoveAt(missingGroupsIndices[i]);
             }
-            return true;
+
+            result = true;
+            settings.MarkDirty();
         }
-        
-        return false;
+
+        result = false;
+        return result;
     }
 
 
