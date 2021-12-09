@@ -63,7 +63,7 @@ public static class AddressablesAssetsFix
         PrintStatus(isValid, errors, LogType.Warning);
     }
     
-    [MenuItem(itemName: "UniGame/Addressables/Remove Missin References")]
+    [MenuItem(itemName: "UniGame/Addressables/Remove Missing References")]
     public static bool RemoveMissingGroupReferences()
     {
         var result = false;
