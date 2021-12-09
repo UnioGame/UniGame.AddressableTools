@@ -50,6 +50,8 @@ public static class AddressablesAssetsFix
     [MenuItem(itemName: "UniGame/Addressables/Fix Addressables Errors")]
     public static void FixAddressablesErrors()
     {
+        RemoveMissingGroupReferences();
+        
         var errors  = new List<AddressableAssetEntryError>();
         errors = ValidateMissingReferences(errors);
         FixMissingReferences(errors);
@@ -60,6 +62,34 @@ public static class AddressablesAssetsFix
         var isValid = errors.Count <= 0;
         PrintStatus(isValid, errors, LogType.Warning);
     }
+    
+    [MenuItem(itemName: "UniGame/Addressables/Remove Missin References")]
+    public static bool RemoveMissingGroupReferences()
+    {
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        var groups = settings.groups;
+        
+        List<int> missingGroupsIndices = new List<int>();
+        for (int i = 0; i < groups.Count; i++)
+        {
+            var g = groups[i];
+            if (g == null)
+                missingGroupsIndices.Add(i);
+        }
+        
+        if (missingGroupsIndices.Count > 0)
+        {
+            Debug.Log("Addressable settings contains " + missingGroupsIndices.Count + " group reference(s) that are no longer there. Removing reference(s).");
+            for (int i = missingGroupsIndices.Count - 1; i >= 0; i--)
+            {
+                groups.RemoveAt(missingGroupsIndices[i]);
+            }
+            return true;
+        }
+        
+        return false;
+    }
+
 
     public static void FixAddressablesGuids(List<AddressableAssetEntryError> errors)
     {
