@@ -21,6 +21,12 @@
         private static Dictionary<FieldInfo,PropertyDrawer> drawers = new Dictionary<FieldInfo, PropertyDrawer>();
 
         private bool isFoldoutOpen = false;
+
+#if ODIN_INSPECTOR
+        private bool odinSupport = true;  
+#else 
+        private bool odinSupport = false;
+#endif
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => FieldHeight + base.GetPropertyHeight(property, label);
 
@@ -87,12 +93,11 @@
             var mainType  = AssetDatabase.GetMainAssetTypeAtPath(assetPath);
             var asset     = AssetDatabase.LoadAssetAtPath(assetPath, mainType);
 
-            EditorDrawerUtils.DrawDisabled(() => {
-                EditorGUI.ObjectField(position,assetLabel, asset, asset != null ? asset.GetType() : null,false);
-            }); 
+            if (!odinSupport)
+                EditorDrawerUtils.DrawDisabled(() => EditorGUI.ObjectField(position,assetLabel, asset, asset != null 
+                    ? asset.GetType() : null,false));    
             
             isFoldoutOpen = asset.DrawOdinPropertyWithFoldout(isFoldoutOpen);
-            
         }
 
         public void DrawOnGuiAssetReferenceInspector(string assetGuid)
