@@ -1,4 +1,8 @@
-﻿namespace UniModules.UniGame.AddressableExtensions.Editor
+﻿using System;
+using System.Collections;
+using UnityEngine.ResourceManagement.ResourceLocations;
+
+namespace UniModules.UniGame.AddressableExtensions.Editor
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -11,6 +15,7 @@
 
     public static class AddressableTools
     {
+        private static AddressablesResourceComparer addressablesComparerInstance = new AddressablesResourceComparer();
         private static AddressableAssetSettings addressableAssetSettings;
         
         public static AssetReference FindReferenceByAddress(this AddressableAssetSettings settings,string address)
@@ -26,6 +31,112 @@
             return new AssetReference(asset.guid);
         }
 
+        public static object EvaluateKey(object obj)
+        {
+            return obj is IKeyEvaluator ? (obj as IKeyEvaluator).RuntimeKey : obj;
+        }
+        
+        public static bool GetResourceLocations(object key, Type type, out IList<IResourceLocation> locations)
+        {
+            locations = null;
+            
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+
+            if (settings == null)
+                return false;
+            
+            if (type == null && (key is AssetReference))
+                type = (key as AssetReference)?.editorAsset.GetType();
+            
+            key = EvaluateKey(key);
+
+            locations = null;
+            HashSet<IResourceLocation> current = null;
+            foreach (var locator in Addressables.ResourceLocators)
+            {
+                IList<IResourceLocation> locs;
+                if (!locator.Locate(key, type, out locs)) 
+                    continue;
+                
+                if (locations == null)
+                {
+                    //simple, common case, no allocations
+                    locations = locs;
+                    continue;
+                }
+
+                //less common, need to merge...
+                if (current == null)
+                {
+                    current = new HashSet<IResourceLocation>();
+                    foreach (var loc in locations)
+                        current.Add(loc);
+                }
+
+                current.UnionWith(locs);
+            }
+
+            if (current == null)
+                return locations != null;
+
+            locations = new List<IResourceLocation>(current);
+            
+            return true;
+        }
+
+        public static bool GetResourceLocations(IEnumerable keys, Type type, Addressables.MergeMode merge, out IList<IResourceLocation> locations)
+        {
+            locations = null;
+            HashSet<IResourceLocation> current = null;
+            foreach (var key in keys)
+            {
+                IList<IResourceLocation> locs;
+                if (GetResourceLocations(key, type, out locs))
+                {
+                    if (locations == null)
+                    {
+                        locations = locs;
+                        if (merge == Addressables.MergeMode.UseFirst)
+                            return true;
+                    }
+                    else
+                    {
+                        current ??= new HashSet<IResourceLocation>(locations, addressablesComparerInstance);
+
+                        switch (merge)
+                        {
+                            case Addressables.MergeMode.Intersection:
+                                current.IntersectWith(locs);
+                                break;
+                            case Addressables.MergeMode.Union:
+                                current.UnionWith(locs);
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    //if entries for a key are not found, the intersection is empty
+                    if (merge == Addressables.MergeMode.Intersection)
+                    {
+                        locations = null;
+                        return false;
+                    }
+                }
+            }
+
+            if (current == null)
+                return locations != null;
+            if (current.Count == 0)
+            {
+                locations = null;
+                return false;
+            }
+            locations = new List<IResourceLocation>(current);
+            return true;
+        }
+        
+        
         public static AssetReference FindReferenceByAddress(string address)
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
