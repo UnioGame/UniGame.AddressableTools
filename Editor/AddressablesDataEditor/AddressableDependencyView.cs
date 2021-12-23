@@ -52,9 +52,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
             if (!target || !target.IsInAnyAddressableAssetGroup())
                 return emptyData;
 
-            var assetReference = new AssetReference(target.GetGUID());
+            var guid = target.GetGUID();
+            var assetReference = new AssetReference(guid);
                 
-            AddressableEditorTools.GetResourceLocations(assetReference, typeof(object), out var locations);
+            AddressableEditorTools.GetResourceLocations(guid, typeof(object), out var locations);
             if (locations == null)
                 return emptyData;
             
