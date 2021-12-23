@@ -24,7 +24,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
 
         #region inspector
 
-        [InlineEditor()]
+        [InlineProperty]
         [HideLabel]
         [TitleGroup("addressables data")]
         public AddressableDataView view = new AddressableDataView();
@@ -34,7 +34,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         protected override void Initialize()
         {
             base.Initialize();
-            view = new AddressableDataView();
+            view = new AddressableDataView().Initialize();
         }
     }
 

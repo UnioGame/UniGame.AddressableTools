@@ -15,6 +15,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         
         public const string assetDataGroup = "input:";
 
+        [InlineEditor]
         [VerticalGroup(assetDataGroup)]
         [OnValueChanged(nameof(Refresh))]
         public Object asset;
@@ -27,12 +28,20 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         public bool enableSelection = true;
 
         [Space]
+        [HideLabel]
         [InlineProperty]
         public AddressableDependencyView dependences = new AddressableDependencyView();
         
         #endregion
 
         private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
+
+        public AddressableDataView Initialize()
+        {
+            OnSelectionStatusChanged();
+            Refresh();
+            return this;
+        }
         
         public void UpdateSelection()
         {

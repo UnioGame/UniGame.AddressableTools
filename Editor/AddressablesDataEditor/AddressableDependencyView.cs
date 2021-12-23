@@ -18,6 +18,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         public Object asset;
         
         [Space]
+        [InlineProperty]
         [SerializeReference]
         [ListDrawerSettings(ListElementLabelName = nameof(IResourceLocation.InternalId))]
         public List<IResourceLocation> references = new List<IResourceLocation>();
