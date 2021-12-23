@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using UniModules.Editor;
 using UniModules.UniGame.AddressableExtensions.Editor;
 using UniModules.UniGame.AddressableTools.Runtime.Extensions;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using Object = UnityEngine.Object;
 
@@ -12,6 +14,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
     [Serializable]
     public class AddressableDependencyView
     {
+        private static List<IResourceLocation> emptyData = new List<IResourceLocation>();
+        
         #region inspector
 
         [InlineProperty]
@@ -45,12 +49,15 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
 
         public List<IResourceLocation> CreateDependencyData(Object target)
         {
-            var result = new List<IResourceLocation>();
-            var assetReference = target.GetAddressableAssetEntry();
-            if (assetReference == null)
-                return result;
+            if (!target || !target.IsInAnyAddressableAssetGroup())
+                return emptyData;
+
+            var assetReference = new AssetReference(target.GetGUID());
                 
             AddressableEditorTools.GetResourceLocations(assetReference, typeof(object), out var locations);
+            if (locations == null)
+                return emptyData;
+            
             var dependenciesFromLocations = AddressableRuntimeTools.GatherDependenciesFromLocations(locations);
             return dependenciesFromLocations;
         }
