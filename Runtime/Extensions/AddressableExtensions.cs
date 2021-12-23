@@ -1,5 +1,6 @@
 ﻿using System;
 using UniRx;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 {
@@ -275,7 +276,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             var result = await LoadAssetTaskAsync<ScriptableObject>(assetReference as AssetReference, lifeTime);
             return result as T;
         }
-
+        
         public static async UniTask<TApi> LoadAssetTaskAsync<T, TApi>(
             this AssetReferenceScriptableObject<T, TApi> assetReference,
             ILifeTime lifeTime)

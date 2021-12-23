@@ -1,62 +1,52 @@
 #if ODIN_INSPECTOR
 
 using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using UniModules.UniCore.Runtime.DataFlow;
 using UnityEditor;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
+namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
 {
-    using UnityEngine;
-    
     public class AddressablesDataWindow : OdinEditorWindow
     {
-        
-    }
+        #region static data
 
-    [Serializable]
-    public class AddressablesDataView : IDisposable
-    {
-        #region inspector
-        
-        public const string assetDataGroup = "input:";
-
-        [VerticalGroup(assetDataGroup)]
-        public Object target;
-
-        [VerticalGroup(assetDataGroup)]
-        public string guid;
-
-        [VerticalGroup(assetDataGroup)]
-        [OnValueChanged(nameof(OnSelectionStatusChanged))]
-        public bool enableSelection = true;
+        [MenuItem("UniGame/Tools/Addressable Data Window")]
+        public static void OpenWindow()
+        {
+            var window = GetWindow<AddressablesDataWindow>();
+            window.Show();;
+        }
 
         #endregion
 
-        private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
-        
-        public void UpdateSelection()
-        {
-            
-        }
-        
-        public void OnSelectionStatusChanged()
-        {
-            Selection.selectionChanged -= UpdateSelection;
-            if(enableSelection)
-                Selection.selectionChanged += UpdateSelection;
-        }
+        #region inspector
 
-        public void Dispose() => _lifeTime.Terminate();
+        [InlineEditor()]
+        [HideLabel]
+        [TitleGroup("addressables data")]
+        public AddressableDataView view = new AddressableDataView();
+
+        #endregion
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            view = new AddressableDataView();
+        }
     }
 
     [Serializable]
-    public class AddressableAssetData
+    public class AddressableResourceData
     {
-        
+        public string referenceId;
+        public IResourceLocation location;
+        public bool isRemote;
+
+        public List<AddressableResourceData> dependences = new List<AddressableResourceData>();
     }
-    
 }
 
 #endif

@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections;
-using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
 {
+    using System.Collections;
+    using UnityEngine.ResourceManagement.ResourceLocations;
+    using UnityEngine.ResourceManagement.ResourceProviders;
     using System.Collections.Generic;
     using System.Linq;
     using UniModules.Editor;
@@ -13,7 +14,7 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 
-    public static class AddressableTools
+    public static class AddressableEditorTools
     {
         private static AddressablesResourceComparer addressablesComparerInstance = new AddressablesResourceComparer();
         private static AddressableAssetSettings addressableAssetSettings;
@@ -34,6 +35,26 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
         public static object EvaluateKey(object obj)
         {
             return obj is IKeyEvaluator ? (obj as IKeyEvaluator).RuntimeKey : obj;
+        }
+        
+        
+        public static List<IResourceLocation> GatherDependenciesFromLocations(IList<IResourceLocation> locations)
+        {
+            var locHash = new HashSet<IResourceLocation>();
+            foreach (var loc in locations)
+            {
+                if (loc.ResourceType == typeof(IAssetBundleResource))
+                {
+                    locHash.Add(loc);
+                }
+                if (loc.HasDependencies)
+                {
+                    foreach (var dep in loc.Dependencies)
+                        if (dep.ResourceType == typeof(IAssetBundleResource))
+                            locHash.Add(dep);
+                }
+            }
+            return new List<IResourceLocation>(locHash);
         }
         
         public static bool GetResourceLocations(object key, Type type, out IList<IResourceLocation> locations)
@@ -152,7 +173,7 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             return result;
         }
         
-        public static AddressableAssetEntry CreateAssetEntry<T>(T source, string groupName, string label) where T : Object
+        public static AddressableAssetEntry CreateAssetEntry<T>(T source, string groupName, string label) where T : UnityEngine.Object
         {
             var entry = CreateAssetEntry(source, groupName);
             if (source != null) {

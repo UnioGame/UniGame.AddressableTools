@@ -73,9 +73,9 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             if (source == null || !AssetDatabase.Contains(source))
                 return;
             
-            var group = !AddressableTools.GroupExists(groupName) ?
-                AddressableTools.CreateGroup(groupName) : 
-                AddressableTools.GetGroup(groupName);
+            var group = !AddressableEditorTools.GroupExists(groupName) ?
+                AddressableEditorTools.CreateGroup(groupName) : 
+                AddressableEditorTools.GetGroup(groupName);
             
             source.SetAddressableAssetGroup(group);
         }
