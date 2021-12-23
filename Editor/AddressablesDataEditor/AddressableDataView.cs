@@ -48,7 +48,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
             var selectedAsset = Selection.activeObject;
             if (selectedAsset == null) return;
             if (selectedAsset == asset) return;
-            Initialize(asset);
+            Initialize(selectedAsset);
         }
 
         public void Refresh()
