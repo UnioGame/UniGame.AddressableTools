@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Reflection;
+using UniModules.UniCore.Runtime.ReflectionUtils;
+using UniModules.UniCore.Runtime.Utils;
+using UnityEngine.AddressableAssets.ResourceLocators;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
 {
@@ -18,7 +22,10 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
     {
         private static AddressablesResourceComparer addressablesComparerInstance = new AddressablesResourceComparer();
         private static AddressableAssetSettings addressableAssetSettings;
-        
+
+        private static MemorizeItem<ResourceLocatorType, IResourceLocator> resourceLocators =
+            MemorizeTool.Memorize<ResourceLocatorType, IResourceLocator>(CreateLocator);
+
         public static AssetReference FindReferenceByAddress(this AddressableAssetSettings settings,string address)
         {
             var entries = new List<AddressableAssetEntry>();
@@ -32,6 +39,18 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             return new AssetReference(asset.guid);
         }
 
+        public static IResourceLocator CreateLocator(ResourceLocatorType locatorType)
+        {
+            if (!AddressableAssetSettingsDefaultObject.SettingsExists)
+                return new DummyLocator();
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            var type = ReflectionTools.GetTypeByName("AddressableAssetSettingsLocator");
+            var locatorConstructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
+            var constructor = locatorConstructors.First();
+            var locator = constructor.Invoke(new object[] { settings }) as IResourceLocator;
+            return locator;
+        }
+        
         public static object EvaluateKey(object obj)
         {
             return obj is IKeyEvaluator ? (obj as IKeyEvaluator).RuntimeKey : obj;
@@ -66,14 +85,17 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             if (settings == null)
                 return false;
             
-            if (type == null && (key is AssetReference))
-                type = (key as AssetReference)?.editorAsset.GetType();
+            if (type == null && key is AssetReference reference)
+                type = reference.editorAsset.GetType();
             
             key = EvaluateKey(key);
-
+            
             locations = null;
             HashSet<IResourceLocation> current = null;
-            foreach (var locator in Addressables.ResourceLocators)
+
+            var locators = new List<IResourceLocator>(){resourceLocators[ResourceLocatorType.AddressableSettingsLocator]};
+            
+            foreach (var locator in locators)
             {
                 IList<IResourceLocation> locs;
                 if (!locator.Locate(key, type, out locs)) 
@@ -252,4 +274,5 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             return addressableSettings.FindGroup(groupName) != null;
         }
     }
+    
 }

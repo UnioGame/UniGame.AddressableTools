@@ -1,38 +1,39 @@
-﻿using System;
-using Sirenix.OdinInspector;
-using UniModules.Editor;
-using UniModules.UniCore.Runtime.DataFlow;
-using UnityEditor;
-using UnityEngine;
-using Object = UnityEngine.Object;
-
-namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
+﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
 {
+    using System;
+    using Sirenix.OdinInspector;
+    using UniModules.UniCore.Runtime.DataFlow;
+    using UnityEditor;
+    using UnityEngine;
+    using Object = UnityEngine.Object;
+    
     [Serializable]
     public class AddressableDataView : IDisposable
     {
+        public const string Settings = "settings";
+
         #region inspector
-        
-        public const string assetDataGroup = "input:";
 
-        [InlineEditor]
-        [VerticalGroup(assetDataGroup)]
-        [OnValueChanged(nameof(Refresh))]
-        public Object asset;
-
-        [VerticalGroup(assetDataGroup)]
-        public string guid;
-
-        [VerticalGroup(assetDataGroup)]
+        [FoldoutGroup(Settings)]
         [OnValueChanged(nameof(OnSelectionStatusChanged))]
         public bool enableSelection = true;
 
+        [InlineProperty]
+        [HideLabel]
+        [BoxGroup(nameof(asset))]
+        public AddressableAssetView assetView = new AddressableAssetView();
+                
+        [Space]
         [Space]
         [HideLabel]
         [InlineProperty]
+        [TitleGroup(nameof(dependences))]
         public AddressableDependencyView dependences = new AddressableDependencyView();
+
         
         #endregion
+
+        private Object asset;
 
         private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
 
@@ -51,6 +52,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
             Initialize(selectedAsset);
         }
 
+        [Button]
         public void Refresh()
         {
             Initialize(asset);
@@ -58,10 +60,16 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         
         public AddressableDataView Initialize(Object target)
         {
-            asset = target;
-            guid = asset == null ? string.Empty : asset.GetGUID();
-            dependences.UpdateView(asset);
+            assetView.Initialize(target);
+            dependences.Initialize(target);
+
             return this;
+        }
+
+        public void Reset()
+        {
+            assetView.Reset();
+            dependences.Reset();
         }
         
         public void OnSelectionStatusChanged()
@@ -72,5 +80,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         }
 
         public void Dispose() => _lifeTime.Terminate();
+        
     }
 }

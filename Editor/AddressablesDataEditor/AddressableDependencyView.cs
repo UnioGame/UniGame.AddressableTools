@@ -19,30 +19,27 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         #region inspector
 
         [InlineProperty]
-        public Object asset;
-        
-        [Space]
-        [InlineProperty]
         [SerializeReference]
         [ListDrawerSettings(ListElementLabelName = nameof(IResourceLocation.InternalId))]
         public List<IResourceLocation> references = new List<IResourceLocation>();
 
         #endregion
 
+        private Object asset;
+
         [Button]
         public void Update()
         {
-            Clear();
-            
+            Reset();
             if (!asset) return;
-            UpdateView(asset);
+            Initialize(asset);
         }
         
-        public void UpdateView(Object target)
+        public void Initialize(Object target)
         {
             asset = target;
             
-            Clear();
+            Reset();
 
             references = CreateDependencyData(asset);
         }
@@ -56,6 +53,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
             var assetReference = new AssetReference(guid);
                 
             AddressableEditorTools.GetResourceLocations(guid, typeof(object), out var locations);
+            
             if (locations == null)
                 return emptyData;
             
@@ -63,9 +61,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
             return dependenciesFromLocations;
         }
 
-
-
-        public void Clear()
+        
+        public void Reset()
         {
             references.Clear();
         }
