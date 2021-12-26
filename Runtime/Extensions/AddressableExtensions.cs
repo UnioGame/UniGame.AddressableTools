@@ -68,6 +68,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             await assetReference.LoadAssetsTaskAsync<ScriptableObject, TResult, AssetReference>(container, lifeTime);
             return container;
         }
+        
+        
+        
 
         public static async UniTask<IEnumerable<TSource>> LoadAssetsTaskAsync<TSource, TAsset>(
             this IEnumerable<TAsset> assetReference,
@@ -153,6 +156,21 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
                 return updatedIds;
             Addressables.ClearDependencyCacheAsync(updatedIds);
             return updatedIds;
+        }
+
+        public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReference assetReference,
+            ILifeTime lifeTime,
+            bool destroyWithLifetime = true,
+            IProgress<HandleStatus> progress = null)
+            where T : Object
+        {
+            var asset = await assetReference.LoadAssetTaskAsync<T>(lifeTime, progress);
+            if (asset == null) return default;
+            var instance = Object.Instantiate(asset);
+            
+            if(destroyWithLifetime) instance.DestroyWith(lifeTime);
+            
+            return instance;
         }
 
         public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, 
