@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UniModules.Editor;
 using UniModules.UniGame.AddressableExtensions.Editor;
-using UniModules.UniGame.AddressableTools.Runtime.Extensions;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.ResourceLocations;
 using Object = UnityEngine.Object;
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
@@ -14,14 +11,14 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
     [Serializable]
     public class AddressableDependencyView
     {
-        private static List<IResourceLocation> emptyData = new List<IResourceLocation>();
+        private static List<ResourceLocationData> emptyData = new List<ResourceLocationData>();
         
         #region inspector
 
         [InlineProperty]
         [SerializeReference]
-        [ListDrawerSettings(ListElementLabelName = nameof(IResourceLocation.InternalId))]
-        public List<IResourceLocation> references = new List<IResourceLocation>();
+        [ListDrawerSettings(ListElementLabelName = nameof(ResourceLocationData.id))]
+        public List<ResourceLocationData> references = new List<ResourceLocationData>();
 
         #endregion
 
@@ -41,24 +38,21 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
             
             Reset();
 
-            references = CreateDependencyData(asset);
+            references.Clear();
+            references.AddRange(CreateDependencyData(asset));
         }
 
-        public List<IResourceLocation> CreateDependencyData(Object target)
+        public IList<ResourceLocationData> CreateDependencyData(Object target)
         {
             if (!target || !target.IsInAnyAddressableAssetGroup())
                 return emptyData;
 
             var guid = target.GetGUID();
-            var assetReference = new AssetReference(guid);
-                
-            AddressableEditorTools.GetResourceLocations(guid, typeof(object), out var locations);
-            
-            if (locations == null)
-                return emptyData;
-            
-            var dependenciesFromLocations = AddressableRuntimeTools.GatherDependenciesFromLocations(locations);
-            return dependenciesFromLocations;
+            var locations = AddressableEditorTools.GetAddressableResourceDependencies(guid, typeof(object));
+
+            if (locations == null) return emptyData;
+
+            return AddressableDataTools.CreateResourceLocationInfo(locations);
         }
 
         

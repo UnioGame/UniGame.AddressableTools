@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using UniModules.UniCore.Runtime.ReflectionUtils;
 using UniModules.UniCore.Runtime.Utils;
+using UnityEngine.AddressableAssets.Initialization;
 using UnityEngine.AddressableAssets.ResourceLocators;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
@@ -20,6 +22,8 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
 
     public static class AddressableEditorTools
     {
+                
+        private static List<IResourceLocator> _resourceLocators = new List<IResourceLocator>();
         private static AddressablesResourceComparer addressablesComparerInstance = new AddressablesResourceComparer();
         private static AddressableAssetSettings addressableAssetSettings;
 
@@ -41,12 +45,41 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
 
         public static IResourceLocator CreateLocator(ResourceLocatorType locatorType)
         {
+            return locatorType switch
+            {
+                ResourceLocatorType.AddressableSettingsLocator => CreateAressableSettingsLocator(),
+                ResourceLocatorType.ResourceLocationMap => CreateResourceLocatorMap(),
+                _ => default
+            };
+        }
+
+
+        public static IResourceLocator CreateResourceLocatorMap()
+        {
+            if (!AddressableAssetSettingsDefaultObject.SettingsExists)
+                return new DummyLocator();
+            
+            var settingsPath = Addressables.BuildPath + "/settings.json";
+            if (!File.Exists(settingsPath))
+            {
+                Debug.LogError("Player content must be built before entering play mode with packed data.  This can be done from the Addressables window in the Build->Build Player Content menu command.");
+                return new DummyLocator();
+            }
+            
+            var rtd = JsonUtility.FromJson<ResourceManagerRuntimeData>(File.ReadAllText(settingsPath));
+
+            var locationMap = new ResourceLocationMap("CatalogLocator", rtd.CatalogLocations);
+            return locationMap;
+        }
+
+        public static IResourceLocator CreateAressableSettingsLocator()
+        {
             if (!AddressableAssetSettingsDefaultObject.SettingsExists)
                 return new DummyLocator();
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             var type = ReflectionTools.GetTypeByName("AddressableAssetSettingsLocator");
-            var locatorConstructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
-            var constructor = locatorConstructors.First();
+            var constructors = type.GetConstructors();
+            var constructor = constructors.First();
             var locator = constructor.Invoke(new object[] { settings }) as IResourceLocator;
             return locator;
         }
@@ -75,7 +108,17 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             }
             return new List<IResourceLocation>(locHash);
         }
-        
+
+        public static IList<IResourceLocation> GetAddressableResourceDependencies(object key, Type type)
+        {
+            IList<IResourceLocation> locations;
+            if (!GetResourceLocations(key, type, out locations))
+                return locations;
+            
+            var dlLocations = GatherDependenciesFromLocations(locations);
+            return dlLocations;
+        }
+
         public static bool GetResourceLocations(object key, Type type, out IList<IResourceLocation> locations)
         {
             locations = null;
@@ -93,9 +136,10 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             locations = null;
             HashSet<IResourceLocation> current = null;
 
-            var locators = new List<IResourceLocator>(){resourceLocators[ResourceLocatorType.AddressableSettingsLocator]};
-            
-            foreach (var locator in locators)
+            _resourceLocators.Clear();
+            _resourceLocators.Add(CreateLocator(ResourceLocatorType.ResourceLocationMap));
+
+            foreach (var locator in _resourceLocators)
             {
                 IList<IResourceLocation> locs;
                 if (!locator.Locate(key, type, out locs)) 

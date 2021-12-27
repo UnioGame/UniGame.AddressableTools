@@ -15,12 +15,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
 
         [InlineProperty]
         [HideLabel]
-        public AddressableAssetEntry entry;
-
-        [InlineProperty]
-        [HideLabel]
-        public AddressableAssetGroup group;
-
+        public AddressableAssetEntryData entry;
+        
         public AddressableAssetView Initialize(Object target)
         {
             if (target == null)
@@ -33,8 +29,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
 
             if (target == null) return this;
             
-            entry = target.GetAddressableAssetEntry();
-            group = entry.parentGroup;
+            var assetEntry = target.GetAddressableAssetEntry();
+            entry = AddressableDataTools.CreateEntryData(assetEntry);
             return this;
         }
         
@@ -42,7 +38,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
         {
             asset = null;
             entry = null;
-            group = null;
         }
         
         public void Refresh()
