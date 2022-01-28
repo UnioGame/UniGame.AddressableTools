@@ -1,22 +1,19 @@
-﻿using Cysharp.Threading.Tasks;
-using UniModules.UniCore.Runtime.Common;
-using UniModules.UniCore.Runtime.ObjectPool.Runtime;
+﻿using System;
+using Cysharp.Threading.Tasks;
+using UniCore.Runtime.ProfilerTools;
+using UniModules.UniCore.Runtime.DataFlow;
 using UniModules.UniCore.Runtime.Rx.Extensions;
+using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+using UniModules.UniGame.Core.Runtime.Extension;
 using UniModules.UniGame.Core.Runtime.Rx;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx.Abstract;
+using UniRx;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 
-namespace UniGame.Addressables.Reactive
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
 {
-    using System;
-    using UniCore.Runtime.ProfilerTools;
-    using UniModules.UniCore.Runtime.DataFlow;
-    using UniModules.UniCore.Runtime.ObjectPool.Runtime.Extensions;
-    using UniModules.UniCore.Runtime.ObjectPool.Runtime.Interfaces;
-    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
-    using UniModules.UniGame.Core.Runtime.Extension;
-    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-    using UniRx;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 
     public class AddressableObservable<TAddressable,TData,TApi> : 

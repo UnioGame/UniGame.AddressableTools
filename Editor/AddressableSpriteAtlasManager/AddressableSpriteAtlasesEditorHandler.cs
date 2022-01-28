@@ -1,23 +1,21 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UniCore.Runtime.ProfilerTools;
+using UniModules.Editor;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases;
 using UniRx;
+using Unity.EditorCoroutines.Editor;
+using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEngine.U2D;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManager
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressableSpriteAtlasManager
 {
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using AddressableExtensions.Editor;
-    using UniModules.Editor;
-    using Runtime.AssetReferencies;
-    using Runtime.SpriteAtlases;
-    using UniCore.Runtime.ProfilerTools;
-    using Unity.EditorCoroutines.Editor;
-    using UnityEditor;
-    using UnityEditor.AddressableAssets;
-    using UnityEditor.AddressableAssets.Settings;
-    using UnityEngine.U2D;
-    
     public static class AddressableSpriteAtlasesEditorHandler 
     {
         private const int FastModeIndex = 0;

@@ -1,9 +1,9 @@
-﻿namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
+﻿using System.Collections.Generic;
+using UnityEngine.ResourceManagement.ResourceLocations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions
 {
-    using System.Collections.Generic;
-    using UnityEngine.ResourceManagement.ResourceLocations;
-    using UnityEngine.ResourceManagement.ResourceProviders;
-    
     public class AddressableRuntimeTools
     {
         public static List<IResourceLocation> GatherDependenciesFromLocations(IList<IResourceLocation> locations)

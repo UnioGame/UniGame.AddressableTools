@@ -1,25 +1,24 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
+using System.Linq;
+using UniModules.Editor;
 using UniModules.UniCore.Runtime.ReflectionUtils;
 using UniModules.UniCore.Runtime.Utils;
+using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.Initialization;
 using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.ResourceManagement.ResourceLocations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using Object = UnityEngine.Object;
 
-namespace UniModules.UniGame.AddressableExtensions.Editor
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
 {
-    using System.Collections;
-    using UnityEngine.ResourceManagement.ResourceLocations;
-    using UnityEngine.ResourceManagement.ResourceProviders;
-    using System.Collections.Generic;
-    using System.Linq;
-    using UniModules.Editor;
-    using UnityEditor;
-    using UnityEditor.AddressableAssets;
-    using UnityEditor.AddressableAssets.Settings;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
-
     public static class AddressableEditorTools
     {
                 

@@ -8,7 +8,7 @@ using UniModules.UniGame.Core.Runtime.Rx;
 using UniRx;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions
 {
     public class AsyncHandlesStatus : IPoolableAsyncHandleStatus
     {

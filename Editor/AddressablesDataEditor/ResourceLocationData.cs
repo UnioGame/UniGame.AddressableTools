@@ -4,7 +4,7 @@ using UniModules.UniGame.Core.Runtime.SerializableType;
 using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
 {
     [Serializable]
     public class ResourceLocationData

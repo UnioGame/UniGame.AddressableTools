@@ -1,7 +1,7 @@
 ﻿using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 using UniModules.UniGameFlow.GameFlow.Runtime.Interfaces;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract
 {
     public interface IAddressableAtlasService : IGameService
     {

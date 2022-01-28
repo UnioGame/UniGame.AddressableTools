@@ -1,14 +1,13 @@
-﻿using UniModules.Editor;
+﻿using System.Collections.Generic;
+using UniModules.Editor;
+using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.AddressableExtensions.Editor
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
 {
-    using System.Collections.Generic;
-    using UnityEditor;
-    using UnityEditor.AddressableAssets;
-    using UnityEditor.AddressableAssets.Settings;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
-
     public static class AddressableExtensions
     {
         public static AssetReferenceGameObject PrefabToAssetReference(this Component source)

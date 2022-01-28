@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies
 {
     public class CameraAssetReference : MonoBehaviour
     {

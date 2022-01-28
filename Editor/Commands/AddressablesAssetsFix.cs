@@ -3,13 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UniModules.Editor;
-using UniModules.UniGame.AddressableExtensions.Editor;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace UniModules.UniBuild.Commands
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Commands
 {
 public static class AddressablesAssetsFix
 {

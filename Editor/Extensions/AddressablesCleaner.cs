@@ -1,13 +1,13 @@
-﻿using UniCore.Runtime.ProfilerTools;
+﻿using System;
+using UniCore.Runtime.ProfilerTools;
+using UniModules.Editor;
+using UnityEditor;
+using UnityEditor.AddressableAssets.Build;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEngine;
 
-namespace UniModules.Editor.Addressables.Extensions
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
 {
-    using System;
-    using UnityEditor;
-    using UnityEditor.AddressableAssets.Build;
-    using UnityEditor.AddressableAssets.Settings;
-    using UnityEngine;
-
     public static class AddressablesCleaner
     {
         public const string AddressablesCachePath     = "./Library/com.unity.addressables";

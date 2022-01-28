@@ -1,10 +1,11 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
+﻿using System;
+using Sirenix.OdinInspector;
+using UniModules.UniCore.Runtime.DataFlow;
+using UnityEditor;
+using UnityEngine;
+
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
 {
-    using System;
-    using Sirenix.OdinInspector;
-    using UniModules.UniCore.Runtime.DataFlow;
-    using UnityEditor;
-    using UnityEngine;
     using Object = UnityEngine.Object;
     
     [Serializable]

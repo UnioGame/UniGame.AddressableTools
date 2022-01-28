@@ -1,14 +1,15 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.Inspector
+﻿using System.Collections.Generic;
+using System.Reflection;
+using UniModules.Editor;
+using UniModules.UniCore.EditorTools.Editor.PropertiesDrawers;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Attributes;
+using UniModules.UniGame.Editor.DrawersTools;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesAssetDrawer
 {
-    using System.Collections.Generic;
-    using System.Reflection;
-    using UniModules.UniGame.Editor.DrawersTools;
-    using Runtime.Attributes;
-    using UniCore.EditorTools.Editor.PropertiesDrawers;
-    using UniModules.Editor;
-    using UnityEditor;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 
     [CustomPropertyDrawer(typeof(DrawAssetReferenceAttribute),true)]

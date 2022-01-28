@@ -1,11 +1,8 @@
+using System;
 using UnityEngine.AddressableAssets;
 
-namespace UniGame.Addressables.Reactive
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx.Abstract
 {
-    using System;
-    using UniRx;
-    using UnityEngine.ResourceManagement.AsyncOperations;
-
     public interface IAddressableObservable<TData> : 
         IObservable<TData>, 
         IDisposable

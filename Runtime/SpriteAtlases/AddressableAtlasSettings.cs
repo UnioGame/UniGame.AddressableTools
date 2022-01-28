@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UniModules.UniCore.Runtime.Attributes;
 using UnityEngine;
-
 #if ODIN_INSPECTOR_3
-using Sirenix.OdinInspector;
+
 #endif
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     public class AddressableAtlasSettings

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UniModules.Editor;
-using UniModules.UniGame.AddressableExtensions.Editor;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
 {
     [Serializable]
     public class AddressableDependencyView

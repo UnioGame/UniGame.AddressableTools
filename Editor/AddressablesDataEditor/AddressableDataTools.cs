@@ -1,20 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
 {
     public static class AddressableDataTools
     {
-
+        public const string localBuildPath = "com.unity.addressables";
+        
         public static AddressableAssetEntryData CreateEntryData(AddressableAssetEntry entry)
         {
             if (entry == null) return new AddressableAssetEntryData();
             
+            var parent = entry.parentGroup;
+            var settings = parent.Settings;
+            var remoteBuildPath = settings.RemoteCatalogBuildPath.GetValue(settings);
+            
+            var baseBuildPathValue = settings.profileSettings.GetValueById(settings.activeProfileId, parent.G);
+            var buildPath = parent.Settings.buildSettings.bundleBuildPath;
+            var isRemote = buildPath.IndexOf(remoteBuildPath,StringComparison.InvariantCultureIgnoreCase) >= 0;
+            
             var result = new AddressableAssetEntryData()
             {
                 guid = entry.guid,
+                isRemote = isRemote,
                 address = entry.address,
                 labels = entry.labels.ToList(),
                 groupName = entry.parentGroup.Name,

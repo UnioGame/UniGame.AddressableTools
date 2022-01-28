@@ -1,10 +1,9 @@
 ﻿using System;
 using Sirenix.OdinInspector;
-using UniModules.UniGame.AddressableExtensions.Editor;
-using UnityEditor.AddressableAssets.Settings;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions;
 using Object = UnityEngine.Object;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressableDataEditor
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
 {
     [Serializable]
     public class AddressableAssetView

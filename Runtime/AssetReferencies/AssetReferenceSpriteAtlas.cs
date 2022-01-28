@@ -1,9 +1,9 @@
-﻿namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
-{
-    using System;
-    using UnityEngine.AddressableAssets;
-    using UnityEngine.U2D;
+﻿using System;
+using UnityEngine.AddressableAssets;
+using UnityEngine.U2D;
 
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies
+{
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.DrawWithUnity]    
 #endif

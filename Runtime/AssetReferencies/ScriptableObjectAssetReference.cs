@@ -1,9 +1,9 @@
-﻿namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
+﻿using System;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies
 {
-    using System;
-    using AddressableTools.Runtime.AssetReferencies;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 #if ODIN_INSPECTOR
 

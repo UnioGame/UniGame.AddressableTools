@@ -1,22 +1,20 @@
 ﻿using System;
-using UniRx;
-using UnityEngine.ResourceManagement.ResourceLocations;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using UniCore.Runtime.ProfilerTools;
+using UniModules.UniCore.Runtime.ObjectPool.Runtime;
+using UniModules.UniCore.Runtime.ObjectPool.Runtime.Extensions;
+using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+using UniModules.UniGame.Core.Runtime.Extension;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions
 {
-    using System.Collections.Generic;
-    using Core.Runtime.Extension;
-    using Cysharp.Threading.Tasks;
-    using global::UniCore.Runtime.ProfilerTools;
-    using SerializableContext.Runtime.Addressables;
-    using UniCore.Runtime.ObjectPool.Runtime;
-    using UniCore.Runtime.ObjectPool.Runtime.Extensions;
-    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
-    using UnityEngine.ResourceManagement.AsyncOperations;
-    using UnityEngine.ResourceManagement.ResourceProviders;
-    using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
 
     public static class AddressableExtensions

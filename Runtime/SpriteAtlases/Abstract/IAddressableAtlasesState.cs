@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract
 {
     public interface IAddressableAtlasesState
     {

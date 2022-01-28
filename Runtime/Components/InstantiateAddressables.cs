@@ -1,11 +1,11 @@
-﻿namespace UniModules.UniGame.AddressableTools.Runtime.Components
-{
-    using Core.Runtime.DataFlow.Extensions;
-    using Cysharp.Threading.Tasks;
-    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
-    using UnityEngine;
-    using UnityEngine.AddressableAssets;
+﻿using Cysharp.Threading.Tasks;
+using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Components
+{
     public class InstantiateAddressables : MonoBehaviour
     {
 
@@ -30,7 +30,7 @@
                 return;
             
             var targetParent = useParent ? parent == null ? transform : parent : null;
-            var asset        = await reference.LoadAssetTaskAsync<Object>(this.GetLifeTime());
+            var asset        = await reference.LoadAssetTaskAsync<Object>(SceneLifeTimeExtension.GetLifeTime(this));
 
             if (asset is GameObject gameObjectAsset) {
                 GameObject.Instantiate(gameObjectAsset, Vector3.zero, Quaternion.identity, targetParent);

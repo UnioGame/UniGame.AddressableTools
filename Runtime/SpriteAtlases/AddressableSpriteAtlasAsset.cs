@@ -1,15 +1,13 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using Sirenix.OdinInspector;
 using UniCore.Runtime.ProfilerTools;
+using UniModules.UniGame.Core.Runtime.ScriptableObjects;
+using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UnityEngine;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
-    using UnityEngine;
-    using Core.Runtime.ScriptableObjects;
-    
-    
 #if ODIN_INSPECTOR
-    using Sirenix.OdinInspector;
 #endif
 
 #if UNITY_EDITOR
