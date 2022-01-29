@@ -1,10 +1,12 @@
 ﻿#if ODIN_INSPECTOR
 
 using System;
+using System.Collections;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UniModules.Editor;
 using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -30,7 +32,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         [TitleGroup(nameof(dependencies))]
         [InlineProperty]
         [HideLabel]
-        public AddressablesDependenciesResolver dependencies;
+        public AddressablesDependenciesView dependencies;
         
         [Space]
         
@@ -44,12 +46,16 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             _lifeTime = lifeTime;
             
             configuration = AddressablesDependenciesConfiguration.Asset;
+            configuration.OnValidate();
+            
             addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             scenePath = AssetDatabase.GetAssetPath(configuration.sceneAsset);
-            dependencies = new AddressablesDependenciesResolver(lifeTime,configuration.logPath.ToAbsoluteProjectPath());
+            dependencies = new AddressablesDependenciesView(lifeTime,configuration.logPath.ToAbsoluteProjectPath());
         }
 
         [Button]
+        [PropertyOrder(-1)]
+        [ResponsiveButtonGroup()]
         public void CollectData()
         {
             if (!EditorApplication.isPlaying)
@@ -58,14 +64,22 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
                 EditorApplication.EnterPlaymode();
             }
 
-            CollectDataAsync().Forget();
+            EditorCoroutineUtility.StartCoroutine(CollectDataAsync(), this);
         }
 
-        private async UniTask CollectDataAsync()
-        {
-            await UniTask.WaitWhile(() => !EditorApplication.isPlaying).AttachExternalCancellation(_lifeTime.TokenSource);
+        [Button]
+        [PropertyOrder(-1)]
+        [ResponsiveButtonGroup()]
+        public void Clear() => dependencies.Reset();
 
-            dependencies.ExecuteAsync().Forget();
+        private IEnumerator CollectDataAsync()
+        {
+            while (!EditorApplication.isPlaying)
+            {
+                yield return null;
+            }
+
+            dependencies.CollectAddressableData();
         }
     }
 }

@@ -8,15 +8,12 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     using System;
     using System.IO;
     using System.Text;
-    using Cysharp.Threading.Tasks;
     using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions;
     using UnityEditor.AddressableAssets;
     using UnityEngine;
-    using UnityEngine.AddressableAssets;
-    
+
     [Serializable]
-    public class AddressablesDependenciesResolver
+    public class AddressablesDependenciesView
     {
         private readonly ILifeTime _lifeTime;
 
@@ -31,18 +28,22 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         
         #endregion
         
-        public AddressablesDependenciesResolver(ILifeTime lifeTime,string logPath)
+        public AddressablesDependenciesView(ILifeTime lifeTime,string logPath)
         {
             _lifeTime = lifeTime;
             logFilePath = logPath;
         }
+
+        public void Reset()
+        {
+            entryTree.Reset();
+        }
         
-        public async UniTask ExecuteAsync()
+        public void CollectAddressableData()
         {
             entryTree.Reset();
             
             var logFile = logFilePath;
-            var lifeTime = _lifeTime;
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             var groups = settings.groups;
             var stringBuilder = new StringBuilder(1000);
@@ -53,25 +54,19 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
                 
                 foreach (var assetEntry in assetGroup.entries)
                 {
-                    var entryData = AddressableDataTools.CreateEntryData(assetEntry);
+                    var entryData = AddressableDataTools.CreateEntryData(assetEntry,true);
+                    
                     entryTree.entryData.Add(entryData);
-                    
-                    var locations = Addressables.LoadResourceLocationsAsync(assetEntry.guid);
-                    var resourceLocations = await locations.ConvertToUniTask(lifeTime);
 
-                    stringBuilder.AppendLine($"\tENTRY: [{Path.GetFileName(assetEntry.AssetPath)}] [{assetEntry.AssetPath}] GUID: {assetEntry.guid}");
+                    stringBuilder.AppendLine($"\t{assetEntry}");
+                    stringBuilder.AppendLine($"\tDependencies: ");
                     
-                    foreach (var location in resourceLocations)
+                    foreach (var location in entryData.dependenciesLocations)
                     {
-                        stringBuilder.AppendLine($"\tDependencies: ");
                         var counter = 0;
-                        foreach (var dependency in location.Dependencies)
-                        {
-                            counter++;
-                            stringBuilder.AppendLine($"\t\t {counter} : InternalId: {dependency.InternalId} | Key: {dependency.PrimaryKey} | Provider: {dependency.ProviderId} | Type: {dependency.ResourceType}");
-                        }
+                        counter++;
+                        stringBuilder.AppendLine($"\t\t{counter} : {location}");
                     }
-                    
                 }
             }
 

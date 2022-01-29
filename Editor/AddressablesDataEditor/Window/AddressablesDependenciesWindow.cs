@@ -36,6 +36,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
 
         [Button]
+        [PropertyOrder(-1)]
+        [ResponsiveButtonGroup()]
         [DisableIf(nameof(IsPlaying))]
         public void Reload()
         {

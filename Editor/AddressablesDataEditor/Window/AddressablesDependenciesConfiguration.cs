@@ -1,5 +1,12 @@
+#if ODIN_INSPECTOR
+
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
+    using Sirenix.OdinInspector;
+    using System.IO;
+    using UniModules.Editor;
+    using UnityEditor;
+    using UnityEditor.SceneManagement;
     using UniModules.UniGame.Core.Editor.EditorProcessors;
     using UnityEngine;
 
@@ -10,5 +17,28 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         public Object sceneAsset;
 
         public string logPath = "Logs/addressables_dependencies.log";
+
+        [Button("Validate")]
+        public void OnValidate()
+        {
+            if (sceneAsset) return;
+            var path = AssetDatabase.GetAssetPath(this);
+            if (string.IsNullOrEmpty(path))
+                return;
+            
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
+            scene.name = "empty_scene_asset";
+            var folder = Path.GetDirectoryName(path);
+            var assetPath = folder.CombinePath(scene.name);
+            var targetPath = assetPath + ".unity";
+            
+            EditorSceneManager.SaveScene(scene, targetPath);
+
+            sceneAsset = AssetDatabase.LoadAssetAtPath<Object>(targetPath);
+
+            this.MarkDirty();
+        }
     }
 }
+
+#endif
