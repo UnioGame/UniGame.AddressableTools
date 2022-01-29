@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
@@ -16,11 +17,14 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             
             var parent = entry.parentGroup;
             var settings = parent.Settings;
-            var remoteBuildPath = settings.RemoteCatalogBuildPath.GetValue(settings);
             
-            var baseBuildPathValue = settings.profileSettings.GetValueById(settings.activeProfileId, parent.G);
-            var buildPath = parent.Settings.buildSettings.bundleBuildPath;
-            var isRemote = buildPath.IndexOf(remoteBuildPath,StringComparison.InvariantCultureIgnoreCase) >= 0;
+            var schema = parent.GetSchema<BundledAssetGroupSchema>();
+            string buildPath = schema.BuildPath.GetValue(parent.Settings);
+            
+            //var baseBuildPathValue = settings.profileSettings.GetValueById(settings.activeProfileId, m_BuildPath.Id);
+            //var remotePath = settings.profileSettings.EvaluateString(settings.activeProfileId, baseBuildPathValue);
+
+            var isRemote = false;// buildPath.IndexOf(remoteBuildPath,StringComparison.InvariantCultureIgnoreCase) >= 0;
             
             var result = new AddressableAssetEntryData()
             {
