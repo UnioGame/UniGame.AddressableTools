@@ -6,7 +6,7 @@ using UniModules.UniCore.Runtime.ObjectPool.Runtime;
 using UniModules.UniCore.Runtime.ObjectPool.Runtime.Extensions;
 using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 using UniModules.UniGame.Core.Runtime.Extension;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies;
+using UniModules.UniGame.AddressableTools.Runtime.AssetReferencies;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;

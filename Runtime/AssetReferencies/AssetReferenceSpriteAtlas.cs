@@ -2,7 +2,7 @@
 using UnityEngine.AddressableAssets;
 using UnityEngine.U2D;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies
+namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
 {
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.DrawWithUnity]    

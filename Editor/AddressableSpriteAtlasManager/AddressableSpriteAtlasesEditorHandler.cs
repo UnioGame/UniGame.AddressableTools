@@ -5,7 +5,7 @@ using System.Linq;
 using UniCore.Runtime.ProfilerTools;
 using UniModules.Editor;
 using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.AssetReferencies;
+using UniModules.UniGame.AddressableTools.Runtime.AssetReferencies;
 using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases;
 using UniRx;
 using Unity.EditorCoroutines.Editor;
