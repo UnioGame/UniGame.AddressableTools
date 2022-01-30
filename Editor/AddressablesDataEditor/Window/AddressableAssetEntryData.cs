@@ -1,6 +1,9 @@
-﻿using System.IO;
+﻿#if ODIN_INSPECTOR
+
 using System.Linq;
+using UniModules.Editor.OdinTools.GameEditor.Categories;
 using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window;
+using UnityEditor;
 
 namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
 {
@@ -18,38 +21,76 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         : ISearchFilterable
 #endif
     {
+        private const string baseGroup = "entry data";
+        private const string infoGroup = "entry data/info";
+        
+        [VerticalGroup(baseGroup)]
         public string guid;
+        [VerticalGroup(baseGroup)]
         public bool isRemote;
+        
+        [FoldoutGroup(infoGroup)]
+        [VerticalGroup(baseGroup)]
         public string address;
+        
+        [FoldoutGroup(infoGroup)]
+        [VerticalGroup(baseGroup)]
         public string groupName;
+        
+        [FoldoutGroup(infoGroup)]
+        [VerticalGroup(baseGroup)]
         public string buildPath;
+        
+        [FoldoutGroup(infoGroup)]
+        [VerticalGroup(baseGroup)]
         public bool readOnly;
+        
+        [FoldoutGroup(infoGroup)]
+        [VerticalGroup(baseGroup)]
         public List<string> labels = new List<string>();
 
 #if ODIN_INSPECTOR
+        [PropertyOrder(-1)]
         [InlineEditor]
         [HideIf(nameof(IsNullAsset))]
+        [VerticalGroup(baseGroup)]
 #endif
         public Object asset;
-        
+
 #if ODIN_INSPECTOR
-        [FoldoutGroup(nameof(dependencies))]
-        [ShowIf(nameof(HasDependencies))]
+        [InlineProperty]
+        [VerticalGroup("dependencies")]
+        [InlineButton(nameof(ShowDependencies),"show")]
 #endif
-        public List<AddressableGroupData> dependencies = new List<AddressableGroupData>();
+        public List<ResourceLocationData> dependencies = new List<ResourceLocationData>();
+
 #if ODIN_INSPECTOR
-        [FoldoutGroup(nameof(dependencies))]
-        [ShowIf(nameof(HasDependenciesLocations))]
+        [InlineProperty]
+        [VerticalGroup("dependencies")]
+        [InlineButton(nameof(ShowEntryDependencies),"show entries")]
 #endif
-        public List<ResourceLocationData> dependenciesLocations = new List<ResourceLocationData>();
+        public List<AddressableAssetEntryData> entryDependencies = new List<AddressableAssetEntryData>();
 
         public bool IsNullAsset => asset == null;
         
-        public bool HasDependenciesLocations => dependenciesLocations.Count > 0;
         public bool HasDependencies => dependencies.Count > 0;
-        
+
         public override int GetHashCode() => guid == null ? 0 : guid.GetHashCode();
 
+        public void ShowEntryDependencies()
+        {
+            var window = EditorWindow.GetWindow<ObjectViewWindow>();
+            window.UpdateView(entryDependencies);
+            window.Show();
+        }
+        
+        public void ShowDependencies()
+        {
+            var window = EditorWindow.GetWindow<ObjectViewWindow>();
+            window.UpdateView(dependencies);
+            window.Show();
+        }
+        
         public override bool Equals(object obj)
         {
             if (obj is AddressableAssetEntryData entryData)
@@ -75,10 +116,11 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             result |= labels.Any(x => x.IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase) >= 0);
             result |= isRemote && nameof(isRemote).IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase)>=0;
             result |= dependencies.Any(x => x.IsMatch(searchString));
-            result |= dependenciesLocations.Any(x => x.IsMatch(searchString));
+            result |= dependencies.Any(x => x.IsMatch(searchString));
 
             return result;
         }
 
     }
 }
+#endif

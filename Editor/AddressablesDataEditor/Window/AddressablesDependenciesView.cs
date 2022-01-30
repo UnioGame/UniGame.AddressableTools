@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿using System.Collections.Generic;
+using Sirenix.OdinInspector;
 
 #if ODIN_INSPECTOR
 
@@ -18,26 +19,25 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         private readonly ILifeTime _lifeTime;
 
         #region inspector
-
+        
+        [HideInInspector]
         public string logFilePath;
         
-        [Space(4)]
+        [Space(8)]
         [InlineProperty]
         [HideLabel]
         public AddressableEntryTree entryTree = new AddressableEntryTree();
         
         #endregion
         
-        public AddressablesDependenciesView(ILifeTime lifeTime,string logPath)
+        public AddressablesDependenciesView(ILifeTime lifeTime,string logPath,List<IAddressableDataFilter> filters)
         {
             _lifeTime = lifeTime;
+            entryTree.Initialize(filters);
             logFilePath = logPath;
         }
 
-        public void Reset()
-        {
-            entryTree.Reset();
-        }
+        public void Reset() => entryTree.Reset();
         
         public void CollectAddressableData()
         {
@@ -61,13 +61,15 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
                     stringBuilder.AppendLine($"\t{assetEntry}");
                     stringBuilder.AppendLine($"\tDependencies: ");
                     
-                    foreach (var location in entryData.dependenciesLocations)
+                    foreach (var location in entryData.dependencies)
                     {
                         var counter = 0;
                         counter++;
                         stringBuilder.AppendLine($"\t\t{counter} : {location}");
                     }
                 }
+                
+                entryTree.Refresh();
             }
 
             var logResult = stringBuilder.ToString();

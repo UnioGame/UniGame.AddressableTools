@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 #if ODIN_INSPECTOR
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
@@ -18,9 +20,21 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
         public string logPath = "Logs/addressables_dependencies.log";
 
+        [FoldoutGroup("filters")]
+        [SerializeReference]
+        [InlineProperty]
+        [ListDrawerSettings()]
+        public List<IAddressableDataFilter> filters = new List<IAddressableDataFilter>()
+        {
+            new LocalToRemoteDependenciesFilter(),
+            new EntryDependenciesFilter(),
+        };
+        
         [Button("Validate")]
         public void OnValidate()
         {
+            filters.RemoveAll(x => x == null);
+            
             if (sceneAsset) return;
             var path = AssetDatabase.GetAssetPath(this);
             if (string.IsNullOrEmpty(path))

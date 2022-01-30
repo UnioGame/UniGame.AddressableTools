@@ -143,16 +143,29 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensi
             return entry;
         }
         
+        public static AddressableAssetEntry GetAddressableAssetEntry(this string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath))
+                return null;
+            
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+            var sourceGuid = AssetDatabase.AssetPathToGUID(assetPath);
+            if (string.IsNullOrEmpty(sourceGuid))
+                return null;
+            
+            return addressableSettings.FindAssetEntry(sourceGuid);
+        }
+        
         public static AddressableAssetEntry GetAddressableAssetEntry(this Object source)
         {
             if (source == null || !AssetDatabase.Contains(source))
                 return null;
-            
-            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             var sourcePath = AssetDatabase.GetAssetPath(source);
-            var sourceGuid = AssetDatabase.AssetPathToGUID(sourcePath);
-
-            return addressableSettings.FindAssetEntry(sourceGuid);
+            
+            if (string.IsNullOrEmpty(sourcePath))
+                return null;
+            
+            return GetAddressableAssetEntry(sourcePath);
         }
     }
 }

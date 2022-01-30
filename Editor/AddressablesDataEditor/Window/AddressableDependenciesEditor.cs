@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections;
-using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UniModules.Editor;
 using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
@@ -12,7 +11,6 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
@@ -21,15 +19,17 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     {
         #region inspector
         
-        [TitleGroup(nameof(configuration))]
+        [FoldoutGroup(nameof(configuration))]
         [InlineEditor()]
         public AddressablesDependenciesConfiguration configuration;
-        
+        [FoldoutGroup(nameof(configuration))]
         public AddressableAssetSettings addressableSettings;
+        [FoldoutGroup(nameof(configuration))]
         public string scenePath;
+        [FoldoutGroup(nameof(configuration))]
         public OpenSceneMode sceneMode = OpenSceneMode.Single;
         
-        [TitleGroup(nameof(dependencies))]
+        [TitleGroup("addressables data")]
         [InlineProperty]
         [HideLabel]
         public AddressablesDependenciesView dependencies;
@@ -38,7 +38,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         
         #endregion
         
-        private Scene _scene;
         private ILifeTime _lifeTime;
 
         public void Initialize(ILifeTime lifeTime)
@@ -50,7 +49,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             
             addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             scenePath = AssetDatabase.GetAssetPath(configuration.sceneAsset);
-            dependencies = new AddressablesDependenciesView(lifeTime,configuration.logPath.ToAbsoluteProjectPath());
+            dependencies = new AddressablesDependenciesView(lifeTime,configuration.logPath.ToAbsoluteProjectPath(),configuration.filters);
         }
 
         [Button]
@@ -60,7 +59,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         {
             if (!EditorApplication.isPlaying)
             {
-                _scene = EditorSceneManager.OpenScene(scenePath, sceneMode);
+                EditorSceneManager.OpenScene(scenePath, sceneMode);
                 EditorApplication.EnterPlaymode();
             }
 
@@ -75,10 +74,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         private IEnumerator CollectDataAsync()
         {
             while (!EditorApplication.isPlaying)
-            {
                 yield return null;
-            }
-
+            
             dependencies.CollectAddressableData();
         }
     }

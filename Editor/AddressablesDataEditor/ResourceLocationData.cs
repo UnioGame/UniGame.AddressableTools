@@ -21,7 +21,9 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         public string primaryKey;
         public string providerId;
         public SType resourceType;
-       
+        public bool isRemote;
+        public string path;
+
 #if ODIN_INSPECTOR
         [InlineEditor]
         [HideLabel]
