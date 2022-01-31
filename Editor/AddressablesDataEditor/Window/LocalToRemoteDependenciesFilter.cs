@@ -23,6 +23,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             
             return result;
         }
-
     }
+
 }

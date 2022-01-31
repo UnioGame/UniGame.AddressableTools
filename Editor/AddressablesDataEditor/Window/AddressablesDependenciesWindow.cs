@@ -30,8 +30,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         
         private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
         
-        
-
         public bool IsPlaying => EditorApplication.isPlaying;
 
 
@@ -43,7 +41,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         {
             _lifeTime.Release();
             editor = new AddressableDependenciesEditor();
-            editor.Initialize(_lifeTime);
+            editor.Initialize();
         } 
         
         protected override void Initialize()

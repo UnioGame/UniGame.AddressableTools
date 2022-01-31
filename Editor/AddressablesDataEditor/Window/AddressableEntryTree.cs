@@ -17,20 +17,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     [Serializable]
     public class AddressableEntryTree
     {
-#if ODIN_INSPECTOR
-        [OnValueChanged(nameof(Refresh))]
-        [InlineButton(nameof(Refresh),label:nameof(Refresh))]
-#endif        
-        public string search;
-
-        [OnValueChanged(nameof(OnInitialize))]
-        [SerializeReference]
-        [InlineProperty]
-        [ListDrawerSettings()]
-        public List<IAddressableDataFilter> filters = new List<IAddressableDataFilter>()
-        {
-            new LocalToRemoteDependenciesFilter(),
-        };
         
 #if ODIN_INSPECTOR
         [HideInInspector]
@@ -42,21 +28,11 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 #endif
         public List<AddressableAssetEntryData> filteredData = new List<AddressableAssetEntryData>();
 
-        private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
-
-        public void Initialize(List<IAddressableDataFilter> filtersData)
-        {
-            filters = filtersData;
-            OnInitialize();
-        }
-        
-        public void Refresh() =>  OnFilterChanged(search);
-        
-        public void OnFilterChanged(string filter)
+        public void UpdateFilters(string filter,IEnumerable<IAddressableDataFilter> filters)
         {
             filteredData.Clear();
 
-            var result = ApplyFilters(entryData);
+            var result = ApplyFilters(entryData,filters);
             
             if (string.IsNullOrEmpty(filter))
             {
@@ -69,7 +45,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
         }
 
-        public IEnumerable<AddressableAssetEntryData> ApplyFilters(IEnumerable<AddressableAssetEntryData> source)
+        public IEnumerable<AddressableAssetEntryData> ApplyFilters(IEnumerable<AddressableAssetEntryData> source,IEnumerable<IAddressableDataFilter> filters)
         {
             foreach (var filter in filters)
                 source = filter.ApplyFilter(source);
@@ -80,23 +56,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         public void Reset()
         {
             entryData.Clear();
-        }
-
-        private void OnFiltersChanged()
-        {
-            foreach (var filter in filters)
-            {
-                filter.IsActive.Subscribe(x => Refresh())
-                    .AddTo(_lifeTime);
-            }
-        }
-
-        [OnInspectorInit]
-        private void OnInitialize()
-        {
-            _lifeTime?.Release();
-            _lifeTime = new LifeTimeDefinition();
-            OnFiltersChanged();
         }
         
     }

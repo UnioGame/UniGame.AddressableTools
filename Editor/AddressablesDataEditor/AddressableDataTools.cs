@@ -20,7 +20,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         public const string localBuildPath = "com.unity.addressables";
         
         
-        public static AddressableAssetEntryData CreateEntryData(AddressableAssetEntry entry,bool selectDependencies = true)
+        public static AddressableAssetEntryData CreateEntryData(AddressableAssetEntry entry,bool selectDependencies = true,bool recursive = false)
         {
             if (entry == null) return new AddressableAssetEntryData();
             
@@ -30,7 +30,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             var isLocal = schema.isLocal;
 
             var entryDependencies = selectDependencies
-                ? GetAddressablesDependencies(entry.address)
+                ? GetAddressablesDependencies(entry.address,recursive)
                 : new List<AddressableAssetEntryData>();
 
             var dependencies = selectDependencies 
@@ -46,6 +46,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
                 groupName = entry.parentGroup.Name,
                 readOnly = entry.ReadOnly,
                 buildPath = buildPath,
+                name = Path.GetFileNameWithoutExtension(entry.address),
                 asset = entry.MainAsset,
                 dependencies = dependencies,
                 entryDependencies = entryDependencies,
@@ -66,14 +67,15 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             return value != null;
         }
 
-        public static List<AddressableAssetEntryData> GetAddressablesDependencies(string assetPath)
+        public static List<AddressableAssetEntryData> GetAddressablesDependencies(string assetPath,bool recursive)
         {
             var result = new List<AddressableAssetEntryData>();
             if (string.IsNullOrEmpty(assetPath))
                 return result;
             
             var dependencies = new HashSet<string>();
-            SelectDependencies(assetPath,dependencies);
+            
+            SelectDependencies(assetPath,recursive,dependencies);
             dependencies.Remove(assetPath);
 
             foreach (var dependency in dependencies)
@@ -88,12 +90,12 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
 
 
-        public static void SelectDependencies(string assetPath,HashSet<string> assets)
+        public static void SelectDependencies(string assetPath,bool recursive,HashSet<string> assets)
         {
             if (string.IsNullOrEmpty(assetPath))
                 return;
 
-            if (assets.Contains(assetPath))
+            if (!assets.Add(assetPath))
                 return;
             
             var dependencies = AssetDatabase.GetDependencies(assetPath);
@@ -101,10 +103,18 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             
             assets.Add(assetPath);
 
-            foreach (var dependency in dependencies.Concat(assetDependencies))
+            foreach (var dependency in dependencies)
+                SelectDependencies(dependency,recursive,assets);
+
+            foreach (var assetDependency in assetDependencies)
             {
-                if(assets.Contains(dependency)) continue;
-                SelectDependencies(dependency,assets);
+                if (!recursive)
+                {
+                    assets.Add(assetDependency);
+                    continue;
+                }
+
+                SelectDependencies(assetDependency, true, assets);
             }
         }
         

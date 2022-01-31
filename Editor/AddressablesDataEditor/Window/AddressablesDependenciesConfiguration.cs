@@ -20,6 +20,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
         public string logPath = "Logs/addressables_dependencies.log";
 
+        public bool collectAddressablesRecursive = false;
+        
         [FoldoutGroup("filters")]
         [SerializeReference]
         [InlineProperty]
@@ -29,7 +31,13 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             new LocalToRemoteDependenciesFilter(),
             new EntryDependenciesFilter(),
         };
-        
+
+        public string LogPath => logPath.ToAbsoluteProjectPath();
+
+        public IReadOnlyList<IAddressableDataFilter> Filters => filters;
+
+        public bool CollectAddressablesRecursive => collectAddressablesRecursive;
+
         [Button("Validate")]
         public void OnValidate()
         {

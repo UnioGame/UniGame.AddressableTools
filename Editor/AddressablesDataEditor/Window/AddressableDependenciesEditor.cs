@@ -3,14 +3,11 @@
 using System;
 using System.Collections;
 using Sirenix.OdinInspector;
-using UniModules.Editor;
-using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.SceneManagement;
-using UnityEngine;
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
@@ -22,6 +19,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         [FoldoutGroup(nameof(configuration))]
         [InlineEditor()]
         public AddressablesDependenciesConfiguration configuration;
+        
         [FoldoutGroup(nameof(configuration))]
         public AddressableAssetSettings addressableSettings;
         
@@ -36,22 +34,16 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         [HideLabel]
         public AddressablesDependenciesView dependencies;
         
-        [Space]
-        
         #endregion
-        
-        private ILifeTime _lifeTime;
 
-        public void Initialize(ILifeTime lifeTime)
+        public void Initialize()
         {
-            _lifeTime = lifeTime;
-            
             configuration = AddressablesDependenciesConfiguration.Asset;
             configuration.OnValidate();
             
             addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             scenePath = AssetDatabase.GetAssetPath(configuration.sceneAsset);
-            dependencies = new AddressablesDependenciesView(lifeTime,configuration.logPath.ToAbsoluteProjectPath(),configuration.filters);
+            dependencies = new AddressablesDependenciesView(configuration);
         }
 
         [Button]

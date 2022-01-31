@@ -18,22 +18,41 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
     #endif
     {
         private const string localLocation = "local";
+        private const string infoGroup = "info";
         
         public string internalId;
+        
+#if ODIN_INSPECTOR
+        [FoldoutGroup(infoGroup)]
+#endif
         public string primaryKey;
+#if ODIN_INSPECTOR
+        [FoldoutGroup(infoGroup)]
+#endif
         public string providerId;
+#if ODIN_INSPECTOR
+        [FoldoutGroup(infoGroup)]
+#endif
         public SType resourceType;
+#if ODIN_INSPECTOR
+        [FoldoutGroup(infoGroup)]
+#endif
         public bool isRemote;
+#if ODIN_INSPECTOR
+        [FoldoutGroup(infoGroup)]
+#endif
         public string path;
 
 #if ODIN_INSPECTOR
         [InlineEditor]
         [HideLabel]
+        [FoldoutGroup(infoGroup)]
         [ShowIf(nameof(HasUnityResource))]
 #endif        
         public Object resource;
         
 #if ODIN_INSPECTOR
+        [FoldoutGroup(infoGroup)]
         [ShowIf(nameof(HasDependencies))]
 #endif
         public List<ResourceLocationData> dependencies = new List<ResourceLocationData>();

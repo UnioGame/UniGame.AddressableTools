@@ -1,30 +1,32 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Sirenix.OdinInspector;
-using UniModules.Editor;
-using UniModules.UniCore.EditorTools.Editor;
-
-#if ODIN_INSPECTOR
+﻿#if ODIN_INSPECTOR
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Sirenix.OdinInspector;
+    using UniModules.Editor;
+    using UniModules.UniCore.EditorTools.Editor;
     using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
     using System;
     using System.IO;
     using System.Text;
-    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
     using UnityEditor.AddressableAssets;
     using UnityEngine;
 
     [Serializable]
     public class AddressablesDependenciesView
     {
-        private readonly ILifeTime _lifeTime;
-
+        private readonly AddressablesDependenciesConfiguration _configuration;
+        private readonly StringBuilder _stringBuilder = new StringBuilder(1000);
+        
         #region inspector
         
-        [HideInInspector]
-        public string logFilePath;
+#if ODIN_INSPECTOR
+        //[OnValueChanged(nameof(Search))]
+        [InlineButton(nameof(Search),label:nameof(Search))]
+#endif        
+        public string search;
         
         [Space(8)]
         [InlineProperty]
@@ -33,13 +35,13 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         
         #endregion
         
-        public AddressablesDependenciesView(ILifeTime lifeTime,string logPath,List<IAddressableDataFilter> filters)
+        public AddressablesDependenciesView(AddressablesDependenciesConfiguration configuration)
         {
-            _lifeTime = lifeTime;
-            entryTree.Initialize(filters);
-            logFilePath = logPath;
+            _configuration = configuration;
         }
 
+        public void Search() => entryTree.UpdateFilters(search,_configuration.filters);
+        
         public void Reset() => entryTree.Reset();
         
         public void CollectAddressableData()
@@ -51,11 +53,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
         private IEnumerable<ProgressData> CollectDependenciesData()
         {
-            var logFile = logFilePath;
+            var logFile = _configuration.LogPath;
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             var groups = settings.groups;
-            var stringBuilder = new StringBuilder(1000);
-
+            
             var progress = new ProgressData()
             {
                 Content = "Initialize..",
@@ -72,7 +73,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             
             foreach (var assetGroup in groups)
             {
-                stringBuilder.AppendLine($"Addressables GROUP: [{assetGroup.Name}] GUID: {assetGroup.Guid}");
+                _stringBuilder.AppendLine($"Addressables GROUP: [{assetGroup.Name}] GUID: {assetGroup.Guid}");
                 
                 foreach (var assetEntry in assetGroup.entries)
                 {
@@ -82,41 +83,40 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
                     entryCounter++;
                     
-                    var entryData = AddressableDataTools.CreateEntryData(assetEntry,true);
+                    var entryData = AddressableDataTools.CreateEntryData(assetEntry,true,_configuration.collectAddressablesRecursive);
                     
                     entryTree.entryData.Add(entryData);
 
-                    stringBuilder.AppendLine($"\t{assetEntry}");
-                    stringBuilder.AppendLine($"\tDependencies: ");
+                    _stringBuilder.AppendLine($"\t{assetEntry}");
+                    _stringBuilder.AppendLine($"\tDependencies: ");
                     
                     var counter = 0;
                     foreach (var location in entryData.dependencies)
                     {
                         counter++;
-                        stringBuilder.AppendLine($"\t\t{counter} : {location}");
+                        _stringBuilder.AppendLine($"\t\t{counter} : {location}");
                     }
                     counter = 0;
                     
                     foreach (var location in entryData.entryDependencies)
                     {
                         counter++;
-                        stringBuilder.AppendLine($"\t\t{counter} : {location}");
+                        _stringBuilder.AppendLine($"\t\t{counter} : {location}");
                     }
                 }
                 
-                
             }
 
-            var logResult = stringBuilder.ToString();
+            Search();
+            
+            var logResult = _stringBuilder.ToString();
             File.WriteAllText(logFile,logResult);
             Debug.Log(logResult);
             
-            stringBuilder.Clear();
+            _stringBuilder.Clear();
 
             progress.IsDone = true;
-            
-            entryTree.Refresh();
-            
+
             yield return progress;
         }
 
