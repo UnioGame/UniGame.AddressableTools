@@ -38,7 +38,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         public List<AddressableAssetEntryData> entryData = new List<AddressableAssetEntryData>();
 
 #if ODIN_INSPECTOR
-        [TableList]
+        [TableList(ShowPaging = true,HideToolbar = false,DrawScrollView = true,ShowIndexLabels = true)]
 #endif
         public List<AddressableAssetEntryData> filteredData = new List<AddressableAssetEntryData>();
 
