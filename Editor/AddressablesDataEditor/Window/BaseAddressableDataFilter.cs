@@ -14,6 +14,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     public class BaseAddressableDataFilter : IAddressableDataFilter
     {
         [OnValueChanged(nameof(UpdateStatus))]
+        [InlineButton(nameof(Refresh),nameof(Refresh))]
         public bool isEnabled;
         
         [HideInInspector]
@@ -24,6 +25,11 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         public void UpdateStatus()
         {
             isActive.Value = isEnabled;
+        }
+
+        public void Refresh()
+        {
+            isActive.SetValueForce(isEnabled);
         }
         
         public IEnumerable<AddressableAssetEntryData> ApplyFilter(IEnumerable<AddressableAssetEntryData> source)

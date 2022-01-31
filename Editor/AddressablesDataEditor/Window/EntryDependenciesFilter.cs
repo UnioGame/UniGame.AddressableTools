@@ -1,14 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
+﻿using Sirenix.OdinInspector;
+
+#if ODIN_INSPECTOR
+
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
+
+    
     [Serializable]
     public class EntryDependenciesFilter : BaseAddressableDataFilter
     {
+        [OnValueChanged(nameof(Refresh))]
         public bool filterWithEntryDependencies = true;
+        [OnValueChanged(nameof(Refresh))]
         public bool filterWithLocationDependencies = false;
 
         protected override IEnumerable<AddressableAssetEntryData> OnFilter(IEnumerable<AddressableAssetEntryData> source)
@@ -22,3 +30,5 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         }
     }
 }
+
+#endif

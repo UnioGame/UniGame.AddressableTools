@@ -18,7 +18,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     public class AddressableEntryTree
     {
 #if ODIN_INSPECTOR
-        [OnValueChanged(nameof(OnFilterChanged))]
+        [OnValueChanged(nameof(Refresh))]
         [InlineButton(nameof(Refresh),label:nameof(Refresh))]
 #endif        
         public string search;

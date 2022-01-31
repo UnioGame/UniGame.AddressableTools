@@ -24,8 +24,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         public AddressablesDependenciesConfiguration configuration;
         [FoldoutGroup(nameof(configuration))]
         public AddressableAssetSettings addressableSettings;
+        
         [FoldoutGroup(nameof(configuration))]
         public string scenePath;
+        
         [FoldoutGroup(nameof(configuration))]
         public OpenSceneMode sceneMode = OpenSceneMode.Single;
         

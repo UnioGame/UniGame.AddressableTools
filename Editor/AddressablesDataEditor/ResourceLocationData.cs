@@ -17,6 +17,8 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         : ISearchFilterable
     #endif
     {
+        private const string localLocation = "local";
+        
         public string internalId;
         public string primaryKey;
         public string providerId;
@@ -45,7 +47,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
         public override string ToString()
         {
-            return $"\t\t InternalId: {internalId} | Key: {primaryKey} | Provider: {providerId} | Type: {resourceType}";
+            return $"\t\tInternalId: {internalId} | Key: {primaryKey} | Provider: {providerId} | Type: {resourceType}";
         }
 
         public bool IsMatch(string searchString)
@@ -56,7 +58,8 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             var result = !string.IsNullOrEmpty(internalId) && internalId.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
             result |= !string.IsNullOrEmpty(primaryKey) && primaryKey.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
             result |= !string.IsNullOrEmpty(providerId) && providerId.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-
+            result |= isRemote && nameof(isRemote).IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase)>=0;
+            result |= !isRemote && localLocation.IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase)>=0;
             return result;
         }
     }

@@ -21,6 +21,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         : ISearchFilterable
 #endif
     {
+        private const string localLocation = "local";
         private const string baseGroup = "entry data";
         private const string infoGroup = "entry data/info";
         
@@ -61,13 +62,15 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         [InlineProperty]
         [VerticalGroup("dependencies")]
         [InlineButton(nameof(ShowDependencies),"show")]
+        [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface)]
 #endif
         public List<ResourceLocationData> dependencies = new List<ResourceLocationData>();
 
 #if ODIN_INSPECTOR
         [InlineProperty]
         [VerticalGroup("dependencies")]
-        [InlineButton(nameof(ShowEntryDependencies),"show entries")]
+        [InlineButton(nameof(ShowEntryDependencies),"show")]
+        [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface)]
 #endif
         public List<AddressableAssetEntryData> entryDependencies = new List<AddressableAssetEntryData>();
 
@@ -115,6 +118,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             result |= !string.IsNullOrEmpty(buildPath) && buildPath.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
             result |= labels.Any(x => x.IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase) >= 0);
             result |= isRemote && nameof(isRemote).IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase)>=0;
+            result |= !isRemote && localLocation.IndexOf(searchString,StringComparison.InvariantCultureIgnoreCase)>=0;
             result |= dependencies.Any(x => x.IsMatch(searchString));
             result |= dependencies.Any(x => x.IsMatch(searchString));
 

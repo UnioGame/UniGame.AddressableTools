@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UniModules.Editor;
 using UniModules.UniGame.AddressableExtensions.Editor;
 using UnityEditor;
@@ -16,6 +18,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
     public static class AddressableDataTools
     {
         public const string localBuildPath = "com.unity.addressables";
+        
         
         public static AddressableAssetEntryData CreateEntryData(AddressableAssetEntry entry,bool selectDependencies = true)
         {
@@ -82,7 +85,8 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
             return result;
         }
-        
+
+
 
         public static void SelectDependencies(string assetPath,HashSet<string> assets)
         {
@@ -93,9 +97,11 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
                 return;
             
             var dependencies = AssetDatabase.GetDependencies(assetPath);
+            var assetDependencies = AssetEditorTools.GetDependenciesFromAsset(assetPath);
+            
             assets.Add(assetPath);
 
-            foreach (var dependency in dependencies)
+            foreach (var dependency in dependencies.Concat(assetDependencies))
             {
                 if(assets.Contains(dependency)) continue;
                 SelectDependencies(dependency,assets);

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
+using UniModules.Editor;
+using UniModules.UniCore.EditorTools.Editor;
 
 #if ODIN_INSPECTOR
 
@@ -43,17 +46,42 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         {
             entryTree.Reset();
             
+            AssetEditorTools.ShowProgress(CollectDependenciesData());
+        }
+
+        private IEnumerable<ProgressData> CollectDependenciesData()
+        {
             var logFile = logFilePath;
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             var groups = settings.groups;
             var stringBuilder = new StringBuilder(1000);
 
+            var progress = new ProgressData()
+            {
+                Content = "Initialize..",
+                Progress = 0,
+                Title = "Collecting Dependencies...",
+                IsDone = false,
+            };
+
+            var entriesCount =  groups.Sum(x => x.entries.Count);
+            if (entriesCount == 0)
+               yield break;
+
+            var entryCounter = 0f;
+            
             foreach (var assetGroup in groups)
             {
                 stringBuilder.AppendLine($"Addressables GROUP: [{assetGroup.Name}] GUID: {assetGroup.Guid}");
                 
                 foreach (var assetEntry in assetGroup.entries)
                 {
+                    progress.Progress = entryCounter / entriesCount;
+                    progress.Content = $"Process: {assetEntry.AssetPath}";
+                    yield return progress;
+
+                    entryCounter++;
+                    
                     var entryData = AddressableDataTools.CreateEntryData(assetEntry,true);
                     
                     entryTree.entryData.Add(entryData);
@@ -61,15 +89,22 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
                     stringBuilder.AppendLine($"\t{assetEntry}");
                     stringBuilder.AppendLine($"\tDependencies: ");
                     
+                    var counter = 0;
                     foreach (var location in entryData.dependencies)
                     {
-                        var counter = 0;
+                        counter++;
+                        stringBuilder.AppendLine($"\t\t{counter} : {location}");
+                    }
+                    counter = 0;
+                    
+                    foreach (var location in entryData.entryDependencies)
+                    {
                         counter++;
                         stringBuilder.AppendLine($"\t\t{counter} : {location}");
                     }
                 }
                 
-                entryTree.Refresh();
+                
             }
 
             var logResult = stringBuilder.ToString();
@@ -77,8 +112,14 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             Debug.Log(logResult);
             
             stringBuilder.Clear();
+
+            progress.IsDone = true;
+            
+            entryTree.Refresh();
+            
+            yield return progress;
         }
-        
+
     }
 }
 
