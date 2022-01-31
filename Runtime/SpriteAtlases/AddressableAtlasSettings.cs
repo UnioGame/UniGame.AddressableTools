@@ -7,7 +7,7 @@ using UnityEngine;
 
 #endif
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     public class AddressableAtlasSettings

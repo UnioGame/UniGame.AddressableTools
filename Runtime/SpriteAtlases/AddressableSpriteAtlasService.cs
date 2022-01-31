@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using Cysharp.Threading.Tasks;
-using UniCore.Runtime.ProfilerTools;
+﻿using UniCore.Runtime.ProfilerTools;
 using UniGame.UniNodes.GameFlow.Runtime;
-using UniModules.UniGame.Core.Runtime.DataFlow;
-using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.U2D;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;
 #endif
 
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Reflection;
+    using Cysharp.Threading.Tasks;
+    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
+    using UniModules.UniGame.Core.Runtime.DataFlow;
+    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+    using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+    using UnityEngine;
+    using UnityEngine.AddressableAssets;
+    using UnityEngine.U2D;
+
+    
     [Serializable]
     public class AddressableSpriteAtlasService : GameService, IAddressableAtlasService
     {

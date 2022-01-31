@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using UniModules.UniGame.Core.Runtime.ScriptableObjects;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UniRx;
 using UnityEngine;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     [CreateAssetMenu(menuName = "UniGame/Addressables/AddressableAtlasesState",

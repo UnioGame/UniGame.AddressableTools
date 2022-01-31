@@ -17,7 +17,7 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using Object = UnityEngine.Object;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
+namespace UniModules.UniGame.AddressableExtensions.Editor
 {
     public static class AddressableEditorTools
     {

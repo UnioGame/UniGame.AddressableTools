@@ -1,11 +1,12 @@
-﻿using Cysharp.Threading.Tasks;
-using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Components
+﻿namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Components
 {
+    using Cysharp.Threading.Tasks;
+    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
+    using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
+    using UniModules.UniGame.SerializableContext.Runtime.Addressables;
+    using UnityEngine;
+    using UnityEngine.AddressableAssets;
+
     public class InstantiateAddressables : MonoBehaviour
     {
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UniModules.Editor;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions;
+using UniModules.UniGame.AddressableExtensions.Editor;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;

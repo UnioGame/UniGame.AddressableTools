@@ -6,7 +6,7 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
+namespace UniModules.UniGame.AddressableExtensions.Editor
 {
     public static class AddressableExtensions
     {

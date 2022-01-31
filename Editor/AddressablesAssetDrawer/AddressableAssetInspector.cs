@@ -2,7 +2,7 @@
 using System.Reflection;
 using UniModules.Editor;
 using UniModules.UniCore.EditorTools.Editor.PropertiesDrawers;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Attributes;
+using UniModules.UniGame.AddressableTools.Runtime.Attributes;
 using UniModules.UniGame.Editor.DrawersTools;
 using UnityEditor;
 using UnityEngine;

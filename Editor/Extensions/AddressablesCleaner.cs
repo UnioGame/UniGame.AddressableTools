@@ -6,7 +6,7 @@ using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
+namespace UniModules.UniGame.AddressableExtensions.Editor
 {
     public static class AddressablesCleaner
     {

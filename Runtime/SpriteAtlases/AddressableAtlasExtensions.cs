@@ -1,8 +1,8 @@
 
 using System.Collections.Generic;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UnityEngine;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     public class AddressableAtlasesState : IAddressableAtlasesState

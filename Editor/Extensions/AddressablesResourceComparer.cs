@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Extensions
+namespace UniModules.UniGame.AddressableExtensions.Editor
 {
     public class AddressablesResourceComparer :  IEqualityComparer<IResourceLocation>
     {

@@ -2,7 +2,7 @@
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Extensions
+namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
 {
     public class AddressableRuntimeTools
     {

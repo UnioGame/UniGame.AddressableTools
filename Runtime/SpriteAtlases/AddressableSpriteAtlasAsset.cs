@@ -2,10 +2,10 @@
 using Sirenix.OdinInspector;
 using UniCore.Runtime.ProfilerTools;
 using UniModules.UniGame.Core.Runtime.ScriptableObjects;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UnityEngine;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
 #if ODIN_INSPECTOR
 #endif

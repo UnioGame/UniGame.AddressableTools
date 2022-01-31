@@ -1,10 +1,10 @@
-﻿using UniModules.UniCore.Runtime.Rx.Extensions;
+﻿using UniGame.Addressables.Reactive.Abstract;
+using UniModules.UniCore.Runtime.Rx.Extensions;
 using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx.Abstract;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Rx
+namespace UniGame.Addressables.Reactive
 {
     using Object = UnityEngine.Object;
 
