@@ -24,10 +24,9 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         
 #if ODIN_INSPECTOR
         //[OnValueChanged(nameof(Search))]
-        [InlineButton(nameof(Search),label:nameof(Search))]
 #endif        
         public string search;
-        
+
         [Space(8)]
         [InlineProperty]
         [HideLabel]
@@ -40,50 +39,48 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             _configuration = configuration;
         }
 
-        public void Search() => entryTree.UpdateFilters(search,_configuration.filters);
-        
-        public void Reset() => entryTree.Reset();
-        
-        public void CollectAddressableData()
+        [Button]
+        [PropertyOrder(-1)]
+        [ResponsiveButtonGroup()]
+        public void Find()
         {
-            entryTree.Reset();
-            
-            AssetEditorTools.ShowProgress(CollectDependenciesData());
+            var filters = _configuration.filters;
+            entryTree.UpdateFilters(search,filters);
         }
 
-        private IEnumerable<ProgressData> CollectDependenciesData()
+        [Button]
+        [PropertyOrder(-1)]
+        [ResponsiveButtonGroup()]
+        public void ResetFilter() => entryTree.ResetFilter();
+        
+        [Button]
+        [ResponsiveButtonGroup()]
+        [PropertyOrder(-1)]
+        public void Print() => Print(entryTree.entryData);
+
+        [Button]
+        [PropertyOrder(-1)]
+        [ResponsiveButtonGroup()]
+        public void PrintFiltered() => Print(entryTree.filteredData);
+
+        
+        public void Reset() => entryTree.Reset();
+
+        public void Print(List<AddressableAssetEntryData> entryDatas)
         {
-            var logFile = _configuration.LogPath;
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
-            var groups = settings.groups;
-            
-            var progress = new ProgressData()
-            {
-                Content = "Initialize..",
-                Progress = 0,
-                Title = "Collecting Dependencies...",
-                IsDone = false,
-            };
-
-            var entriesCount =  groups.Sum(x => x.entries.Count);
-            if (entriesCount == 0)
-               yield break;
-
+            _stringBuilder.Clear();
             var entryCounter = 0f;
+            var groups = entryDatas.GroupBy(x => x.groupName);
             
             foreach (var assetGroup in groups)
             {
-                _stringBuilder.AppendLine($"Addressables GROUP: [{assetGroup.Name}] GUID: {assetGroup.Guid}");
-                
-                foreach (var assetEntry in assetGroup.entries)
-                {
-                    progress.Progress = entryCounter / entriesCount;
-                    progress.Content = $"Process: {assetEntry.AssetPath}";
-                    yield return progress;
+                _stringBuilder.AppendLine($"Addressables GROUP: [{assetGroup.Key}]");
 
+                foreach (var assetEntry in assetGroup)
+                {
                     entryCounter++;
                     
-                    var entryData = AddressableDataTools.CreateEntryData(assetEntry,true,_configuration.collectAddressablesRecursive);
+                    var entryData = assetEntry;
                     
                     entryTree.entryData.Add(entryData);
 
@@ -104,20 +101,69 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
                         _stringBuilder.AppendLine($"\t\t{counter} : {location}");
                     }
                 }
-                
             }
 
-            Search();
-            
             var logResult = _stringBuilder.ToString();
-            File.WriteAllText(logFile,logResult);
+            File.WriteAllText(_configuration.LogPath,logResult);
             Debug.Log(logResult);
             
             _stringBuilder.Clear();
+        }
+        
+        public void CollectAddressableData()
+        {
+            try
+            {
+                Reset();
+                CollectDependenciesData();
+            }
+            finally
+            {
+                AssetEditorTools.ClearProgress();
+            }
+        }
+
+        private void CollectDependenciesData()
+        {
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            var groups = settings.groups;
+            
+            var progress = new ProgressData()
+            {
+                Content = "Initialize..",
+                Progress = 0,
+                Title = "Collecting Dependencies...",
+                IsDone = false,
+            };
+
+            var entriesCount =  groups.Sum(x => x.entries.Count);
+            if (entriesCount <= 0)
+                return;
+
+            var entryCounter = 0f;
+
+            foreach (var assetGroup in groups)
+            {
+                foreach (var assetEntry in assetGroup.entries)
+                {
+                    progress.Progress = entryCounter / entriesCount;
+                    progress.Content = $"Process: {assetEntry.AssetPath}";
+                    
+                    AssetEditorTools.ShowProgress(progress);
+
+                    entryCounter++;
+                    
+                    var entryData = AddressableDataTools.CreateEntryData(assetEntry,true,_configuration.collectAddressablesRecursive);
+                    entryTree.entryData.Add(entryData);
+                }
+                
+            }
+
+            ResetFilter();
 
             progress.IsDone = true;
-
-            yield return progress;
+            progress.Progress = 1;
+            AssetEditorTools.ShowProgress(progress);
         }
 
     }

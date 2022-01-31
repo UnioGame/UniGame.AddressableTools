@@ -1,11 +1,9 @@
-﻿using System.Linq;
-using UniModules.UniCore.Runtime.DataFlow;
-using UniModules.UniCore.Runtime.Rx.Extensions;
-using UniRx;
-using UnityEngine;
-
-namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
+    using System.Linq;
+    using UnityEditor;
+    using UnityEngine;
+
     using System;
     using System.Collections.Generic;
     using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
@@ -28,11 +26,17 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 #endif
         public List<AddressableAssetEntryData> filteredData = new List<AddressableAssetEntryData>();
 
-        public void UpdateFilters(string filter,IEnumerable<IAddressableDataFilter> filters)
+        public void ResetFilter()
         {
             filteredData.Clear();
+            filteredData.AddRange(entryData);
+        }
+        
+        public void UpdateFilters(string filter,List<IAddressableDataFilter> filters)
+        {
+            filteredData = new List<AddressableAssetEntryData>();
 
-            var result = ApplyFilters(entryData,filters);
+            var result = ApplyFilters(entryData,filters).ToList();
             
             if (string.IsNullOrEmpty(filter))
             {
@@ -40,15 +44,29 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             }
             else
             {
-                filteredData.AddRange(result.Where(x => x.IsMatch(filter)));
+                foreach (var data in result) 
+                {
+                    if(data.IsMatch(filter)) filteredData.Add(data);
+                }
             }
-
         }
 
         public IEnumerable<AddressableAssetEntryData> ApplyFilters(IEnumerable<AddressableAssetEntryData> source,IEnumerable<IAddressableDataFilter> filters)
         {
-            foreach (var filter in filters)
-                source = filter.ApplyFilter(source);
+            try
+            {
+                foreach (var filter in filters)
+                {
+                    var isCanceled = EditorUtility.DisplayCancelableProgressBar($"Apply Filters",$"filter {filter.GetType().Name}",0);
+                    if (isCanceled) break;
+                    source = filter.ApplyFilter(source);
+                }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
+
             return source;
         }
         
@@ -56,6 +74,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         public void Reset()
         {
             entryData.Clear();
+            filteredData.Clear();
         }
         
     }

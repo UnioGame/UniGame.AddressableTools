@@ -172,7 +172,6 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
                 primaryKey = location.PrimaryKey,
                 providerId = location.ProviderId,
                 dependencies = CreateResourceLocationInfo(location.Dependencies),
-                resourceType = location.ResourceType,
                 resource = location.Data as Object,
                 isRemote = isRemote,
                 path = dependencyPath,

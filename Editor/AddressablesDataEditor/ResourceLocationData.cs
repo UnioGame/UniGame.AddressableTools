@@ -26,18 +26,17 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         [FoldoutGroup(infoGroup)]
 #endif
         public string primaryKey;
+
 #if ODIN_INSPECTOR
         [FoldoutGroup(infoGroup)]
 #endif
         public string providerId;
-#if ODIN_INSPECTOR
-        [FoldoutGroup(infoGroup)]
-#endif
-        public SType resourceType;
+
 #if ODIN_INSPECTOR
         [FoldoutGroup(infoGroup)]
 #endif
         public bool isRemote;
+
 #if ODIN_INSPECTOR
         [FoldoutGroup(infoGroup)]
 #endif
@@ -66,7 +65,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
         public override string ToString()
         {
-            return $"\t\tInternalId: {internalId} | Key: {primaryKey} | Provider: {providerId} | Type: {resourceType}";
+            return $"\t\tInternalId: {internalId} | Key: {primaryKey} | Provider: {providerId} | Path: {path}";
         }
 
         public bool IsMatch(string searchString)

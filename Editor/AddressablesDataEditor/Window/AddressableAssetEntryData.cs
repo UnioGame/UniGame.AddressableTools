@@ -117,21 +117,15 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             if (string.IsNullOrEmpty(searchString))
                 return true;
 
-            var result = !string.IsNullOrEmpty(guid) &&
-                         guid.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            result |= !string.IsNullOrEmpty(address) &&
-                      address.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            result |= !string.IsNullOrEmpty(groupName) &&
-                      groupName.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            result |= !string.IsNullOrEmpty(buildPath) &&
-                      buildPath.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            var result = !string.IsNullOrEmpty(guid) && guid.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            result |= !string.IsNullOrEmpty(address) && address.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            result |= !string.IsNullOrEmpty(groupName) && groupName.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            result |= !string.IsNullOrEmpty(buildPath) && buildPath.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
             result |= labels.Any(x => x.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0);
-            result |= isRemote && nameof(isRemote).IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >=
-                0;
-            result |= !isRemote &&
-                      localLocation.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
-            result |= dependencies.Any(x => x.IsMatch(searchString));
-            result |= dependencies.Any(x => x.IsMatch(searchString));
+            result |= isRemote && nameof(isRemote).IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            result |= !isRemote && localLocation.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            //result |= dependencies.Any(x => x.IsMatch(searchString));
+            //result |= entryDependencies.Any(x => x.IsMatch(searchString));
 
             return result;
         }
