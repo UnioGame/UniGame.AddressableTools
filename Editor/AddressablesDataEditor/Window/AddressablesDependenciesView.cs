@@ -17,8 +17,8 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     [Serializable]
     public class AddressablesDependenciesView
     {
-        private readonly AddressablesDependenciesConfiguration _configuration;
-        private readonly StringBuilder _stringBuilder = new StringBuilder(1000);
+        private AddressablesDependenciesConfiguration _configuration;
+        private StringBuilder _stringBuilder = new StringBuilder(1000);
         
         #region inspector
         
@@ -34,7 +34,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         
         #endregion
         
-        public AddressablesDependenciesView(AddressablesDependenciesConfiguration configuration)
+        public void Initialize(AddressablesDependenciesConfiguration configuration)
         {
             _configuration = configuration;
         }

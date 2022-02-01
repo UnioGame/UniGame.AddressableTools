@@ -80,7 +80,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
         public bool IsNullAsset => asset == null;
 
-        public bool HasDependencies => dependencies.Count > 0;
+        public bool HasDependencies => dependencies.Count > 0 || entryDependencies.Count > 0;
 
         public override int GetHashCode() => guid == null ? 0 : guid.GetHashCode();
 

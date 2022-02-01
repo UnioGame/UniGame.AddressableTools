@@ -2,6 +2,7 @@
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
+    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window;
     using Sirenix.OdinInspector;
     using Sirenix.OdinInspector.Editor;
     using UniModules.UniCore.Runtime.DataFlow;
@@ -22,17 +23,24 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     
         #region inspector
         
+        [TabGroup("Addressables")]
         [InlineProperty]
         [HideLabel]
         public AddressableDependenciesEditor editor = new AddressableDependenciesEditor();
 
+        
+        [TabGroup("Single Asset")]
+        [InlineProperty]
+        [HideLabel]
+        public SingleAssetDependenciesView singleAssetView = new SingleAssetDependenciesView();
+
+        
         #endregion
         
         private LifeTimeDefinition _lifeTime = new LifeTimeDefinition();
         
         public bool IsPlaying => EditorApplication.isPlaying;
-
-
+        
         [Button]
         [PropertyOrder(-1)]
         [ResponsiveButtonGroup()]

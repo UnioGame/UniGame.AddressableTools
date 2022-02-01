@@ -1,16 +1,17 @@
 ﻿#if ODIN_INSPECTOR
 
-using System;
-using System.Collections;
-using Sirenix.OdinInspector;
-using Unity.EditorCoroutines.Editor;
-using UnityEditor;
-using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Settings;
-using UnityEditor.SceneManagement;
-
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
+    using System;
+    using System.Collections;
+    using Sirenix.OdinInspector;
+    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window;
+    using Unity.EditorCoroutines.Editor;
+    using UnityEditor;
+    using UnityEditor.AddressableAssets;
+    using UnityEditor.AddressableAssets.Settings;
+    using UnityEditor.SceneManagement;
+    
     [Serializable]
     public class AddressableDependenciesEditor
     {
@@ -29,11 +30,10 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         [FoldoutGroup(nameof(configuration))]
         public OpenSceneMode sceneMode = OpenSceneMode.Single;
         
-        [TitleGroup("addressables data")]
         [InlineProperty]
         [HideLabel]
-        public AddressablesDependenciesView dependencies;
-        
+        public AddressablesDependenciesView dependenciesView = new AddressablesDependenciesView();
+
         #endregion
 
         public void Initialize()
@@ -43,7 +43,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
             
             addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             scenePath = AssetDatabase.GetAssetPath(configuration.sceneAsset);
-            dependencies = new AddressablesDependenciesView(configuration);
+            dependenciesView.Initialize(configuration);
         }
 
         [Button]
@@ -63,14 +63,14 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         [Button]
         [PropertyOrder(-1)]
         [ResponsiveButtonGroup()]
-        public void Clear() => dependencies.Reset();
+        public void Clear() => dependenciesView.Reset();
 
         private IEnumerator CollectDataAsync()
         {
             while (!EditorApplication.isPlaying)
                 yield return null;
             
-            dependencies.CollectAddressableData();
+            dependenciesView.CollectAddressableData();
         }
     }
 }
