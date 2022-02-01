@@ -60,21 +60,21 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             DraggableItems = false, HideAddButton = true,
             ShowItemCount = true,
             NumberOfItemsPerPage = 10,
-            HideRemoveButton = true,
-            ShowIndexLabels = true)]
+            HideRemoveButton = true)]
 #endif
         public List<ResourceLocationData> dependencies = new List<ResourceLocationData>();
 
 #if ODIN_INSPECTOR
         [InlineProperty]
-        [LabelWidth(labelWidth)]
         [VerticalGroup("dependencies")]
         [InlineButton(nameof(ShowEntryDependencies), "show")]
         [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface)]
-        [ListDrawerSettings(ShowPaging = true, Expanded = false, DraggableItems = false,
-            HideAddButton = true, HideRemoveButton = true, ShowIndexLabels = true,
+        [ListDrawerSettings(ShowPaging = true, Expanded = false, 
+            DraggableItems = false,
+            HideAddButton = true, 
+            HideRemoveButton = true, 
             ShowItemCount = true,
-            NumberOfItemsPerPage = 10)]
+            NumberOfItemsPerPage = 15)]
 #endif
         public List<AddressableAssetEntryData> entryDependencies = new List<AddressableAssetEntryData>();
 
@@ -87,14 +87,14 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         public void ShowEntryDependencies()
         {
             var window = EditorWindow.GetWindow<ObjectViewWindow>();
-            window.UpdateView(entryDependencies);
+            window.UpdateView(new EntrySearchListView() { dependencies = entryDependencies });
             window.Show();
         }
 
         public void ShowDependencies()
         {
             var window = EditorWindow.GetWindow<ObjectViewWindow>();
-            window.UpdateView(dependencies);
+            window.UpdateView(new ResourceLocationsSearchListView(){dependencies = dependencies});
             window.Show();
         }
 
@@ -129,6 +129,27 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
             return result;
         }
+    }
+    
+    [Serializable]
+    public class EntrySearchListView : SearchListView<AddressableAssetEntryData>{}
+    
+    [Serializable]
+    public class ResourceLocationsSearchListView : SearchListView<ResourceLocationData>{}
+    
+    [Serializable]
+    public class SearchListView<TValue>
+    {
+#if ODIN_INSPECTOR
+        [InlineProperty]
+        [TitleGroup("data")]
+        [Searchable(FilterOptions = SearchFilterOptions.ISearchFilterableInterface)]
+        [ListDrawerSettings(ShowPaging = true, Expanded = false, DraggableItems = false,
+            HideAddButton = true, HideRemoveButton = true,
+            ShowItemCount = true,
+            NumberOfItemsPerPage = 10)]
+#endif
+        public List<TValue> dependencies = new List<TValue>();
     }
 }
 #endif

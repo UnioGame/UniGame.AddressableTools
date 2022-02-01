@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Linq;
+using UnityEditor;
 
 #if ODIN_INSPECTOR
 
@@ -25,6 +26,9 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 
         [OnValueChanged(nameof(Update))]
         public bool recursiveDependencies = false;
+
+        [OnValueChanged(nameof(Update))]
+        public bool showRemoteDependencies = false;
         
         [TitleGroup(nameof(entry))]
         [InlineProperty]
@@ -54,6 +58,12 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             if (assetEntry == null) return;
                 
             entry = AddressableDataTools.CreateEntryData(assetEntry,selectDependencies,recursiveDependencies);
+            
+            if (showRemoteDependencies)
+            {
+                entry.dependencies = entry.dependencies.Where(x => x.isRemote).ToList();
+                entry.entryDependencies = entry.entryDependencies.Where(x => x.isRemote).ToList();
+            }
         }
 
         public void UpdateGuid()
