@@ -5,7 +5,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     using System;
     using System.Collections;
     using Sirenix.OdinInspector;
-    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window;
     using Unity.EditorCoroutines.Editor;
     using UnityEditor;
     using UnityEditor.AddressableAssets;
