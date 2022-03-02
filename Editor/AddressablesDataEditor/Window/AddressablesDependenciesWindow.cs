@@ -65,5 +65,6 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
         }
     }
 
-#endif
 }
+
+#endif
