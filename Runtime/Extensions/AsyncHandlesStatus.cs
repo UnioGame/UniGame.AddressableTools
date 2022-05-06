@@ -78,7 +78,7 @@ namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
             }
 
             _handles.CombineLatest()
-                .Subscribe(x => _value.SetValueForce(this))
+                .RxSubscribe(x => _value.SetValueForce(this))
                 .AddTo(_lifeTime);
 
             return this;

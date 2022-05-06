@@ -48,7 +48,7 @@ namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
             _statusValue = new DownloadStatus();
 
             Observable.EveryUpdate()
-                .Subscribe(x => OnUpdate())
+                .RxSubscribe(x => OnUpdate())
                 .AddTo(_lifeTime);
             
             _handle.Completed += OnComplete;
@@ -128,7 +128,7 @@ namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
             _statusValue = new DownloadStatus();
 
             Observable.EveryUpdate()
-                .Subscribe(x => OnUpdate())
+                .RxSubscribe(x => OnUpdate())
                 .AddTo(_lifeTime);
             
             _handle.Completed += OnComplete;
