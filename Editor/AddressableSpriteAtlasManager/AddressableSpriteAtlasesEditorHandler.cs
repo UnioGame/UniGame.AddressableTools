@@ -39,7 +39,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         {
             MessageBroker.Default
                 .Receive<UpdateAddressableAtlasesMessage>()
-                .RxSubscribe(x => Reimport());
+                .Subscribe(x => Reimport());
             
             if (!AddressableAssetSettingsDefaultObject.SettingsExists) {
                 GameLog.LogError("Addressable Asset Settings doesn't exist!");
