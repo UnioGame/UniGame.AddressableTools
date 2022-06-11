@@ -4,15 +4,15 @@
   "displayName": "UniGame Addressables Tools",
   "description": "Tools for Unity Addressables System",
   "unity": "2019.1",
-  "version": "2021.0.44",
+  "version": "2022.0.0",
   "keywords": [],
   "dependencies": {
     "com.unigame.neuecc.unirx": "7.1.2",
     "com.unigame.neuecc.unitask": "2.2.5",
-    "com.unity.addressables": "1.17.17",
-    "com.unigame.unicore": "2021.1.8",
-    "com.unigame.uniroutine": "2021.0.6",
+    "com.unity.addressables": "1.20.0",
+    "com.unigame.unicore": "2022.0.0",
+    "com.unigame.uniroutine": "2022.0.0",
     "com.unity.editorcoroutines": "1.0.0",
-    "com.unigame.rx": "2021.0.34"
+    "com.unigame.rx": "2022.0.0"
   }
 }
