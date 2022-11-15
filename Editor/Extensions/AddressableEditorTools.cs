@@ -88,6 +88,20 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             return obj is IKeyEvaluator ? (obj as IKeyEvaluator).RuntimeKey : obj;
         }
         
+        private static bool IsAddressableAsset(this string guid)
+        {
+            return GetAddressableAssetEntryByGuid(guid) != null;
+        }
+        
+        public static AddressableAssetEntry GetAddressableAssetEntryByGuid(this string guid)
+        {
+            if (string.IsNullOrEmpty(guid))
+                return null;
+
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+            return addressableSettings.FindAssetEntry(guid);
+        }
+        
         
         public static List<IResourceLocation> GatherDependenciesFromLocations(IList<IResourceLocation> locations)
         {
