@@ -362,6 +362,25 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
             return handle;
         }
 
+        public static async UniTask<TAsset> LoadAddressableByResourceAsync<TAsset>(
+            this string resource,
+            ILifeTime lifeTime)
+        {
+            var asset = await Addressables
+                .LoadAssetAsync<TAsset>(resource)
+                .AddToAsUniTask(lifeTime);
+            return asset;
+        }
+
+        public static UniTask<TAsset> AddToAsUniTask<TAsset>(
+            this AsyncOperationHandle<TAsset> handle, 
+            ILifeTime lifeTime, 
+            bool incrementRefCount = true)
+        {
+            var operation = handle.AddTo(lifeTime,incrementRefCount);
+            return operation.ToUniTask();
+        }
+
         public static async UniTask ReleaseHandle<TAsset>(this AsyncOperationHandle<TAsset> handle)
         {
             if (handle.IsValid() == false)
