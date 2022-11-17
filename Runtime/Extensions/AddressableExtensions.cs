@@ -158,15 +158,19 @@ namespace UniModules.UniGame.AddressableTools.Runtime.Extensions
 
         public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReference assetReference,
             ILifeTime lifeTime,
-            bool destroyWithLifetime = true,
+            bool destroyInstanceWithLifetime,
             IProgress<HandleStatus> progress = null)
             where T : Object
         {
             var asset = await assetReference.LoadAssetTaskAsync<T>(lifeTime, progress);
             if (asset == null) return default;
-            var instance = Object.Instantiate(asset);
+
+            var  instance = asset is Component component
+                ? Object.Instantiate(component.gameObject).GetComponent<T>()
+                : Object.Instantiate(asset);
             
-            if(destroyWithLifetime) instance.DestroyWith(lifeTime);
+            if(destroyInstanceWithLifetime) 
+                instance.DestroyWith(lifeTime);
             
             return instance;
         }

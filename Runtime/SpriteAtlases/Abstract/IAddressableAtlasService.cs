@@ -1,5 +1,5 @@
 ﻿using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-using UniModules.UniGameFlow.GameFlow.Runtime.Interfaces;
+using UniGame.GameFlow.Runtime.Interfaces;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract
 {
