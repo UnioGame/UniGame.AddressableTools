@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UniModules.UniGame.Core.Runtime.SerializableType;
+using UniGame.Core.Runtime.SerializableType;
 using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using Object = UnityEngine.Object;

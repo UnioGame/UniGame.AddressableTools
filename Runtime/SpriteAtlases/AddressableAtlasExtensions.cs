@@ -4,7 +4,7 @@ using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {
-    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+    using global::UniGame.Core.Runtime;
 
     public static class AddressableAtlasExtensions
     {

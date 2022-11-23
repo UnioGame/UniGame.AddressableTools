@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
+namespace UniGame.AddressableTools.Runtime
 {
     [Serializable]
     public class ScriptableObjectAssetReferenceT<T> : AssetReferenceT<T>

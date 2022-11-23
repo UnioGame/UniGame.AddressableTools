@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
+namespace UniGame.Context.Runtime
 {
     public struct HandleStatus
     {

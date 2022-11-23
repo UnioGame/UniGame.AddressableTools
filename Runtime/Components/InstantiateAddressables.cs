@@ -1,9 +1,9 @@
 ﻿namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Components
 {
     using Cysharp.Threading.Tasks;
-    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
+    using global::UniGame.AddressableTools.Runtime;
     using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
-    using UniModules.UniGame.SerializableContext.Runtime.Addressables;
+    using global::UniGame.Context.Runtime;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 

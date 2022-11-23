@@ -1,5 +1,5 @@
 ﻿using UniGame.Addressables.Reactive.Abstract;
-using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+using UniGame.Core.Runtime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using UniModules.UniGame.AddressableTools.Runtime.AssetReferencies;
+using UniGame.AddressableTools.Runtime;
 
 namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 {

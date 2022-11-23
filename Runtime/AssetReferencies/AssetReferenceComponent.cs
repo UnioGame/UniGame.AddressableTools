@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
+namespace UniGame.AddressableTools.Runtime
 {
 #if UNITY_EDITOR
     using UnityEditor;

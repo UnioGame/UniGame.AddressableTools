@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.AssetReferencies
+namespace UniGame.AddressableTools.Runtime
 {
 #if ODIN_INSPECTOR
     [Sirenix.OdinInspector.DontApplyToListElements]

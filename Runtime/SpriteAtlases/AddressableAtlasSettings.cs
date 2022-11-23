@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UniModules.UniCore.Runtime.Attributes;
+using UniCore.Runtime.Attributes;
 using UnityEngine;
 
 #if ODIN_INSPECTOR

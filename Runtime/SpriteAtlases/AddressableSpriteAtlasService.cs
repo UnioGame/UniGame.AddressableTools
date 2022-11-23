@@ -13,9 +13,9 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     using System.Linq;
     using System.Reflection;
     using Cysharp.Threading.Tasks;
-    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
+    using global::UniGame.AddressableTools.Runtime;
     using UniModules.UniGame.Core.Runtime.DataFlow;
-    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
+    using global::UniGame.Core.Runtime;
     using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
     using UnityEngine;
     using UnityEngine.AddressableAssets;

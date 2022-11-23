@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UniModules.UniGame.Core.Runtime.ScriptableObjects;
+using UniGame.Core.Runtime.ScriptableObjects;
 using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UniRx;
 using UnityEngine;

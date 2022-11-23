@@ -1,10 +1,10 @@
 ﻿namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Pooling
 {
     using Cysharp.Threading.Tasks;
-    using UniModules.UniCore.Runtime.ObjectPool.Runtime.Extensions;
-    using UniModules.UniGame.AddressableTools.Runtime.Extensions;
-    using UniModules.UniGame.Core.Runtime.DataFlow.Interfaces;
-    using UniModules.UniGame.SerializableContext.Runtime.Addressables;
+    using global::UniGame.Runtime.ObjectPool.Extensions;
+    using global::UniGame.AddressableTools.Runtime;
+    using global::UniGame.Core.Runtime;
+    using global::UniGame.Context.Runtime;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 

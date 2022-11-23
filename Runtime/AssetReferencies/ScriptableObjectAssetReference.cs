@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.SerializableContext.Runtime.Addressables
+namespace UniGame.Context.Runtime
 {
     using Object = UnityEngine.Object;
 #if ODIN_INSPECTOR

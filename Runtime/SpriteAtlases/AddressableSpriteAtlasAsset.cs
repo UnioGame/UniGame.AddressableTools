@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using UniCore.Runtime.ProfilerTools;
-using UniModules.UniGame.Core.Runtime.ScriptableObjects;
+using UniGame.Core.Runtime.ScriptableObjects;
 using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UnityEngine;
 
@@ -17,8 +17,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     
     [CreateAssetMenu(menuName = "UniGame/Addressables/SpriteAtlasConfiguration",
         fileName = nameof(AddressableSpriteAtlasAsset))]
-    public class AddressableSpriteAtlasAsset :
-        LifetimeScriptableObject
+    public class AddressableSpriteAtlasAsset : LifetimeScriptableObject
     {
         #region inspector
 
@@ -53,28 +52,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             }
         }
 
-#if UNITY_EDITOR
-
-        [InitializeOnLoadMethod]
-        private static void InitializeEditor()
-        {
-            void OnPlayModeChanged(PlayModeStateChange playMode)
-            {
-                switch (playMode)
-                {
-                    case PlayModeStateChange.ExitingPlayMode:
-                        AtlasService?.Dispose();
-                        _atlasService = null;
-                        break;
-                }
-            }
-
-            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
-            EditorApplication.playModeStateChanged += OnPlayModeChanged;
-        }
-        
-#endif
-        
         #endregion
 
 
@@ -128,15 +105,15 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             Initialize();
         }
 
-        protected sealed override void OnReset()
-        {
 #if UNITY_EDITOR
-            if (EditorApplication.isPlaying == false) return;
-#endif
-            if (settings.disposeOnReset)
-                Unload();
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        protected static void OnCleanUp()
+        {
+            _atlasService?.Dispose();
+            gate = new object();
+            _atlasService = null;
         }
-
+#endif
 
     }
 }
