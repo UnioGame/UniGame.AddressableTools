@@ -42,7 +42,14 @@ namespace UniGame.AddressableTools.Runtime
 
             await sceneHandle.ToUniTask();
 
-            return sceneHandle.Status == AsyncOperationStatus.Succeeded ? sceneHandle.Result : default;
+            if (sceneHandle.Status == AsyncOperationStatus.Succeeded)
+            {
+                lifeTime.AddCleanUpAction(() => sceneReference.UnLoadScene());
+            }
+
+            return sceneHandle.Status == AsyncOperationStatus.Succeeded 
+                ? sceneHandle.Result 
+                : default;
         }
 
         public static void UnloadReference(this AssetReference reference)
