@@ -1,4 +1,6 @@
 #if ODIN_INSPECTOR
+#if UNITY_EDITOR
+
 
 namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 {
@@ -67,4 +69,5 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
 
 }
 
+#endif
 #endif
