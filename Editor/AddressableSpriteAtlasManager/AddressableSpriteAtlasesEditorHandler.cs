@@ -47,6 +47,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
             }
 
             EditorCoroutineUtility.StartCoroutineOwnerless(UpdateMode());
+            AddressableAssetSettings.OnModificationGlobal -= OnModification;
             AddressableAssetSettings.OnModificationGlobal += OnModification;
         }
 
