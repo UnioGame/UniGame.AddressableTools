@@ -9,6 +9,14 @@ namespace UniGame.Addressables.Reactive
 
     public static class AddressablesReactiveExtensions 
     {
+        public static IAddressableObservable<TApi> ToObservable<TData,TApi>(this AssetReferenceSprite reference,ILifeTime lifeTime) 
+            where TData : Object , TApi
+            where TApi : class
+        {
+            var observable = new AddressableObservable<AssetReferenceT<Sprite>, TData, TApi>(reference).AddTo(lifeTime);
+            return observable;
+        }
+        
         public static IAddressableObservable<TApi> ToObservable<TData,TApi>(this AssetReferenceT<TData> reference,ILifeTime lifeTime) 
             where TData : Object , TApi
             where TApi : class
