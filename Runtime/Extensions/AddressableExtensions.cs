@@ -17,6 +17,7 @@ namespace UniGame.AddressableTools.Runtime
     using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
 
+
     public static class AddressableExtensions
     {
         public static async UniTask<SceneInstance> LoadSceneTaskAsync(
@@ -166,7 +167,7 @@ namespace UniGame.AddressableTools.Runtime
         public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReferenceT<T> assetReference,
             ILifeTime lifeTime,
             bool destroyInstanceWithLifetime,
-            IProgress<HandleStatus> progress = null)
+            IProgress<float> progress = null)
             where T : Object
         {
             var reference = assetReference as AssetReference;
@@ -176,7 +177,7 @@ namespace UniGame.AddressableTools.Runtime
         public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReference assetReference,
             ILifeTime lifeTime,
             bool destroyInstanceWithLifetime,
-            IProgress<HandleStatus> progress = null)
+            IProgress<float> progress = null)
             where T : Object
         {
             var asset = await assetReference.LoadAssetTaskAsync<T>(lifeTime, progress);
@@ -194,7 +195,7 @@ namespace UniGame.AddressableTools.Runtime
 
         public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, 
             ILifeTime lifeTime, 
-            IProgress<HandleStatus> progress = null)
+            IProgress<float> progress = null)
             where T : Object
         {
             if (lifeTime.IsTerminated)
@@ -209,8 +210,8 @@ namespace UniGame.AddressableTools.Runtime
             var isComponent = typeof(T).IsComponent();
 
             var asset = isComponent 
-                ? await LoadAssetTaskInternalAsync<GameObject>(assetReference, lifeTime, progress)
-                : await LoadAssetTaskInternalAsync<T>(assetReference, lifeTime, progress);
+                ? await LoadAssetTaskWithProgressAsync<GameObject>(assetReference, lifeTime, progress)
+                : await LoadAssetTaskWithProgressAsync<T>(assetReference, lifeTime, progress);
             
             if (asset == null)
                 return default(T);
@@ -222,37 +223,74 @@ namespace UniGame.AddressableTools.Runtime
             return result;
         }
 
-        private static async UniTask<Object> LoadAssetTaskInternalAsync<T>(
-            this AssetReference assetReference,
-            ILifeTime lifeTime,
-            IProgress<HandleStatus> progress = null)
+        public static async UniTask<AddressableResourceResult<T>> LoadAssetTaskAsync<T>(
+            this string assetReference, 
+            ILifeTime lifeTime, 
+            IProgress<float> progress = null)
             where T : Object
         {
+            if (lifeTime.IsTerminated)
+                return AddressableResourceResult<T>.FailedResourceResult;
             
+            if (string.IsNullOrEmpty(assetReference))
+            {
+                GameLog.LogError($"AssetReference key is NULL {assetReference}");
+                return AddressableResourceResult<T>.FailedResourceResult;
+            }
+            
+            var isComponent = typeof(T).IsComponent();
 
+            var asset = isComponent 
+                ? await LoadAssetTaskInternalAsync<GameObject>(assetReference, lifeTime, progress)
+                : await LoadAssetTaskInternalAsync<T>(assetReference, lifeTime, progress);
+            
+            if (asset == null) return AddressableResourceResult<T>.FailedResourceResult;
+
+            var result = asset is GameObject gameObjectAsset && isComponent 
+                ? gameObjectAsset.GetComponent<T>() 
+                : asset as T;
+            
+            var resultData = AddressableResourceResult<T>.CompleteResourceResult;
+            resultData.Result = result;
+            return resultData;
+        }
+        
+        private static async UniTask<Object> LoadAssetTaskWithProgressAsync<T>(
+            this AssetReference assetReference,
+            ILifeTime lifeTime,
+            IProgress<float> progress = null)
+            where T : Object
+        {
             var dependencies = Addressables
                 .DownloadDependenciesAsync(assetReference.RuntimeKey)
                 .AddTo(lifeTime);
 
-            IPoolableAsyncHandleStatus asyncProgress = null;
-            // if (progress != null)
-            // {
-            //     var handlesList = ClassPool.Spawn<List<IAsyncHandleStatus>>();
-            //     handlesList.Add(new AsyncHandleStatus().BindToHandle(dependencies));
-            //     handlesList.Add(new AsyncHandleStatus<T>().BindToHandle(handle));
-            //     asyncProgress = ClassPool.Spawn<AsyncHandlesStatus>().BindToHandle(handlesList);
-            //     asyncProgress.Subscribe(x => NotifyProgress(x, progress));
-            // }
+            await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.TokenSource);
+            
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
+            var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
+
+            return asset;
+        }
+        
+        private static async UniTask<Object> LoadAssetTaskInternalAsync<T>(
+            this string assetReference,
+            ILifeTime lifeTime,
+            IProgress<float> progress = null)
+            where T : Object
+        {
+            var dependencies = Addressables
+                .DownloadDependenciesAsync(assetReference)
+                .AddTo(lifeTime);
 
             await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.TokenSource);
             
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
-            var asset = await LoadAssetAsync(handle, yetRequested, lifeTime);
-            
-            asyncProgress?.DespawnHandleStatus();
+            var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
 
             return asset;
         }
+
         
         public static void NotifyProgress(IAsyncHandleStatus progressData,IProgress<HandleStatus> progress )
         {
@@ -363,7 +401,16 @@ namespace UniGame.AddressableTools.Runtime
                 null;
         }
 
-        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this AssetReference assetReference, out bool yetRequested)
+        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this string assetReference, out bool yetRequested)
+            where TResult : class
+        {
+            var handle = Addressables.LoadAssetAsync<TResult>(assetReference);
+            yetRequested = handle.IsValid();
+            return handle;
+        }
+        
+        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(
+            this AssetReference assetReference, out bool yetRequested)
             where TResult : class
         {
             yetRequested = assetReference.OperationHandle.IsValid();
@@ -375,7 +422,9 @@ namespace UniGame.AddressableTools.Runtime
 
         #region lifetime
 
-        public static AsyncOperationHandle<TAsset> AddTo<TAsset>(this AsyncOperationHandle<TAsset> handle, ILifeTime lifeTime, bool incrementRefCount = true)
+        public static AsyncOperationHandle<TAsset> AddTo<TAsset>(
+            this AsyncOperationHandle<TAsset> handle, 
+            ILifeTime lifeTime, bool incrementRefCount = true)
         {
             if (incrementRefCount)
                 Addressables.ResourceManager.Acquire(handle);
@@ -444,7 +493,11 @@ namespace UniGame.AddressableTools.Runtime
             return lifeTime;
         }
 
-        public static async UniTask<Object> LoadAssetAsync<TResult>(AsyncOperationHandle<TResult> handle,bool yetRequested, ILifeTime lifeTime,IProgress<float> progress = null)
+        public static async UniTask<Object> LoadAssetAsync<TResult>(
+            AsyncOperationHandle<TResult> handle,
+            bool yetRequested, 
+            ILifeTime lifeTime,
+            IProgress<float> progress = null)
             where TResult : Object
         {
             handle.AddTo(lifeTime, yetRequested);
