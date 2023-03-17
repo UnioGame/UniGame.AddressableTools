@@ -6,8 +6,6 @@ namespace UniGame.AddressableTools.Editor
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using Sirenix.OdinInspector.Editor;
-    using Sirenix.Utilities.Editor;
     using UniModules.Editor;
     using UniModules.UniCore.EditorTools.Editor.PropertiesDrawers;
     using UniModules.UniCore.Runtime.Utils;
@@ -18,6 +16,11 @@ namespace UniGame.AddressableTools.Editor
     using UnityEngine.AddressableAssets;
     using Object = Object;
 
+#if ODIN_INSPECTOR
+    using Sirenix.OdinInspector.Editor;
+    using Sirenix.Utilities.Editor;
+#endif
+    
     [CustomPropertyDrawer(typeof(DrawAssetReferenceAttribute),true)]
     public class AddressableAssetInspector : PropertyDrawer
     {
