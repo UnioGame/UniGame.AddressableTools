@@ -31,15 +31,23 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
 
         public static AssetReference FindReferenceByAddress(this AddressableAssetSettings settings,string address)
         {
-            var entries = new List<AddressableAssetEntry>();
-            settings.GetAllAssets(entries,true,null,x => x.address == address);
-            var asset = entries.FirstOrDefault();
+            var entry = FindAssetEntryByAddress(settings, address);
             
-            if (asset == null) {
+            if (entry == null) {
                 Debug.LogWarning($"Not found asset with address :: {address}");
                 return null;
             }
-            return new AssetReference(asset.guid);
+            
+            return new AssetReference(entry.guid);
+        }
+        
+        public static AddressableAssetEntry FindAssetEntryByAddress(this AddressableAssetSettings settings,string address)
+        {
+            var entries = new List<AddressableAssetEntry>();
+            settings.GetAllAssets(entries,true,null,
+                x => x.address == address || x.guid == address);
+            var asset = entries.FirstOrDefault();
+            return asset;
         }
 
         public static IResourceLocator CreateLocator(ResourceLocatorType locatorType)

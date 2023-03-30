@@ -59,7 +59,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
         {
             value = null;
 
-            var entry = path.GetAddressableAssetEntry();
+            var entry = path.GetAddressableAssetEntryByAssetPath();
             if (entry == null) return false;
 
             value = CreateEntryData(entry, selectDependencies);
