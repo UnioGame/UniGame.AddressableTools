@@ -201,7 +201,7 @@ namespace UniGame.AddressableTools.Runtime
             if (lifeTime.IsTerminated)
                 return default(T);
             
-            if (assetReference.RuntimeKeyIsValid() == false)
+            if (assetReference == null || assetReference.RuntimeKeyIsValid() == false)
             {
                 GameLog.LogError($"AssetReference key is NULL {assetReference}");
                 return null;
