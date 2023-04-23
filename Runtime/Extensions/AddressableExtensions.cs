@@ -265,7 +265,7 @@ namespace UniGame.AddressableTools.Runtime
                 .DownloadDependenciesAsync(assetReference.RuntimeKey)
                 .AddTo(lifeTime);
 
-            await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.TokenSource);
+            await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.CancellationToken);
             
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
             var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
@@ -283,7 +283,7 @@ namespace UniGame.AddressableTools.Runtime
                 .DownloadDependenciesAsync(assetReference)
                 .AddTo(lifeTime);
 
-            await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.TokenSource);
+            await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.CancellationToken);
             
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
             var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
@@ -502,7 +502,7 @@ namespace UniGame.AddressableTools.Runtime
         {
             handle.AddTo(lifeTime, yetRequested);
 
-            var result = await handle.ToUniTask(progress,PlayerLoopTiming.Update,lifeTime.TokenSource);
+            var result = await handle.ToUniTask(progress,PlayerLoopTiming.Update,lifeTime.CancellationToken);
             return result;
         }
         

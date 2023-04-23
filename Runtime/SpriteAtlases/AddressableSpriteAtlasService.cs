@@ -57,7 +57,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             BindToAtlasManager();
 
             PreloadAtlases()
-                .AttachExternalCancellation(LifeTime.TokenSource)
+                .AttachExternalCancellation(LifeTime.CancellationToken)
                 .Forget();
 
             UpdateEditorAtlasMode();
@@ -133,7 +133,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         public void ProceedSpriteAtlasRequested(string tag, Action<SpriteAtlas> atlasAction)
         {
             GetSpriteAtlas(tag, atlasAction)
-                .AttachExternalCancellation(LifeTime.TokenSource)
+                .AttachExternalCancellation(LifeTime.CancellationToken)
                 .Forget();
         }
 
