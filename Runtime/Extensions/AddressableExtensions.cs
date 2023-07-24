@@ -75,9 +75,6 @@ namespace UniGame.AddressableTools.Runtime
             return container;
         }
         
-        
-        
-
         public static async UniTask<IEnumerable<TSource>> LoadAssetsTaskAsync<TSource, TAsset>(
             this IEnumerable<TAsset> assetReference,
             List<TSource> resultContainer, ILifeTime lifeTime)
@@ -192,7 +189,94 @@ namespace UniGame.AddressableTools.Runtime
             
             return instance;
         }
+        
+        public static T LoadAssetInstanceForCompletion<T>(
+            this AssetReferenceT<T> assetReference,
+            ILifeTime lifeTime,
+            bool destroyInstanceWithLifetime = true)
+            where T : Object
+        {
+            var asset = assetReference.LoadAssetForCompletion<T>(lifeTime);
+            if (asset == null) return null;
 
+            var isPawn = false;
+
+            Object instance = null;
+            
+            switch (asset)
+            {
+                case Component component:
+                    instance = component.gameObject.Spawn<T>();
+                    isPawn = true;
+                    break;
+                case GameObject gameObjectAsset:
+                    instance = gameObjectAsset.Spawn();
+                    isPawn = true;
+                    break;
+                default:
+                    instance = Object.Instantiate(asset);
+                    break;
+            }
+
+            if (!destroyInstanceWithLifetime) return instance as T;
+            
+            if (isPawn)
+            {
+                instance.DestroyWith(lifeTime);
+            }
+            else
+            {
+                instance.DestroyWith(lifeTime); 
+            }
+            
+            return instance as T;
+        }
+        
+        public static T LoadAssetForCompletion<T>(this AssetReference assetReference, ILifeTime lifeTime)
+            where T : Object
+        {
+            if (lifeTime.IsTerminated) return default(T);
+            
+            if (assetReference == null || assetReference.RuntimeKeyIsValid() == false)
+            {
+                GameLog.LogError($"AssetReference key is NULL {assetReference}");
+                return null;
+            }
+            
+            var isComponent = typeof(T).IsComponent();
+
+            Object asset = isComponent 
+                ? LoadAssetSync<GameObject>(assetReference, lifeTime)
+                : LoadAssetSync<T>(assetReference, lifeTime);
+            
+            if (asset == null)
+                return default(T);
+
+            var result = asset is GameObject gameObjectAsset && isComponent ?
+                gameObjectAsset.GetComponent<T>() :
+                asset as T;
+            
+            return result;
+        }
+
+        private static T LoadAssetSync<T>(
+            this AssetReference assetReference,
+            ILifeTime lifeTime)
+            where T : Object
+        {
+            var dependencies = Addressables
+                .DownloadDependenciesAsync(assetReference.RuntimeKey)
+                .AddTo(lifeTime);
+            
+            dependencies.WaitForCompletion();
+            
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
+            handle.AddTo(lifeTime, yetRequested);
+
+            var asset = handle.WaitForCompletion();
+            return asset;
+        }
+        
         public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, 
             ILifeTime lifeTime, 
             IProgress<float> progress = null)
@@ -268,6 +352,7 @@ namespace UniGame.AddressableTools.Runtime
             await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.CancellationToken);
             
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
+
             var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
 
             return asset;
@@ -503,6 +588,7 @@ namespace UniGame.AddressableTools.Runtime
             handle.AddTo(lifeTime, yetRequested);
 
             var result = await handle.ToUniTask(progress,PlayerLoopTiming.Update,lifeTime.CancellationToken);
+            
             return result;
         }
         
