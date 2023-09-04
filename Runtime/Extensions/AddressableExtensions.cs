@@ -180,10 +180,13 @@ namespace UniGame.AddressableTools.Runtime
             var asset = await assetReference.LoadAssetTaskAsync<T>(lifeTime, progress);
             if (asset == null) return default;
 
-            var  instance = asset is Component component
-                ? Object.Instantiate(component.gameObject).GetComponent<T>()
-                : Object.Instantiate(asset);
-            
+            var instance = asset switch
+            {
+                GameObject gameObjectAsset => gameObjectAsset.Spawn() as T,
+                Component gameComponent => gameComponent.gameObject.Spawn().GetComponent<T>(),
+                _ => Object.Instantiate(asset)
+            };
+
             if(destroyInstanceWithLifetime) 
                 instance.DestroyWith(lifeTime);
             
