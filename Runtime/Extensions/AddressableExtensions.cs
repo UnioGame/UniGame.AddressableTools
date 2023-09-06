@@ -5,6 +5,7 @@ namespace UniGame.AddressableTools.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using Cysharp.Threading.Tasks;
     using UniGame.Runtime.ObjectPool;
     using UniGame.Runtime.ObjectPool.Extensions;
@@ -234,7 +235,15 @@ namespace UniGame.AddressableTools.Runtime
             
             return instance as T;
         }
-        
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T LoadAssetForCompletion<T>(this AssetReferenceT<T> assetReference, ILifeTime lifeTime)
+            where T : Object
+        {
+            return LoadAssetForCompletion<T>(assetReference as AssetReference, lifeTime);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T LoadAssetForCompletion<T>(this AssetReference assetReference, ILifeTime lifeTime)
             where T : Object
         {
