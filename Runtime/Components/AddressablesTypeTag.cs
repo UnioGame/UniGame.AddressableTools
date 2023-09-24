@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Components
+namespace UniGame.AddressableTools.Runtime
 {
     public class AddressablesTypeTag : MonoBehaviour
     {
