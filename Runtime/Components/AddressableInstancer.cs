@@ -23,6 +23,9 @@
         public bool           createOnStart = true;
         public Transform      parent;
         public bool           useParent = true;
+        public bool           destroyOnReload = true;
+        
+        private List<GameObject> _runtime = new List<GameObject>();
     
         // Start is called before the first frame update
         public void Start()
@@ -30,10 +33,28 @@
             if (!createOnStart)  return;
             Create().Forget();
         }
-        
+
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.Button]
 #endif
+        public void Reload()
+        {
+            foreach (var asset in _runtime)
+            {
+                if(asset == null) continue;
+                
+                if(destroyOnReload)
+                    Destroy(asset);
+                else
+                    asset.Despawn();
+            }
+            
+            _runtime.Clear();
+            
+            Create().Forget();
+        }
+        
+        [Button]
         public async UniTask Create()
         {
             var referencesTasks = links
@@ -50,7 +71,10 @@
             var targetParent = useParent ? parent == null ? transform : parent : null;
             var sceneLifeTime = SceneLifeTimeExtension.GetActiveSceneLifeTime();
             var asset        = await assetReference.LoadAssetTaskAsync<Object>(sceneLifeTime);
-            asset.Spawn(Vector3.zero, Quaternion.identity, targetParent);
+            var runtimeAsset = asset.Spawn(Vector3.zero, Quaternion.identity, targetParent);
+            
+            if(runtimeAsset is GameObject runtimeGameObject)
+                _runtime.Add(runtimeGameObject);
         }
 
     }
