@@ -15,7 +15,9 @@
         
         [NonSerialized]
         [HideLabel]
-        [InlineEditor]
+        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
+        [FoldoutGroup("reference")]
+        [ShowIf(nameof(HasValue))]
         [OnInspectorGUI]
         private Object _value;
 
@@ -30,6 +32,8 @@
             }
         }
         
+        public bool HasValue => reference != null && reference.RuntimeKeyIsValid();
+        
         [Button]
         [OnInspectorInit]
         public void UpdateView()
@@ -38,6 +42,12 @@
             _value = reference.editorAsset;
 #endif
         }
+        
+        public static explicit operator AssetReferenceT<TValue>(AddressableValue<TValue> v)
+        {
+            return v.reference;
+        }
+
     }
     
     
@@ -50,16 +60,37 @@
         
         [NonSerialized]
         [HideLabel]
-        [InlineEditor]
+        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
+        [FoldoutGroup("reference")]
+        [ShowIf(nameof(HasValue))]
         [OnInspectorGUI]
         private Object _value;
 
+        public Object EditorValue
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return reference.editorAsset;
+#endif
+                return null;
+            }
+        }
+        
+        public bool HasValue => reference != null && reference.RuntimeKeyIsValid();
+        
         [Button]
+        [OnInspectorInit]
         public void UpdateView()
         {
 #if UNITY_EDITOR
             _value = reference.editorAsset;
 #endif
+        }
+        
+        public static explicit operator AssetReference(AddressableValue v)
+        {
+            return v.reference;
         }
     }
 }
