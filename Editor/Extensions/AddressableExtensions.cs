@@ -86,9 +86,21 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
 
             var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             addressableSettings.CreateOrMoveEntry(source.GetGUID(), group);
-            
         }
-
+        
+        public static void AddToDefaultAddressableGroupIfNone(this Object source)
+        {
+            if (source.IsInAnyAddressableAssetGroup()) return;
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+            SetAddressableAssetGroup(source, addressableSettings.DefaultGroup);
+        }
+        
+        public static void AddToDefaultAddressableGroup(this Object source)
+        {
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+            SetAddressableAssetGroup(source, addressableSettings.DefaultGroup);
+        }
+        
         public static HashSet<string> GetAddressableAssetLabels(this Object source)
         {
             if (source == null || !AssetDatabase.Contains(source))
