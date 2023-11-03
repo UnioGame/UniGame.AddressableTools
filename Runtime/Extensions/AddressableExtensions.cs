@@ -171,6 +171,19 @@ namespace UniGame.AddressableTools.Runtime
             var reference = assetReference as AssetReference;
             return await LoadAssetInstanceTaskAsync<T>(reference, lifeTime, destroyInstanceWithLifetime, progress);
         }
+        
+        public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReferenceT<T> assetReference,
+            ILifeTime lifeTime,
+            bool destroyInstanceWithLifetime,
+            Action<T> result)
+            where T : Object
+        {
+            var reference = assetReference as AssetReference;
+            var resultValue = await LoadAssetInstanceTaskAsync<T>(reference, lifeTime, destroyInstanceWithLifetime);
+            
+            result(resultValue);
+            return resultValue;
+        }
 
         public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReference assetReference,
             ILifeTime lifeTime,
