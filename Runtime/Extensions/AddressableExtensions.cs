@@ -340,7 +340,7 @@ namespace UniGame.AddressableTools.Runtime
         /// <param name="lifeTime"></param>
         /// <param name="autoReleaseHandle"></param>
         /// <param name="process"></param>
-        public static async UniTask DownloadDependenciesAsync(
+        public static async UniTask DownloadDependencyAsync(
             this object targets,
             ILifeTime lifeTime,
             bool autoReleaseHandle = true,
