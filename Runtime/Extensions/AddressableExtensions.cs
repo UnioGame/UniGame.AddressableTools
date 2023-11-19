@@ -301,19 +301,24 @@ namespace UniGame.AddressableTools.Runtime
         /// </summary>
         /// <param name="targets"></param>
         /// <param name="lifeTime"></param>
+        /// <param name="autoReleaseHandle"></param>
         /// <param name="process"></param>
         public static async UniTask DownloadDependenciesAsync(
             this IEnumerable targets,
             ILifeTime lifeTime,
-            IProgress<float> process)
+            bool autoReleaseHandle = true,
+            IProgress<float> process = null)
         {
             var locators = await Addressables
                 .LoadResourceLocationsAsync(targets,Addressables.MergeMode.Union)
                 .ToUniTask();
             
-            var handle = Addressables.DownloadDependenciesAsync(locators, Addressables.MergeMode.Union);
+            var handle = Addressables.DownloadDependenciesAsync(locators, autoReleaseHandle);
             if(handle.IsDone)
                 return;
+
+            if (!autoReleaseHandle)
+                handle.AddTo(lifeTime);
             
             var downloadSize = handle.GetDownloadStatus().TotalBytes;
             
@@ -327,23 +332,25 @@ namespace UniGame.AddressableTools.Runtime
                 .AttachExternalCancellation(lifeTime.Token)
                 .SuppressCancellationThrow();
         }
-        
+
         /// <summary>
         /// download single dependencies to the cache
         /// </summary>
         /// <param name="targets"></param>
         /// <param name="lifeTime"></param>
+        /// <param name="autoReleaseHandle"></param>
         /// <param name="process"></param>
         public static async UniTask DownloadDependenciesAsync(
             this object targets,
             ILifeTime lifeTime,
-            IProgress<float> process)
+            bool autoReleaseHandle = true,
+            IProgress<float> process = null)
         {
             var resource = ListPool<object>.Get();
             resource.Clear();
             resource.Add(targets);
             
-            await DownloadDependenciesAsync(resource,lifeTime, process);
+            await DownloadDependenciesAsync(resource,lifeTime, autoReleaseHandle,process);
             
             resource.Despawn();
         }
