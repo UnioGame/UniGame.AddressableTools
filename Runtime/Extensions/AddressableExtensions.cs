@@ -4,6 +4,7 @@ using UniGame.Context.Runtime;
 namespace UniGame.AddressableTools.Runtime
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using Cysharp.Threading.Tasks;
@@ -13,7 +14,10 @@ namespace UniGame.AddressableTools.Runtime
     using Core.Runtime.Extension;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
+    using UnityEngine.AddressableAssets.ResourceLocators;
+    using UnityEngine.Pool;
     using UnityEngine.ResourceManagement.AsyncOperations;
+    using UnityEngine.ResourceManagement.ResourceLocations;
     using UnityEngine.ResourceManagement.ResourceProviders;
     using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
@@ -287,17 +291,80 @@ namespace UniGame.AddressableTools.Runtime
             return result;
         }
 
+        public static bool ClearCache()
+        {
+            return Caching.ClearCache();
+        }
+
+        /// <summary>
+        /// download all dependencies to the cache
+        /// </summary>
+        /// <param name="targets"></param>
+        /// <param name="lifeTime"></param>
+        /// <param name="process"></param>
+        public static async UniTask DownloadDependenciesAsync(
+            this IEnumerable targets,
+            ILifeTime lifeTime,
+            IProgress<float> process)
+        {
+            var locators = await Addressables
+                .LoadResourceLocationsAsync(targets,Addressables.MergeMode.Union)
+                .ToUniTask();
+            
+            // foreach (var target in targets)
+            // {
+            //     foreach (var locator in Addressables.ResourceLocators)
+            //     {
+            //         if(!locator.Locate(target,null,out var locations))
+            //             continue;
+            //         locators.AddRange(locations);
+            //     }
+            // }
+            
+            var handle = Addressables.DownloadDependenciesAsync(locators, Addressables.MergeMode.Union);
+            if(handle.IsDone)
+                return;
+            
+            var downloadSize = handle.GetDownloadStatus().TotalBytes;
+            
+            if (downloadSize <= 0)
+            {
+                Debug.Log($"{nameof(DownloadDependenciesAsync)} :: nothing to download");
+                return;
+            }
+            
+            await handle.ToUniTask(process)
+                .AttachExternalCancellation(lifeTime.Token)
+                .SuppressCancellationThrow();
+            
+            //locators.Despawn();
+        }
+        
+        /// <summary>
+        /// download single dependencies to the cache
+        /// </summary>
+        /// <param name="targets"></param>
+        /// <param name="lifeTime"></param>
+        /// <param name="process"></param>
+        public static async UniTask DownloadDependenciesAsync(
+            this object targets,
+            ILifeTime lifeTime,
+            IProgress<float> process)
+        {
+            var resource = ListPool<object>.Get();
+            resource.Clear();
+            resource.Add(targets);
+            
+            await DownloadDependenciesAsync(resource,lifeTime, process);
+            
+            resource.Despawn();
+        }
+        
         private static T LoadAssetSync<T>(
             this AssetReference assetReference,
             ILifeTime lifeTime)
             where T : Object
         {
-            // var dependencies = Addressables
-            //     .DownloadDependenciesAsync(assetReference.RuntimeKey)
-            //     .AddTo(lifeTime);
-            //
-            // dependencies.WaitForCompletion();
-            
             var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
             handle.AddTo(lifeTime, yetRequested);
 
