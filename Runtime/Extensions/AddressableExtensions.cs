@@ -311,16 +311,6 @@ namespace UniGame.AddressableTools.Runtime
                 .LoadResourceLocationsAsync(targets,Addressables.MergeMode.Union)
                 .ToUniTask();
             
-            // foreach (var target in targets)
-            // {
-            //     foreach (var locator in Addressables.ResourceLocators)
-            //     {
-            //         if(!locator.Locate(target,null,out var locations))
-            //             continue;
-            //         locators.AddRange(locations);
-            //     }
-            // }
-            
             var handle = Addressables.DownloadDependenciesAsync(locators, Addressables.MergeMode.Union);
             if(handle.IsDone)
                 return;
@@ -329,15 +319,13 @@ namespace UniGame.AddressableTools.Runtime
             
             if (downloadSize <= 0)
             {
-                Debug.Log($"{nameof(DownloadDependenciesAsync)} :: nothing to download");
+                GameLog.Log($"{nameof(DownloadDependenciesAsync)} :: nothing to download");
                 return;
             }
             
             await handle.ToUniTask(process)
                 .AttachExternalCancellation(lifeTime.Token)
                 .SuppressCancellationThrow();
-            
-            //locators.Despawn();
         }
         
         /// <summary>
