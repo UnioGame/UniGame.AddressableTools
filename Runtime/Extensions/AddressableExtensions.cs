@@ -14,7 +14,6 @@ namespace UniGame.AddressableTools.Runtime
     using Core.Runtime.Extension;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
-    using UnityEngine.AddressableAssets.ResourceLocators;
     using UnityEngine.Pool;
     using UnityEngine.ResourceManagement.AsyncOperations;
     using UnityEngine.ResourceManagement.ResourceLocations;
@@ -25,6 +24,37 @@ namespace UniGame.AddressableTools.Runtime
 
     public static class AddressableExtensions
     {
+        private static object EvaluateKey(object obj)
+        {
+            if (obj is IKeyEvaluator evaluator)
+                return evaluator.RuntimeKey;
+            return obj;
+        }
+
+        private static HashSet<IResourceLocation> _resourceLocations = new();
+        
+        public static bool GetResourceLocations(object key, List<IResourceLocation> locations)
+        {
+            var resourceLocators = Addressables.ResourceLocators;
+            var requiredType = typeof(Object);
+
+            key = EvaluateKey(key);
+
+            _resourceLocations.Clear();
+            
+            foreach (var locator in resourceLocators)
+            {
+                if (!locator.Locate(key, requiredType, out var locs))
+                    continue;
+                _resourceLocations.UnionWith(locs);
+            }
+
+            locations.AddRange(_resourceLocations);
+            _resourceLocations.Clear();
+            
+            return true;
+        }
+        
         public static async UniTask<SceneInstance> LoadSceneTaskAsync(
             this AssetReference sceneReference,
             ILifeTime lifeTime,
@@ -296,32 +326,38 @@ namespace UniGame.AddressableTools.Runtime
             return Caching.ClearCache();
         }
 
+        public static async UniTask DownloadDependenciesAsync(
+            this IEnumerable targets,
+            ILifeTime lifeTime,
+            IProgress<float> process = null)
+        {
+            await DownloadDependenciesAsync(targets, lifeTime, Addressables.MergeMode.Union, process);
+        }
+
         /// <summary>
         /// download all dependencies to the cache
         /// </summary>
         /// <param name="targets"></param>
         /// <param name="lifeTime"></param>
-        /// <param name="autoReleaseHandle"></param>
         /// <param name="process"></param>
         public static async UniTask DownloadDependenciesAsync(
             this IEnumerable targets,
             ILifeTime lifeTime,
-            bool autoReleaseHandle = true,
+            Addressables.MergeMode mergeMode = Addressables.MergeMode.Union,
             IProgress<float> process = null)
         {
             var locators = await Addressables
                 .LoadResourceLocationsAsync(targets,Addressables.MergeMode.Union)
                 .ToUniTask();
             
-            var handle = Addressables.DownloadDependenciesAsync(locators, autoReleaseHandle);
-            if(handle.IsDone)
-                return;
+            
+            var handle = Addressables.DownloadDependenciesAsync(locators, mergeMode);
+            
+            if(handle.IsDone) return;
 
-            if (!autoReleaseHandle)
-                handle.AddTo(lifeTime);
+            handle.AddTo(lifeTime);
             
             var downloadSize = handle.GetDownloadStatus().TotalBytes;
-            
             if (downloadSize <= 0)
             {
                 GameLog.Log($"{nameof(DownloadDependenciesAsync)} :: nothing to download");
@@ -343,14 +379,13 @@ namespace UniGame.AddressableTools.Runtime
         public static async UniTask DownloadDependencyAsync(
             this object targets,
             ILifeTime lifeTime,
-            bool autoReleaseHandle = true,
             IProgress<float> process = null)
         {
             var resource = ListPool<object>.Get();
             resource.Clear();
             resource.Add(targets);
             
-            await DownloadDependenciesAsync(resource,lifeTime, autoReleaseHandle,process);
+            await DownloadDependenciesAsync(resource,lifeTime,process);
             
             resource.Despawn();
         }
@@ -399,7 +434,7 @@ namespace UniGame.AddressableTools.Runtime
         }
 
         public static async UniTask<AddressableResourceResult<T>> LoadAssetTaskAsync<T>(
-            this string assetReference, 
+            this string referenceKey, 
             ILifeTime lifeTime, 
             bool downloadDependencies = false,
             IProgress<float> progress = null)
@@ -408,17 +443,17 @@ namespace UniGame.AddressableTools.Runtime
             if (lifeTime.IsTerminated)
                 return AddressableResourceResult<T>.FailedResourceResult;
             
-            if (string.IsNullOrEmpty(assetReference))
+            if (string.IsNullOrEmpty(referenceKey))
             {
-                GameLog.LogError($"AssetReference key is NULL {assetReference}");
+                GameLog.LogError($"AssetReference key is NULL {referenceKey}");
                 return AddressableResourceResult<T>.FailedResourceResult;
             }
             
             var isComponent = typeof(T).IsComponent();
 
             var asset = isComponent 
-                ? await LoadAssetTaskInternalAsync<GameObject>(assetReference, lifeTime,downloadDependencies, progress)
-                : await LoadAssetTaskInternalAsync<T>(assetReference, lifeTime,downloadDependencies, progress);
+                ? await LoadAssetTaskInternalAsync<GameObject>(referenceKey, lifeTime,downloadDependencies, progress)
+                : await LoadAssetTaskInternalAsync<T>(referenceKey, lifeTime,downloadDependencies, progress);
             
             if (asset == null) return AddressableResourceResult<T>.FailedResourceResult;
 
