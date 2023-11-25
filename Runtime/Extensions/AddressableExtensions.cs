@@ -21,6 +21,10 @@ namespace UniGame.AddressableTools.Runtime
     using UnityEngine.SceneManagement;
     using Object = UnityEngine.Object;
 
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
+    
 
     public static class AddressableExtensions
     {
@@ -321,17 +325,28 @@ namespace UniGame.AddressableTools.Runtime
             return result;
         }
 
-        public static bool ClearCache()
-        {
+#if UNITY_EDITOR
+        [MenuItem("UniGame/Addressables/Clear Bundle Cache")]
+#endif
+        public static bool ClearBundleCache()
+        {   
             return Caching.ClearCache();
+        }
+        
+        public static async UniTask<bool> ClearCacheAsync()
+        {
+            var handle = Addressables.CleanBundleCache();
+            var result = await handle.ToUniTask();
+            return result;
         }
 
         public static async UniTask DownloadDependenciesAsync(
             this IEnumerable targets,
             ILifeTime lifeTime,
+            Type type = null,
             IProgress<float> process = null)
         {
-            await DownloadDependenciesAsync(targets, lifeTime, Addressables.MergeMode.Union, process);
+            await DownloadDependenciesAsync(targets, lifeTime, Addressables.MergeMode.Union, type,process);
         }
 
         /// <summary>
@@ -339,17 +354,19 @@ namespace UniGame.AddressableTools.Runtime
         /// </summary>
         /// <param name="targets"></param>
         /// <param name="lifeTime"></param>
+        /// <param name="type"></param>
         /// <param name="process"></param>
+        /// <param name="mergeMode"></param>
         public static async UniTask DownloadDependenciesAsync(
             this IEnumerable targets,
             ILifeTime lifeTime,
             Addressables.MergeMode mergeMode = Addressables.MergeMode.Union,
+            Type type = null,
             IProgress<float> process = null)
         {
             var locators = await Addressables
-                .LoadResourceLocationsAsync(targets,Addressables.MergeMode.Union)
+                .LoadResourceLocationsAsync(targets,mergeMode,type)
                 .ToUniTask();
-            
             
             var handle = Addressables.DownloadDependenciesAsync(locators, mergeMode);
             
@@ -375,17 +392,68 @@ namespace UniGame.AddressableTools.Runtime
         /// <param name="targets"></param>
         /// <param name="lifeTime"></param>
         /// <param name="autoReleaseHandle"></param>
+        /// <param name="type"></param>
         /// <param name="process"></param>
         public static async UniTask DownloadDependencyAsync(
             this object targets,
             ILifeTime lifeTime,
+            Type type = null,
             IProgress<float> process = null)
         {
             var resource = ListPool<object>.Get();
             resource.Clear();
             resource.Add(targets);
             
-            await DownloadDependenciesAsync(resource,lifeTime,process);
+            await DownloadDependenciesAsync(resource,lifeTime,type,process);
+            
+            resource.Despawn();
+        }
+
+        /// <summary>
+        /// download single dependencies to the cache
+        /// </summary>
+        /// <param name="targets"></param>
+        /// <param name="lifeTime"></param>
+        /// <param name="autoReleaseHandle"></param>
+        /// <param name="mode"></param>
+        /// <param name="type"></param>
+        /// <param name="process"></param>
+        public static async UniTask DownloadDependencyAsync(
+            this object targets,
+            ILifeTime lifeTime,
+            Addressables.MergeMode mode = Addressables.MergeMode.Union,
+            Type type = null,
+            IProgress<float> process = null)
+        {
+            var resource = ListPool<object>.Get();
+            resource.Clear();
+            resource.Add(targets);
+            
+            await DownloadDependenciesAsync(resource,lifeTime,mode,type,process);
+            
+            resource.Despawn();
+        }
+        
+        /// <summary>
+        /// download single dependencies to the cache
+        /// </summary>
+        /// <param name="targets"></param>
+        /// <param name="lifeTime"></param>
+        /// <param name="autoReleaseHandle"></param>
+        /// <param name="mode"></param>
+        /// <param name="type"></param>
+        /// <param name="process"></param>
+        public static async UniTask DownloadDependencyAsync(
+            this object targets,
+            ILifeTime lifeTime,
+            Addressables.MergeMode mode = Addressables.MergeMode.Union,
+            IProgress<float> process = null)
+        {
+            var resource = ListPool<object>.Get();
+            resource.Clear();
+            resource.Add(targets);
+            
+            await DownloadDependenciesAsync(resource,lifeTime,mode,null,process);
             
             resource.Despawn();
         }
@@ -518,21 +586,24 @@ namespace UniGame.AddressableTools.Runtime
                 TotalBytes = progressData.TotalBytes,
             });
         }
-        
-        public static async UniTask<IList<Object>> LoadAssetsByLabel(string label, ILifeTime lifeTime)
-        {
-            var handle = Addressables.LoadAssetsAsync<Object>(label, null);
-            handle.AddTo(lifeTime);
-            return await handle.ToUniTask();
-        }
+
 
         public static async UniTask<T> ConvertToUniTask<T>(this AsyncOperationHandle<T> handle, ILifeTime lifeTime) where T : class
         {
             handle.AddTo(lifeTime);
             return await handle.ToUniTask();
         }
+        
+                
+        public static async UniTask<IList<Object>> LoadAssetsTaskAsync(this string label, ILifeTime lifeTime,IProgress<float> progress = null)
+        {
+            var handle = Addressables.LoadAssetsAsync<Object>(label, null);
+            handle.AddTo(lifeTime);
+            return await handle.ToUniTask(progress,cancellationToken:lifeTime.Token);
+        }
 
-        public static async UniTask<(TAsset asset, TResult result)> LoadAssetTaskAsync<TAsset, TResult>(this AssetReference assetReference, ILifeTime lifeTime)
+        public static async UniTask<(TAsset asset, TResult result)> LoadAssetTaskAsync<TAsset, TResult>(this AssetReference assetReference,
+            ILifeTime lifeTime)
             where TAsset : Object
             where TResult : class
         {
