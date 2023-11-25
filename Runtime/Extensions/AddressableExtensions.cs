@@ -360,7 +360,7 @@ namespace UniGame.AddressableTools.Runtime
             var downloadSize = handle.GetDownloadStatus().TotalBytes;
             if (downloadSize <= 0)
             {
-                GameLog.Log($"{nameof(DownloadDependenciesAsync)} :: nothing to download");
+                GameLog.LogFormat("Addressable: {0} :: nothing to download",nameof(DownloadDependenciesAsync));
                 return;
             }
             
