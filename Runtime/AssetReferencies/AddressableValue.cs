@@ -11,7 +11,7 @@
     {
         [HideLabel]
         [OnValueChanged(nameof(UpdateView))]
-        public AssetReferenceT<TValue> reference;
+        public AssetReferenceT<TValue> reference = new(string.Empty);
         
         [NonSerialized]
         [HideLabel]
@@ -21,7 +21,7 @@
         [OnInspectorGUI]
         private Object _value;
 
-        public Object EditorValue
+        public TValue EditorValue
         {
             get
             {
