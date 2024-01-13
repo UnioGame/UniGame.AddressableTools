@@ -1,24 +1,32 @@
 ﻿namespace UniGame.AddressableTools.Runtime.AssetReferencies
 {
     using System;
-    using Sirenix.OdinInspector;
     using UnityEngine.AddressableAssets;
     using Object = UnityEngine.Object;
 
+#if ODIN_INSPECTOR
+     using Sirenix.OdinInspector;
+#endif
+    
     [Serializable]
     public class AddressableValue<TValue>
         where TValue : Object
     {
+#if ODIN_INSPECTOR
         [HideLabel]
         [OnValueChanged(nameof(UpdateView))]
+#endif
+        
         public AssetReferenceT<TValue> reference = new(string.Empty);
         
         [NonSerialized]
+#if ODIN_INSPECTOR
         [HideLabel]
         [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
         [FoldoutGroup("reference")]
         [ShowIf(nameof(HasValue))]
         [OnInspectorGUI]
+#endif
         private Object _value;
 
         public TValue EditorValue
@@ -34,8 +42,10 @@
         
         public bool HasValue => reference != null && reference.RuntimeKeyIsValid();
         
+#if ODIN_INSPECTOR
         [Button]
         [OnInspectorInit]
+#endif
         public void UpdateView()
         {
 #if UNITY_EDITOR
@@ -54,16 +64,20 @@
     [Serializable]
     public class AddressableValue
     {
+#if ODIN_INSPECTOR
         [HideLabel]
         [OnValueChanged(nameof(UpdateView))]
+#endif
         public AssetReference reference;
         
         [NonSerialized]
+#if ODIN_INSPECTOR
         [HideLabel]
         [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
         [FoldoutGroup("reference")]
         [ShowIf(nameof(HasValue))]
         [OnInspectorGUI]
+#endif
         private Object _value;
 
         public Object EditorValue
@@ -79,8 +93,10 @@
         
         public bool HasValue => reference != null && reference.RuntimeKeyIsValid();
         
+#if ODIN_INSPECTOR
         [Button]
         [OnInspectorInit]
+#endif
         public void UpdateView()
         {
 #if UNITY_EDITOR

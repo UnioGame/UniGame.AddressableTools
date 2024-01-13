@@ -1,13 +1,19 @@
 ﻿namespace UniGame.AddressableTools.Runtime
 {
-    using Sirenix.OdinInspector;
+    
     using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
     using UnityEngine;
 
+#if ODIN_INSPECTOR
+    using Sirenix.OdinInspector;
+#endif
+    
     public class AddressableMonoPreloader : MonoBehaviour
     {
+#if ODIN_INSPECTOR
         [InlineProperty]
         [HideLabel]
+#endif
         public AddressableResourcePreloader preloader = new();
         
         public bool activateOnStart = true;
@@ -20,7 +26,9 @@
             WarmUp();
         }
 
+#if ODIN_INSPECTOR
         [Button]
+#endif
         public void WarmUp()
         {
             preloader.WarmUp(this.GetAssetLifeTime());

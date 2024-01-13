@@ -4,13 +4,18 @@
     using System.Collections.Generic;
     using Core.Runtime;
     using Cysharp.Threading.Tasks;
-    using Sirenix.OdinInspector;
     using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Pooling;
 
+#if ODIN_INSPECTOR
+    using Sirenix.OdinInspector;
+#endif
+    
     [Serializable]
     public class AddressableResourcePreloader
     {
+#if ODIN_INSPECTOR
         [ListDrawerSettings(ListElementLabelName = "@Label")]
+#endif
         public List<AddressablePreloadValue> warmupReferences = new();
         
         public void WarmUp(ILifeTime lifeTime)

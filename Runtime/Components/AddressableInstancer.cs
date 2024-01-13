@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using Cysharp.Threading.Tasks;
-    using Sirenix.OdinInspector;
     using UniGame.Runtime.ObjectPool.Extensions;
     using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
     using UnityEngine;
@@ -14,6 +13,10 @@
 #if UNITY_EDITOR
     using UnityEditor;
     using UniModules.Editor;
+#endif
+    
+#if ODIN_INSPECTOR
+    using Sirenix.OdinInspector;
 #endif
     
     public class AddressableInstancer : MonoBehaviour
@@ -54,7 +57,9 @@
             Create().Forget();
         }
         
+#if ODIN_INSPECTOR
         [Button]
+#endif
         public async UniTask Create()
         {
             var referencesTasks = links
@@ -80,15 +85,21 @@
     }
     
     [Serializable]
+#if ODIN_INSPECTOR
     [InlineProperty]
+#endif
     public class AddressableInstance
     {
+#if ODIN_INSPECTOR
         [HideLabel]
         [HorizontalGroup(Width = 20)]
+#endif
         public bool enabled = true;
         
+#if ODIN_INSPECTOR
         [HideLabel]
         [HorizontalGroup]
+#endif
         public AssetReference reference;
     }
 }
