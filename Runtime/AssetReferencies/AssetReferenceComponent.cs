@@ -63,9 +63,9 @@ namespace UniGame.AddressableTools.Runtime
         public override bool ValidateAsset(string path)
         {
 #if UNITY_EDITOR
-            var prefab = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) 
-                as GameObject;
-            return prefab?.GetComponent<TApi>() != null;
+            var prefab = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
+            var componentValue = prefab?.GetComponent<TApi>();
+            return componentValue != null;
 #else
             return false;
 #endif
