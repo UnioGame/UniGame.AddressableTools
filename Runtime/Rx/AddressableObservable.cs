@@ -26,12 +26,12 @@
         
         private TAddressable _reference;
         private LifeTimeDefinition _lifeTime;
-        private RecycleReactiveProperty<TApi> _addressableObservable;
+        private ReactiveValue<TApi> _addressableObservable;
 
         public AddressableObservable(TAddressable addressable)
         {
             _lifeTime = new LifeTimeDefinition();
-            _addressableObservable = new RecycleReactiveProperty<TApi>().AddTo(_lifeTime);
+            _addressableObservable = new ReactiveValue<TApi>().AddTo(_lifeTime);
             _reference = addressable;
         }
         
