@@ -4,12 +4,9 @@
     using UnityEngine.AddressableAssets;
 
     [Serializable]
-    public class AssetReferenceGameObjectValue : AssetReferenceGameObject
+    public class AssetReferenceGameObjectValue 
     {
         public bool makeImmortal;
-
-        public AssetReferenceGameObjectValue(string guid) : base(guid)
-        {
-        }
+        public AssetReferenceGameObject assetReference;
     }
 }

@@ -20,7 +20,7 @@
 
         public async UniTask<Object> LoadContextItem(AssetReferenceGameObjectValue source,ILifeTime lifeTime)
         {
-            var value = source;
+            var value = source.assetReference;
             var gameObject = await value.LoadAssetTaskAsync(lifeTime);
             var result = Object.Instantiate(gameObject);
             if (source.makeImmortal)
