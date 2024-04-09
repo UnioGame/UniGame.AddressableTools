@@ -332,8 +332,10 @@ namespace UniGame.AddressableTools.Runtime
         {
 #if UNITY_WEBGL
             return false;
-#endif
+#else
             return Caching.ClearCache();
+#endif
+            return false;
         }
         
         public static async UniTask<bool> ClearCacheAsync()
