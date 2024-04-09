@@ -329,7 +329,10 @@ namespace UniGame.AddressableTools.Runtime
         [MenuItem("UniGame/Addressables/Clear Bundle Cache")]
 #endif
         public static bool ClearBundleCache()
-        {   
+        {
+#if UNITY_WEBGL
+            return false;
+#endif
             return Caching.ClearCache();
         }
         
