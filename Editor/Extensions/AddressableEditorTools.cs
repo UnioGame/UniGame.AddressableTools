@@ -96,9 +96,16 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             return obj is IKeyEvaluator ? (obj as IKeyEvaluator).RuntimeKey : obj;
         }
         
-        private static bool IsAddressableAsset(this string guid)
+        public static bool IsAddressableAsset(this string guid)
         {
             return GetAddressableAssetEntryByGuid(guid) != null;
+        }
+        
+        public static bool IsAddressableAsset(this Object asset)
+        {
+            var guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+            if (string.IsNullOrEmpty(guid)) return false;
+            return IsAddressableAsset(guid);
         }
         
         public static AddressableAssetEntry GetAddressableAssetEntryByGuid(this string guid)
