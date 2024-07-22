@@ -248,6 +248,8 @@ namespace UniGame.AddressableTools.Runtime
             return instance;
         }
         
+        
+#if !UNITY_WEBGL
         public static T LoadAssetInstanceForCompletion<T>(
             this AssetReferenceT<T> assetReference,
             ILifeTime lifeTime,
@@ -297,6 +299,7 @@ namespace UniGame.AddressableTools.Runtime
             return LoadAssetForCompletion<T>(assetReference as AssetReference, lifeTime);
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T LoadAssetForCompletion<T>(this AssetReference assetReference, ILifeTime lifeTime)
             where T : Object
@@ -324,6 +327,7 @@ namespace UniGame.AddressableTools.Runtime
             
             return result;
         }
+#endif
 
 #if UNITY_EDITOR
         [MenuItem("UniGame/Addressables/Clear Bundle Cache")]
@@ -462,6 +466,8 @@ namespace UniGame.AddressableTools.Runtime
             
             resource.Despawn();
         }
+
+#if !UNITY_WEBGL
         
         private static T LoadAssetSync<T>(
             this AssetReference assetReference,
@@ -474,6 +480,8 @@ namespace UniGame.AddressableTools.Runtime
             var asset = handle.WaitForCompletion();
             return asset;
         }
+        
+#endif
         
         public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, 
             ILifeTime lifeTime, 
