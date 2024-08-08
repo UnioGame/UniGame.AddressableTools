@@ -39,7 +39,30 @@
 #if ODIN_INSPECTOR
         [BoxGroup(TransformData)]
 #endif
-        public bool overridePosition = false;
+        public bool overridePosition = true;
+        
+#if ODIN_INSPECTOR
+        [BoxGroup(TransformData)]
+        [ShowIf(nameof(overridePosition))]
+#endif
+        public bool inheritPosition = true;
+        
+#if ODIN_INSPECTOR
+        [BoxGroup(TransformData)]
+        [ShowIf(nameof(overridePosition))]
+#endif
+        public Vector3 spawnPosition = Vector3.zero;
+
+#if ODIN_INSPECTOR
+        [BoxGroup(TransformData)]
+#endif
+        public bool overrideRotation = false;
+        
+#if ODIN_INSPECTOR
+        [BoxGroup(TransformData)]
+        [ShowIf(nameof(overrideRotation))]
+#endif
+        public Vector3 spawnRotation = Vector3.zero;
         
 #if ODIN_INSPECTOR
         [BoxGroup(TransformData)]
@@ -57,9 +80,6 @@
         [ShowIf(nameof(overrideScale))]
 #endif
         public Vector3 scale = Vector3.one;
-
-        [FormerlySerializedAs("useSourcePosition")]
-        public bool inheritPosition = true;
 
         private List<GameObject> _runtime = new();
         private List<Object> _runtimeAssets = new();
@@ -138,35 +158,19 @@
         {
             if (assetReference == null || !assetReference.RuntimeKeyIsValid())
                 return;
-
-            var targetParent = spawnUnderParent 
-                ? parent == null 
-                    ? transform 
-                    : parent : null;
             
             var sceneLifeTime = useSceneLifeTime
                 ? SceneLifeTimeExtension.GetActiveSceneLifeTime()
                 : _lifeTime;
             
-            var targetPosition = inheritPosition 
-                ? targetParent == null 
-                    ? transform.position 
-                    : targetParent.position 
-                : Vector3.zero;
-            
-            var scaleValue = overrideScale 
-                ? inheritFromParentScale
-                    ? targetParent == null 
-                        ? Vector3.one
-                        : targetParent.localScale
-                    : scale
-                : Vector3.one;
+            var transformData = CreateTransformData();
             
             var asset = await assetReference.LoadAssetTaskAsync<Object>(sceneLifeTime);
             if (asset is GameObject gameObjectAsset)
             {
-                var runtimeAsset = gameObjectAsset.Spawn(targetPosition, Quaternion.identity, targetParent);
-                runtimeAsset.transform.localScale = scaleValue;
+                var runtimeAsset = gameObjectAsset
+                    .Spawn(transformData.position,transformData.rotation, transformData.parent);
+                runtimeAsset.transform.localScale = transformData.scale;
                 runtimeAsset.SetActive(true);
                 _runtime.Add(runtimeAsset);
             }
@@ -176,6 +180,50 @@
                 _runtimeAssets.Add(item);
             }
         }
+
+        public SpawnTransform CreateTransformData()
+        {
+            var result = new SpawnTransform();
+            
+            var targetParent = spawnUnderParent 
+                ? parent == null 
+                    ? transform 
+                    : parent : null;
+
+            var targetPosition = 
+                overridePosition
+                    ? inheritPosition
+                        ? targetParent == null ? transform.position : targetParent.position
+                        : spawnPosition
+                    : Vector3.zero;
+
+            var targetRotation = overrideRotation
+                ? Quaternion.Euler(spawnRotation)
+                : Quaternion.identity;
+            
+            var scaleValue = overrideScale 
+                ? inheritFromParentScale
+                    ? targetParent == null 
+                        ? Vector3.one
+                        : targetParent.localScale
+                    : scale
+                : Vector3.one;
+
+            result.parent = targetParent;
+            result.position = targetPosition;
+            result.scale = scaleValue;
+            result.rotation = targetRotation;
+            
+            return result;
+        }
+    }
+    
+    public struct SpawnTransform
+    {
+        public Transform parent;
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
     }
 
     [Serializable]
