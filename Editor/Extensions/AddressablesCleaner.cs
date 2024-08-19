@@ -17,8 +17,8 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
         public static void RemoveLibraryCache()
         {
             try {
-                EditorFileUtils.DeleteDirectoryFiles(AddressablesCachePath);
-                EditorFileUtils.DeleteSubDirectories(AddressablesCachePath);
+                FileUtils.DeleteDirectoryFiles(AddressablesCachePath);
+                FileUtils.DeleteSubDirectories(AddressablesCachePath);
             }
             catch (Exception e) {
                 Debug.LogError(e);
@@ -52,7 +52,7 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
         {
             try {
                 var targetPath = Application.streamingAssetsPath + StreamingAddressablesPath;
-                EditorFileUtils.DeleteDirectory(targetPath);
+                FileUtils.DeleteDirectory(targetPath);
             }
             catch (Exception e) {
                 Debug.LogError(e);
