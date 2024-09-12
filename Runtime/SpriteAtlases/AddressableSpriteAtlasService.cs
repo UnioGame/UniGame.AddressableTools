@@ -38,15 +38,15 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
         [InlineProperty]
         [Searchable]
 #endif
-        public List<SpriteAtlasHandle> activeHandles = new List<SpriteAtlasHandle>();
+        public List<SpriteAtlasHandle> activeHandles = new();
         
         #endregion
 
         private AddressblesAtlasesTagsMap _atlasesReferenceMap;
         
-        private Dictionary<string, SpriteAtlasHandle> _loadedAtlases = new Dictionary<string, SpriteAtlasHandle>(8);
-        private Dictionary<string, SpriteAtlas> _registeredAtlases = new Dictionary<string, SpriteAtlas>(8);
-        private Dictionary<string, UnionLifeTime> _atlasLifeTime = new Dictionary<string, UnionLifeTime>(8);
+        private Dictionary<string, SpriteAtlasHandle> _loadedAtlases = new(8);
+        private Dictionary<string, SpriteAtlas> _registeredAtlases = new(8);
+        private Dictionary<string, UnionLifeTime> _atlasLifeTime = new(8);
         
 
         public AddressableSpriteAtlasService Initialize(AddressableAtlasSettings data)
@@ -63,8 +63,6 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
             UpdateEditorAtlasMode();
 
             LifeTime.AddCleanUpAction(CleanUp);
-
-            Complete();
             
             return this;
         }
