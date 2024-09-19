@@ -19,16 +19,53 @@ using Object = UnityEngine.Object;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
 {
+    using System.Text;
+
     public static class AddressableEditorTools
     {
-                
+        public const string RemoteLoadKey = "Remote.LoadPath";        
+        public const string RemoteBuildKey = "Remote.BuildPath";        
+        public const string LocalBuildKey = "Local.BuildPath";        
+        public const string LocalLoadKey = "Local.LoadPath";        
+        
         private static List<IResourceLocator> _resourceLocators = new List<IResourceLocator>();
         private static AddressablesResourceComparer addressablesComparerInstance = new AddressablesResourceComparer();
         private static AddressableAssetSettings addressableAssetSettings;
-
+        
         private static MemorizeItem<ResourceLocatorType, IResourceLocator> resourceLocators =
             MemorizeTool.Memorize<ResourceLocatorType, IResourceLocator>(CreateLocator);
 
+        [MenuItem("UniGame/Addressables/Print Variables")]
+        public static void PrintAllProfileVariables()
+        {
+            var variables = GetProfileVariables();
+            var builder = new StringBuilder();
+            
+            builder.AppendLine("Addressable Profile Variables:");
+            
+            foreach(var variable in variables)
+            {
+                builder.AppendLine($"{variable.Key} : {variable.Value}");
+            }
+            
+            Debug.Log(builder);
+        }
+        
+        public static Dictionary<string,string> GetProfileVariables()
+        {
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            var profileSettings = settings.profileSettings;
+            var profileId = settings.activeProfileId;
+            var keys = profileSettings.GetVariableNames();
+            var result = new Dictionary<string, string>();
+            foreach(var key in keys)
+            {
+                var value = profileSettings.GetValueByName(profileId, key);
+                result.Add(key, value);
+            }
+            return result;
+        }
+        
         public static AssetReference FindReferenceByAddress(this AddressableAssetSettings settings,string address)
         {
             var entry = FindAssetEntryByAddress(settings, address);
@@ -257,13 +294,74 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             return FindReferenceByAddress(settings, address);
         }
+
+        public static void SetAddressableProperty(this string key,string value)
+        {
+            addressableAssetSettings = addressableAssetSettings 
+                ? addressableAssetSettings 
+                :  AddressableAssetSettingsDefaultObject.Settings;
+
+            var activeProfile = addressableAssetSettings.activeProfileId;
+            var profileSettings = addressableAssetSettings.profileSettings;
+            
+            profileSettings.CreateValue(key, value);
+            profileSettings.SetValue(activeProfile,key, value);
+        }
+
+        public static string EvaluateRuntimeProfileValue(string key)
+        {
+            addressableAssetSettings = addressableAssetSettings 
+                ? addressableAssetSettings 
+                :  AddressableAssetSettingsDefaultObject.Settings;
+            
+            if (!addressableAssetSettings) return key;
+            
+            var profileId = addressableAssetSettings.activeProfileId;
+            var profile = addressableAssetSettings.profileSettings;
+            
+            var runtimeValue = profile.GetValueByName(profileId, key);
+            return runtimeValue;
+        }
+
+        public static string GetRemoteLoadPath()
+        {
+            return RemoteLoadKey.EvaluateActiveProfileString();
+        }
+        
+        public static string GetRemoteBuildPath()
+        {
+            return RemoteBuildKey.EvaluateActiveProfileString();
+        }
+        
+        public static string GetLocalBuildPath()
+        {
+            return LocalBuildKey.EvaluateActiveProfileString();
+        }
+        
+        public static string GetLocalLoadPath()
+        {
+            return LocalLoadKey.EvaluateActiveProfileString();
+        }
         
         public static string EvaluateActiveProfileString(this string key)
         {
-            addressableAssetSettings = addressableAssetSettings ? addressableAssetSettings :  AssetEditorTools.GetAsset<AddressableAssetSettings>();
-            if (!addressableAssetSettings) return key;
-            var activeprofile = addressableAssetSettings.activeProfileId;
-            var result = addressableAssetSettings.profileSettings.EvaluateString(activeprofile, key);
+            var evaluateKey = key;
+            addressableAssetSettings = addressableAssetSettings 
+                ? addressableAssetSettings 
+                :  AddressableAssetSettingsDefaultObject.Settings;
+            
+            if (!addressableAssetSettings) return evaluateKey;
+            
+            var profileId = addressableAssetSettings.activeProfileId;
+            var profile = addressableAssetSettings.profileSettings;
+            
+            var runtimeValue = profile.GetValueByName(profileId, evaluateKey);
+            if(!string.IsNullOrEmpty(runtimeValue))
+                evaluateKey = runtimeValue;
+            
+            var result = addressableAssetSettings.profileSettings
+                .EvaluateString(profileId, evaluateKey);
+            
             return result;
         }
         
