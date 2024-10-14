@@ -519,7 +519,6 @@ namespace UniGame.AddressableTools.Runtime
             ILifeTime lifeTime, 
             bool downloadDependencies = false,
             IProgress<float> progress = null)
-            where T : Object
         {
             if (lifeTime.IsTerminated)
                 return AddressableResourceResult<T>.FailedResourceResult;
@@ -538,12 +537,16 @@ namespace UniGame.AddressableTools.Runtime
             
             if (asset == null) return AddressableResourceResult<T>.FailedResourceResult;
 
-            var result = asset is GameObject gameObjectAsset && isComponent 
-                ? gameObjectAsset.GetComponent<T>() 
-                : asset as T;
-            
             var resultData = AddressableResourceResult<T>.CompleteResourceResult;
-            resultData.Result = result;
+
+            var resultValue = asset switch
+            {
+                T assetResult => assetResult,
+                GameObject gameObjectAsset when isComponent => gameObjectAsset.GetComponent<T>(),
+                _ => default
+            };
+
+            resultData.Result = resultValue;
             return resultData;
         }
         
@@ -572,7 +575,6 @@ namespace UniGame.AddressableTools.Runtime
             ILifeTime lifeTime,
             bool downloadDependencies = false,
             IProgress<float> progress = null)
-            where T : Object
         {
             if (downloadDependencies)
             {
@@ -701,7 +703,6 @@ namespace UniGame.AddressableTools.Runtime
         }
 
         public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this string assetReference, out bool yetRequested)
-            where TResult : class
         {
             var handle = Addressables.LoadAssetAsync<TResult>(assetReference);
             yetRequested = handle.IsValid();
@@ -797,13 +798,10 @@ namespace UniGame.AddressableTools.Runtime
             bool yetRequested, 
             ILifeTime lifeTime,
             IProgress<float> progress = null)
-            where TResult : Object
         {
             handle.AddTo(lifeTime, yetRequested);
-
             var result = await handle.ToUniTask(progress,PlayerLoopTiming.Update,lifeTime.Token);
-            
-            return result;
+            return result as Object;
         }
         
         #endregion

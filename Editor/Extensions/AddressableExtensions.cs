@@ -8,6 +8,8 @@ using UnityEngine.AddressableAssets;
 
 namespace UniModules.UniGame.AddressableExtensions.Editor
 {
+    using System.Linq;
+
     public static class AddressableExtensions
     {
         public static AssetReferenceGameObject PrefabToAssetReference(this Component source)
@@ -39,9 +41,15 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             }
         }
 
-        public static IReadOnlyList<string> GetAllAddressablesLabels(this Object source)
+        public static IReadOnlyList<string> GetAllAddressableLabels(this Object source)
         {
             return AddressableAssetSettingsDefaultObject.Settings.GetLabels();
+        }
+        
+        public static HashSet<string> GetAddressableLabels(this Object source)
+        {
+            var entry = source.GetAddressableAssetEntry();
+            return entry?.labels;
         }
 
         public static void AddAddressableAssetLabel(this Object source, string label)
@@ -50,8 +58,7 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
                 return;
 
             var entry = source.GetOrCreateAddressableAssetEntry();
-            if (entry != null && !entry.labels.Contains(label)) {
-                entry.labels.Add(label);
+            if (entry != null && entry.labels.Add(label)) {
                 AddressableAssetSettingsDefaultObject.Settings.SetDirty(AddressableAssetSettings.ModificationEvent.LabelAdded, entry, true);
             }
         }
