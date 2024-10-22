@@ -375,7 +375,17 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             return entry;
         }
 
-        public static AddressableAssetEntry CreateAssetEntry<T>(T source, string groupName) where T : Object
+        public static AddressableAssetEntry MakeAddressable<T>(this T source) where T : Object
+        {
+            if (source.IsAddressableAsset())
+                return source.GetAddressableAssetEntry();
+            var defaultGroup = AddressableAssetSettingsDefaultObject.Settings.DefaultGroup;
+            var entry = CreateAssetEntry(source, defaultGroup.Name);
+            source.MarkDirty();
+            return entry;
+        }
+
+        public static AddressableAssetEntry CreateAssetEntry<T>(this T source, string groupName) where T : Object
         {
             if (source == null || string.IsNullOrEmpty(groupName) || !AssetDatabase.Contains(source))
                 return null;
