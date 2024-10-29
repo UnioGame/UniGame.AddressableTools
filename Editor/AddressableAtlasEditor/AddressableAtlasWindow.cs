@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UniModules.Editor;
-using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases;
-using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniGame.AddressableTools.Runtime.SpriteAtlases;
+using UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UnityEditor;
 using UnityEngine;
 

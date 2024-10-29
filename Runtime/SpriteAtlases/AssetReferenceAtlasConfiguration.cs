@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     public class AssetReferenceAtlasConfiguration : AssetReferenceT<AddressableSpriteAtlasAsset>

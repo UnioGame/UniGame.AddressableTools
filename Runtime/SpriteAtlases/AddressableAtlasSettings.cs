@@ -7,7 +7,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 #endif
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     public class AddressableAtlasSettings

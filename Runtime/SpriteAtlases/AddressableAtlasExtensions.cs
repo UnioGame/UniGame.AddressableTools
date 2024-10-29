@@ -1,9 +1,10 @@
 
 using System.Collections.Generic;
-using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
+    using Abstract;
     using global::UniGame.Core.Runtime;
 
     public static class AddressableAtlasExtensions

@@ -1,7 +1,7 @@
 ﻿using System;
 using UniGame.AddressableTools.Runtime;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     [Serializable]
     public struct AtlasReference

@@ -1,7 +1,7 @@
 ﻿using UniCore.Runtime.ProfilerTools;
 using UniGame.UniNodes.GameFlow.Runtime;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;
@@ -12,11 +12,11 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Abstract;
     using Cysharp.Threading.Tasks;
     using global::UniGame.AddressableTools.Runtime;
     using UniModules.UniGame.Core.Runtime.DataFlow;
     using global::UniGame.Core.Runtime;
-    using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
     using UnityEngine.U2D;

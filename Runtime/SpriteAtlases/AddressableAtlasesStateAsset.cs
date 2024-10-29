@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using UniGame.Core.Runtime.ScriptableObjects;
-using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UniRx;
 using UnityEngine;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
-    [Serializable]
+        using Abstract;
+
+        [Serializable]
     [CreateAssetMenu(menuName = "UniGame/Addressables/AddressableAtlasesState",
         fileName = nameof(AddressableAtlasesState))]
     public class AddressableAtlasesStateAsset : LifetimeScriptableObject, IAddressableAtlasesState

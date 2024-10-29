@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using UniCore.Runtime.ProfilerTools;
 using UniGame.Core.Runtime.ScriptableObjects;
-using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UnityEngine;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
+    using Abstract;
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;
 #endif
@@ -15,7 +15,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 #endif
     
     
-    [CreateAssetMenu(menuName = "UniGame/Addressables/SpriteAtlasConfiguration",
+    [CreateAssetMenu(menuName = "UniGame/Services/Atlases/SpriteAtlasConfiguration", 
         fileName = nameof(AddressableSpriteAtlasAsset))]
     public class AddressableSpriteAtlasAsset : LifetimeScriptableObject
     {
@@ -34,6 +34,7 @@ namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
 
         private static IAddressableAtlasService _atlasService;
         private static object gate = new object();
+        
         public static IAddressableAtlasService AtlasService
         {
             get => _atlasService;

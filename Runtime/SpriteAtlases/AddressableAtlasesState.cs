@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
+using UniGame.AddressableTools.Runtime.SpriteAtlases.Abstract;
 using UnityEngine;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
+    using Abstract;
+
     [Serializable]
     public class AddressableAtlasesState : IAddressableAtlasesState
     {

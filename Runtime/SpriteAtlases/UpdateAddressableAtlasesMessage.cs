@@ -1,4 +1,4 @@
-namespace UniModules.UniGame.AddressableTools.Runtime.SpriteAtlases
+namespace UniGame.AddressableTools.Runtime.SpriteAtlases
 {
     public struct UpdateAddressableAtlasesMessage 
     {
