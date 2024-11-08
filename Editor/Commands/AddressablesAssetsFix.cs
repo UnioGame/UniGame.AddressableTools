@@ -63,6 +63,26 @@ public static class AddressablesAssetsFix
         PrintStatus(isValid, errors, LogType.Warning);
     }
     
+    [MenuItem(itemName: "UniGame/Addressables/Remote Empty Groups")]
+    public static void RemoveEmptyGroups()
+    {
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        var groups = settings.groups;
+        var removed = new List<AddressableAssetGroup>();
+        
+        foreach (var assetGroup in groups)
+        {
+            var count = assetGroup.entries.Count;
+            if(count > 0) continue;
+            removed.Add(assetGroup);
+        }
+
+        foreach (var assetGroup in removed)
+        {
+            settings.RemoveGroup(assetGroup);
+        }
+    }
+    
     [MenuItem(itemName: "UniGame/Addressables/Remove Missing References")]
     public static bool RemoveMissingGroupReferences()
     {
@@ -70,8 +90,8 @@ public static class AddressablesAssetsFix
         var settings = AddressableAssetSettingsDefaultObject.Settings;
         var groups = settings.groups;
         
-        List<int> missingGroupsIndices = new List<int>();
-        for (int i = 0; i < groups.Count; i++)
+        var missingGroupsIndices = new List<int>();
+        for (var i = 0; i < groups.Count; i++)
         {
             var g = groups[i];
             if (g == null)
@@ -81,7 +101,7 @@ public static class AddressablesAssetsFix
         if (missingGroupsIndices.Count > 0)
         {
             Debug.Log("Addressable settings contains " + missingGroupsIndices.Count + " group reference(s) that are no longer there. Removing reference(s).");
-            for (int i = missingGroupsIndices.Count - 1; i >= 0; i--)
+            for (var i = missingGroupsIndices.Count - 1; i >= 0; i--)
             {
                 groups.RemoveAt(missingGroupsIndices[i]);
             }
