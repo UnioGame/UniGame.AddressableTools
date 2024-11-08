@@ -64,7 +64,8 @@ namespace UniGame.AddressableTools.Runtime
             ILifeTime lifeTime,
             LoadSceneMode loadSceneMode = LoadSceneMode.Single,
             bool activateOnLoad = true,
-            int priority = 100)
+            int priority = 100,
+            IProgress<float> progress = null)
         {
             if (sceneReference.RuntimeKeyIsValid() == false)
             {
@@ -72,19 +73,39 @@ namespace UniGame.AddressableTools.Runtime
                 return default;
             }
 
-            var scenePreviouslyRequested = sceneReference.OperationHandle.IsValid();
-            var sceneHandle = scenePreviouslyRequested ?
-                sceneReference.OperationHandle.Convert<SceneInstance>() :
-                sceneReference.LoadSceneAsync(loadSceneMode, activateOnLoad, priority);
-            
-            //add to resource unloading
-            sceneHandle.AddTo(lifeTime, scenePreviouslyRequested);
+            return await LoadSceneTaskAsync(sceneReference.AssetGUID, 
+                lifeTime, loadSceneMode, activateOnLoad,
+                priority, progress);
+        }
+        
+        public static async UniTask<SceneInstance> LoadSceneTaskAsync(
+            this string sceneReference,
+            ILifeTime lifeTime,
+            LoadSceneMode loadSceneMode = LoadSceneMode.Single,
+            bool activateOnLoad = true,
+            int priority = 100,
+            IProgress<float> progress = null)
+        {
+            if (string.IsNullOrEmpty(sceneReference))
+            {
+                GameLog.LogError($"AssetReference key is NULL {sceneReference}");
+                return default;
+            }
 
-            await sceneHandle.ToUniTask();
+            var sceneHandle = Addressables
+                .LoadSceneAsync(sceneReference, loadSceneMode, activateOnLoad, priority);
+
+            //add to resource unloading
+            sceneHandle.AddTo(lifeTime);
+
+            await sceneHandle.ToUniTask(progress,cancellationToken:lifeTime.Token);
 
             if (sceneHandle.Status == AsyncOperationStatus.Succeeded)
             {
-                lifeTime.AddCleanUpAction(() => sceneReference.UnLoadScene());
+                lifeTime.AddCleanUpAction(() =>  Addressables
+                    .UnloadSceneAsync(sceneHandle,true)
+                    .ToUniTask()
+                    .Forget());
             }
 
             return sceneHandle.Status == AsyncOperationStatus.Succeeded 
