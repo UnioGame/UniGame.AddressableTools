@@ -128,13 +128,13 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
 
         public static bool IsInAddressableAssetGroup(this Object source, string groupName)
         {
-            if (source == null || !AssetDatabase.Contains(source))
-                return false;
-
+            if (source == null || !AssetDatabase.Contains(source)) return false;
             var group = source.GetCurrentAddressableAssetGroup();
             return group != null && (string.IsNullOrEmpty(groupName) || group.Name == groupName);
         }
 
+        public static bool IsAddressable(this Object source) => IsInAddressableAssetGroup(source, string.Empty);
+        
         public static bool IsInAnyAddressableAssetGroup(this Object source) => IsInAddressableAssetGroup(source, string.Empty);
 
         public static AddressableAssetGroup GetCurrentAddressableAssetGroup(this Object source)
