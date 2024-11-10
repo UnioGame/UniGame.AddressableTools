@@ -2,6 +2,7 @@
 {
     using System;
     using Core.Runtime;
+    using UniModules.UniCore.Runtime.DataFlow;
     using UnityEngine.U2D;
 
     [Serializable]
@@ -10,7 +11,7 @@
         public string tag;
         public bool isLoaded;
         public SpriteAtlas atlas;
-        public ILifeTime lifeTime;
+        public LifeTime lifeTime = new();
         
         public AddressableAtlasData atlasData;
     }

@@ -14,9 +14,9 @@ namespace UniGame.AddressableAtlases
     using Abstract;
     using Cysharp.Threading.Tasks;
     using global::UniGame.AddressableTools.Runtime;
+    using UniModules.UniCore.Runtime.DataFlow;
     using UnityEngine;
     using UnityEngine.U2D;
-
     
     [Serializable]
     public class AddressableSpriteAtlasService : GameService, IAddressableAtlasService
@@ -44,12 +44,14 @@ namespace UniGame.AddressableAtlases
 
             foreach (var atlasData in configuration.atlases)
             {
+                var stateLifeTime = new LifeTime().AddTo(LifeTime);
+                
                 atlases[atlasData.tag] = new AddressableAtlasState()
                 {
                     tag = atlasData.tag,
                     atlasData = atlasData,
                     isLoaded = false,
-                    lifeTime = LifeTime,
+                    lifeTime = stateLifeTime,
                 };
             }
             
@@ -58,7 +60,29 @@ namespace UniGame.AddressableAtlases
             
             LifeTime.AddCleanUpAction(CleanUp);
         }
+        
+        public async UniTask<SpriteAtlas> LoadAtlasAsync(string tag)
+        {
+            if (atlases.TryGetValue(tag, out var atlasState) == false)
+                return null;
 
+            if(atlasState.isLoaded) return atlasState.atlas;
+            
+            var atlasData = atlasState.atlasData;
+            var atlas = await atlasData.reference.LoadAssetTaskAsync(atlasState.lifeTime);
+            
+            atlasState.atlas = atlas;
+            atlasState.isLoaded = atlas != null;
+            
+            GameLog.Log($"ATLAS: OnSpriteAtlasRequested : TAG {tag} GUID {atlasData.guid}", Color.magenta);
+
+            return atlas;
+        }
+        
+        public void RegisterSpriteAtlas(SpriteAtlas atlas)
+        {
+            OnSpriteAtlasRegistered(atlas);
+        }
 
         private void PreloadAtlases()
         {
@@ -91,11 +115,6 @@ namespace UniGame.AddressableAtlases
                 .AttachExternalCancellation(LifeTime.Token)
                 .Forget();
         }
-        
-        public void RegisterSpriteAtlas(SpriteAtlas atlas)
-        {
-            OnSpriteAtlasRegistered(atlas);
-        }
 
         private async UniTask<SpriteAtlas> GetSpriteAtlasAsync(string tag, Action<SpriteAtlas> atlasAction)
         {
@@ -113,24 +132,6 @@ namespace UniGame.AddressableAtlases
             
             return atlas;
         }
-
-        private async UniTask<SpriteAtlas> LoadAtlasAsync(string tag)
-        {
-            if (atlases.TryGetValue(tag, out var atlasState) == false)
-                return null;
-
-            if(atlasState.isLoaded) return atlasState.atlas;
-            
-            var atlasData = atlasState.atlasData;
-            var atlas = await atlasData.reference.LoadAssetTaskAsync(atlasState.lifeTime);
-            
-            atlasState.atlas = atlas;
-            atlasState.isLoaded = atlas != null;
-            
-            GameLog.Log($"ATLAS: OnSpriteAtlasRequested : TAG {tag} GUID {atlasData.guid}", Color.magenta);
-
-            return atlas;
-        }
         
         private void OnSpriteAtlasRegistered(SpriteAtlas atlas)
         {
@@ -144,7 +145,7 @@ namespace UniGame.AddressableAtlases
             {
                 atlasState = new AddressableAtlasState()
                 {
-                    lifeTime = LifeTime,
+                    lifeTime = new LifeTime().AddTo(LifeTime),
                     atlasData = new AddressableAtlasData(),
                     isLoaded = false,
                     tag = tag,
