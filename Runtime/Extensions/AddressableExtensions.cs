@@ -246,7 +246,8 @@ namespace UniGame.AddressableTools.Runtime
             return resultValue;
         }
 
-        public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(this AssetReference assetReference,
+        public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(
+            this AssetReference assetReference,
             ILifeTime lifeTime,
             bool destroyInstanceWithLifetime,
             bool downloadDependencies = false,
@@ -576,26 +577,6 @@ namespace UniGame.AddressableTools.Runtime
                 progress);
         }
         
-        private static async UniTask<Object> LoadAssetTaskWithProgressAsync<T>(
-            this string assetReference,
-            ILifeTime lifeTime,
-            bool downloadDependencies = false,
-            IProgress<float> progress = null)
-        {
-            if (downloadDependencies)
-            {
-                var dependencies = Addressables
-                    .DownloadDependenciesAsync(assetReference)
-                    .AddTo(lifeTime);
-                await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.Token);
-            }
-            
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>();
-            var asset = await LoadAssetAsync(handle, lifeTime,progress);
-            return asset;
-        }
-
-        
         public static void NotifyProgress(IAsyncHandleStatus progressData,IProgress<HandleStatus> progress )
         {
             progress.Report(new HandleStatus()
@@ -607,7 +588,6 @@ namespace UniGame.AddressableTools.Runtime
                 TotalBytes = progressData.TotalBytes,
             });
         }
-
 
         public static async UniTask<T> ConvertToUniTask<T>(this AsyncOperationHandle<T> handle, ILifeTime lifeTime) where T : class
         {
@@ -708,35 +688,13 @@ namespace UniGame.AddressableTools.Runtime
                 null;
         }
 
-        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this string assetReference)
+        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(
+            this string assetReference)
         {
             var handle = Addressables.LoadAssetAsync<TResult>(assetReference);
             return handle;
         }
         
-        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(
-            this AssetReference assetReference, out bool yetRequested)
-            where TResult : class
-        {
-            yetRequested = assetReference.OperationHandle.IsValid();
-            var handle = yetRequested ? 
-                assetReference.OperationHandle.Convert<TResult>():
-                assetReference.LoadAssetAsync<TResult>();
-            return handle;
-        }
-
-        #region lifetime
-
-        public static AsyncOperationHandle<TAsset> AddTo<TAsset>(
-            this AsyncOperationHandle<TAsset> handle, 
-            ILifeTime lifeTime, bool incrementRefCount = true)
-        {
-            if (incrementRefCount)
-                Addressables.ResourceManager.Acquire(handle);
-            lifeTime.AddCleanUpAction(() => ReleaseHandle(handle).Forget());
-            return handle;
-        }
-
         public static async UniTask<TAsset> LoadAddressableByResourceAsync<TAsset>(
             this string resource,
             ILifeTime lifeTime)
@@ -745,6 +703,26 @@ namespace UniGame.AddressableTools.Runtime
                 .LoadAssetAsync<TAsset>(resource)
                 .AddToAsUniTask(lifeTime);
             return asset;
+        }
+
+        #region lifetime
+
+        public static AsyncOperationHandle<T> AddTo<T>(
+            this AsyncOperationHandle<T> handle, 
+            ILifeTime lifeTime, 
+            bool incrementRefCount = true)
+        {
+            if (incrementRefCount)
+                Addressables.ResourceManager.Acquire(handle);
+
+            var addressableReference = new AddressableHandleReference<T>()
+            {
+                Handle = handle
+            };
+            
+            lifeTime.AddCleanUpAction(addressableReference.Release);
+            
+            return handle;
         }
 
         public static UniTask<TAsset> AddToAsUniTask<TAsset>(
@@ -759,45 +737,59 @@ namespace UniGame.AddressableTools.Runtime
         public static async UniTask ReleaseHandle<TAsset>(this AsyncOperationHandle<TAsset> handle)
         {
             if (handle.IsValid() == false) return;
-            
             await UniTask.SwitchToMainThread();
             Addressables.Release(handle);
         }
         
-        public static ILifeTime AddTo<TAsset>(this AssetReferenceT<TAsset> handle, ILifeTime lifeTime)
+        public static async UniTask ReleaseHandle(this AsyncOperationHandle handle)
+        {
+            if (handle.IsValid() == false) return;
+            await UniTask.SwitchToMainThread();
+            Addressables.Release(handle);
+        }
+        
+        public static ILifeTime AddTo<TAsset>(this AssetReferenceT<TAsset> reference, ILifeTime lifeTime)
             where TAsset : Object
         {
-            lifeTime.AddCleanUpAction(() =>
-            {
-                if (handle.IsValid() == false)
-                    return;
-                Addressables.Release(handle);
-            });
+            reference.OperationHandle.AddTo(lifeTime);
             return lifeTime;
         }
 
-        public static AsyncOperationHandle AddTo(this AsyncOperationHandle handle, ILifeTime lifeTime)
+        public static AsyncOperationHandle AddTo(
+            this AsyncOperationHandle handle,
+            ILifeTime lifeTime)
         {
-            lifeTime.AddCleanUpAction(() =>
+            var addressableReference = new AddressableHandleReference()
             {
-                if (handle.IsValid() == false)
-                    return;
-                Addressables.Release(handle);
-            });
+                Handle = handle
+            };
+            
+            lifeTime.AddCleanUpAction(addressableReference.Release);
+            
             return handle;
         }
 
         public static ILifeTime AddTo(this AssetReference handle, ILifeTime lifeTime)
         {
-            lifeTime.AddCleanUpAction(() =>
-            {
-                if (handle.IsValid() == false)
-                    return;
-                Addressables.Release(handle);
-            });
+            handle.OperationHandle.AddTo(lifeTime);
             return lifeTime;
         }
 
+        
+        #endregion
+        
+                
+        private static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(
+            this AssetReference assetReference, out bool yetRequested)
+            where TResult : class
+        {
+            yetRequested = assetReference.OperationHandle.IsValid();
+            var handle = yetRequested ? 
+                assetReference.OperationHandle.Convert<TResult>():
+                assetReference.LoadAssetAsync<TResult>();
+            return handle;
+        }
+        
         private static async UniTask<Object> LoadAssetAsync<TResult>(
             AsyncOperationHandle<TResult> handle,
             ILifeTime lifeTime,
@@ -808,7 +800,44 @@ namespace UniGame.AddressableTools.Runtime
             return result as Object;
         }
         
-        #endregion
+        private static async UniTask<Object> LoadAssetTaskWithProgressAsync<T>(
+            this string reference,
+            ILifeTime lifeTime,
+            bool downloadDependencies = false,
+            IProgress<float> progress = null)
+        {
+            if (downloadDependencies)
+            {
+                var dependencies = Addressables
+                    .DownloadDependenciesAsync(reference)
+                    .AddTo(lifeTime);
+                await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.Token);
+            }
+            
+            var handle = reference.LoadAssetAsyncOrExposeHandle<T>();
+            var asset = await LoadAssetAsync(handle, lifeTime,progress);
+            return asset;
+        }
         
+    }
+
+    public struct AddressableHandleReference<T>
+    {
+        public AsyncOperationHandle<T> Handle;
+        
+        public void Release()
+        {
+            Handle.ReleaseHandle().Forget();
+        }
+    }
+    
+    public struct AddressableHandleReference
+    {
+        public AsyncOperationHandle Handle;
+        
+        public void Release()
+        {
+            Handle.ReleaseHandle().Forget();
+        }
     }
 }
