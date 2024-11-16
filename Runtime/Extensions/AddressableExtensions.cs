@@ -504,7 +504,8 @@ namespace UniGame.AddressableTools.Runtime
         
 #endif
         
-        public static async UniTask<T> LoadAssetTaskAsync<T>(this AssetReference assetReference, 
+        public static async UniTask<T> LoadAssetTaskAsync<T>(
+            this AssetReference assetReference, 
             ILifeTime lifeTime, 
             bool downloadDependencies = false,
             IProgress<float> progress = null)
@@ -518,21 +519,10 @@ namespace UniGame.AddressableTools.Runtime
                 GameLog.LogError($"AssetReference key is NULL {assetReference}");
                 return null;
             }
-            
-            var isComponent = typeof(T).IsComponent();
 
-            var asset = isComponent 
-                ? await LoadAssetTaskWithProgressAsync<GameObject>(assetReference, lifeTime,downloadDependencies, progress)
-                : await LoadAssetTaskWithProgressAsync<T>(assetReference, lifeTime,downloadDependencies, progress);
-            
-            if (asset == null)
-                return default(T);
-
-            var result = asset is GameObject gameObjectAsset && isComponent ?
-                gameObjectAsset.GetComponent<T>() :
-                asset as T;
-            
-            return result;
+            var resource = assetReference.AssetGUID;
+            var result = await LoadAssetTaskAsync<T>(resource, lifeTime, downloadDependencies, progress);
+            return result.Result;
         }
 
         public static async UniTask<AddressableResourceResult<T>> LoadAssetTaskAsync<T>(
@@ -553,8 +543,8 @@ namespace UniGame.AddressableTools.Runtime
             var isComponent = typeof(T).IsComponent();
 
             var asset = isComponent 
-                ? await LoadAssetTaskInternalAsync<GameObject>(referenceKey, lifeTime,downloadDependencies, progress)
-                : await LoadAssetTaskInternalAsync<T>(referenceKey, lifeTime,downloadDependencies, progress);
+                ? await LoadAssetTaskWithProgressAsync<GameObject>(referenceKey, lifeTime,downloadDependencies, progress)
+                : await LoadAssetTaskWithProgressAsync<T>(referenceKey, lifeTime,downloadDependencies, progress);
             
             if (asset == null) return AddressableResourceResult<T>.FailedResourceResult;
 
@@ -576,22 +566,17 @@ namespace UniGame.AddressableTools.Runtime
             ILifeTime lifeTime,
             bool downloadDependencies = false,
             IProgress<float> progress = null)
-            where T : Object
         {
-            if (downloadDependencies)
-            {
-                var dependencies = Addressables
-                    .DownloadDependenciesAsync(assetReference)
-                    .AddTo(lifeTime);
-                await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.Token);
-            }
+            if (assetReference == null || assetReference.RuntimeKeyIsValid())
+                return default;
             
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
-            var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
-            return asset;
+            return await LoadAssetTaskWithProgressAsync<T>(
+                assetReference.AssetGUID,
+                lifeTime,downloadDependencies, 
+                progress);
         }
         
-        private static async UniTask<Object> LoadAssetTaskInternalAsync<T>(
+        private static async UniTask<Object> LoadAssetTaskWithProgressAsync<T>(
             this string assetReference,
             ILifeTime lifeTime,
             bool downloadDependencies = false,
@@ -605,8 +590,8 @@ namespace UniGame.AddressableTools.Runtime
                 await dependencies.ToUniTask(PlayerLoopTiming.Update,lifeTime.Token);
             }
             
-            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>(out var yetRequested);
-            var asset = await LoadAssetAsync(handle, yetRequested, lifeTime,progress);
+            var handle = assetReference.LoadAssetAsyncOrExposeHandle<T>();
+            var asset = await LoadAssetAsync(handle, lifeTime,progress);
             return asset;
         }
 
@@ -723,10 +708,9 @@ namespace UniGame.AddressableTools.Runtime
                 null;
         }
 
-        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this string assetReference, out bool yetRequested)
+        public static AsyncOperationHandle<TResult> LoadAssetAsyncOrExposeHandle<TResult>(this string assetReference)
         {
             var handle = Addressables.LoadAssetAsync<TResult>(assetReference);
-            yetRequested = handle.IsValid();
             return handle;
         }
         
@@ -774,8 +758,8 @@ namespace UniGame.AddressableTools.Runtime
 
         public static async UniTask ReleaseHandle<TAsset>(this AsyncOperationHandle<TAsset> handle)
         {
-            if (handle.IsValid() == false)
-                return;
+            if (handle.IsValid() == false) return;
+            
             await UniTask.SwitchToMainThread();
             Addressables.Release(handle);
         }
@@ -814,13 +798,12 @@ namespace UniGame.AddressableTools.Runtime
             return lifeTime;
         }
 
-        public static async UniTask<Object> LoadAssetAsync<TResult>(
+        private static async UniTask<Object> LoadAssetAsync<TResult>(
             AsyncOperationHandle<TResult> handle,
-            bool yetRequested, 
             ILifeTime lifeTime,
             IProgress<float> progress = null)
         {
-            handle.AddTo(lifeTime, yetRequested);
+            handle.AddTo(lifeTime, false);
             var result = await handle.ToUniTask(progress,PlayerLoopTiming.Update,lifeTime.Token);
             return result as Object;
         }
