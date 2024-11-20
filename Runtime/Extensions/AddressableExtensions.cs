@@ -375,6 +375,100 @@ namespace UniGame.AddressableTools.Runtime
             return instance;
         }
         
+        public static async UniTask<T[]> SpawnObjectsAsync<T>(
+            this string reference,
+            int count,
+            Vector3 position = default,
+            Transform parent = null,
+            ILifeTime lifeTime = null,
+            bool downloadDependencies = false,
+            CancellationToken token = default,
+            IProgress<float> progress = null)
+            where T : Object
+        {
+            if (string.IsNullOrEmpty(reference))
+            {
+                GameLog.Log("[LoadAssetInstanceTaskAsync] AssetReference key is NULL",Color.red);
+                return default;
+            }
+            
+            if(count<=0)
+                return Array.Empty<T>();
+            
+            var result = await LoadAssetInternalAsync<T>(reference, null, downloadDependencies, progress)
+                .AttachExternalCancellation(token);
+            
+            if (!result.Success)
+            {
+                GameLog.Log($"[LoadAssetInstanceTaskAsync] load {reference} failed {result.Error}",Color.red);
+                return default;
+            }
+            
+            if(lifeTime!=null)
+                result.Handle.AddTo(lifeTime);
+
+            var asset = result.Result;
+            var instance = Array.Empty<T>();
+            
+            switch (asset)
+            {
+                case GameObject gameObject:
+                {
+                    var pawns = await gameObject.SpawnAsync(
+                        count,
+                        position,
+                        Quaternion.identity,
+                        parent,token:token);
+
+                    if (pawns.Items is T[] items)
+                    {
+                        instance = items;
+                    }
+                    else
+                    {
+                        instance = new T[pawns.Length];
+                    }
+                    
+                    for (var i = 0; i < pawns.Length; i++)
+                    {
+                        var o = pawns.Items[i];
+                        instance[i] = o as T;
+
+                        if (lifeTime != null) continue;
+                        var objectLifeTime = o.GetAssetLifeTime();
+                        result.Handle.AddTo(objectLifeTime);
+                    }
+                    break;
+                }
+                case Component component:
+                {
+                    var objectInstance = await component.gameObject
+                        .SpawnAsync(count,position, Quaternion.identity, parent,token:token);
+     
+                    instance = new T[objectInstance.Length];
+
+                    for (var i = 0; i < objectInstance.Length; i++)
+                    {
+                        var o = objectInstance.Items[i];
+                        instance[i] = o.GetComponent<T>();
+
+                        if (lifeTime != null) continue;
+                        var objectLifeTime = o.GetAssetLifeTime();
+                        result.Handle.AddTo(objectLifeTime);
+                    }
+                    break;
+                }
+                default:
+                {
+                    instance = new T[count];
+                    for (var i = 0; i < count; i++)
+                        instance[i] = Object.Instantiate(asset) as T;
+                    break;
+                }
+            }
+            
+            return instance;
+        }
         
 #if !UNITY_WEBGL
         public static T LoadAssetInstanceForCompletion<T>(
@@ -825,7 +919,7 @@ namespace UniGame.AddressableTools.Runtime
             return result;
         }
         
-        private static async UniTask<AddressableLoadResult<T>> LoadAssetInternalAsync<T>(
+        public static async UniTask<AddressableLoadResult<T>> LoadAssetInternalAsync<T>(
             this string referenceKey, 
             ILifeTime lifeTime = null,
             bool downloadDependencies = false,
@@ -872,6 +966,24 @@ namespace UniGame.AddressableTools.Runtime
                 Addressables.ResourceManager.Acquire(handle);
 
             var addressableReference = new AddressableHandleReference<T>()
+            {
+                Handle = handle
+            };
+            
+            lifeTime.AddCleanUpAction(addressableReference.Release);
+            
+            return handle;
+        }
+        
+        public static AsyncOperationHandle AddTo(
+            this AsyncOperationHandle handle, 
+            ILifeTime lifeTime, 
+            bool incrementRefCount)
+        {
+            if (incrementRefCount)
+                Addressables.ResourceManager.Acquire(handle);
+
+            var addressableReference = new AddressableHandleReference()
             {
                 Handle = handle
             };
@@ -993,5 +1105,32 @@ namespace UniGame.AddressableTools.Runtime
         {
             Handle.ReleaseHandle().Forget();
         }
+    }
+
+    public static class GameObjectAddressableExtensions
+    {
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async UniTask<ObjectsItemResult<GameObject>> SpawnAsync(
+            this GameObject prototype, 
+            int count,
+            Vector3 position,
+            Quaternion rotation, 
+            Transform parent = null,
+            bool stayWorldPosition = false,
+            CancellationToken token = default)
+        {
+            if (prototype == null) return ObjectsItemResult<GameObject>.Empty;
+            
+            var pawn = await ObjectPool
+                .SpawnAsync(prototype,count, position, rotation, parent, stayWorldPosition,token);
+
+            var result = ObjectsItemResult<GameObject>.Single;
+            
+            result.Items = pawn.Items;
+            
+            return pawn;
+        }
+        
     }
 }
