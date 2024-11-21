@@ -160,7 +160,7 @@
                 return;
             
             var sceneLifeTime = useSceneLifeTime
-                ? SceneLifeTimeExtension.GetActiveSceneLifeTime()
+                ? SceneLifeTime.GetActiveSceneLifeTime()
                 : _lifeTime;
             
             var transformData = CreateTransformData();
