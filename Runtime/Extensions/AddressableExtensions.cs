@@ -139,13 +139,37 @@ namespace UniGame.AddressableTools.Runtime
         
         public static async UniTask<IEnumerable<TSource>> LoadAssetsTaskAsync<TSource, TAsset>(
             this IEnumerable<TAsset> assetReference,
-            List<TSource> resultContainer, ILifeTime lifeTime)
+            List<TSource> resultContainer, 
+            ILifeTime lifeTime)
             where TAsset : AssetReference
             where TSource : Object
         {
             return await assetReference.LoadAssetsTaskAsync<TSource, TSource, TAsset>(resultContainer, lifeTime);
         }
 
+        public static async UniTask<IList<T>> LoadAssetsTaskAsync<T>(
+            this string resource, 
+            ILifeTime lifeTime,
+            IProgress<float> progress = null)
+        {
+            var handle = Addressables.LoadAssetsAsync<T>(resource, null);
+            handle.AddTo(lifeTime);
+            
+            return await handle.ToUniTask(progress,cancellationToken:lifeTime.Token);
+        }
+        
+        public static async UniTask<IList<T>> LoadAssetsTaskAsync<T>(
+            this IEnumerable resources, 
+            ILifeTime lifeTime,
+            Addressables.MergeMode mode = Addressables.MergeMode.Union,
+            IProgress<float> progress = null)
+        {
+            var handle = Addressables.LoadAssetsAsync<T>(resources, null,mode,true);
+            handle.AddTo(lifeTime);
+            var result = await handle.ToUniTask(progress,cancellationToken:lifeTime.Token);
+            return result;
+        }
+        
         public static async UniTask<IEnumerable<TResult>> LoadAssetsTaskAsync<TSource, TResult, TAsset>(
             this IEnumerable<TAsset> assetReference,
             IList<TResult> resultContainer, 
@@ -751,14 +775,6 @@ namespace UniGame.AddressableTools.Runtime
         {
             handle.AddTo(lifeTime);
             return await handle.ToUniTask();
-        }
-                
-        public static async UniTask<IList<Object>> LoadAssetsTaskAsync(this string label, 
-            ILifeTime lifeTime,IProgress<float> progress = null)
-        {
-            var handle = Addressables.LoadAssetsAsync<Object>(label, null);
-            handle.AddTo(lifeTime);
-            return await handle.ToUniTask(progress,cancellationToken:lifeTime.Token);
         }
 
         public static async UniTask<TResult> LoadAssetTaskApiAsync<TAsset, TResult>(this AssetReference assetReference, ILifeTime lifeTime)
