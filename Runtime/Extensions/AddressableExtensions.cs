@@ -246,6 +246,32 @@ namespace UniGame.AddressableTools.Runtime
             Addressables.ClearDependencyCacheAsync(updatedIds);
             return updatedIds;
         }
+        
+        public static UniTask<T> InstantiateTaskAsync<T>(
+            this AssetReferenceT<T> assetReference,
+            ILifeTime lifeTime,
+            bool destroyInstanceWithLifetime,
+            bool downloadDependencies = false,
+            bool activateOnSpawn = true,
+            IProgress<float> progress = null)
+            where T : Object
+        {
+            return LoadAssetInstanceTaskAsync(assetReference, lifeTime, 
+                destroyInstanceWithLifetime, downloadDependencies, activateOnSpawn, progress);
+        }
+        
+        public static UniTask<T> InstantiateTaskAsync<T>(
+            this AssetReferenceGameObject assetReference,
+            ILifeTime lifeTime,
+            bool destroyInstanceWithLifetime,
+            bool downloadDependencies = false,
+            bool activateOnSpawn = true,
+            IProgress<float> progress = null)
+            where T : Component
+        {
+            return LoadAssetInstanceTaskAsync<T>(assetReference, lifeTime, 
+                destroyInstanceWithLifetime, downloadDependencies, activateOnSpawn, progress);
+        }
 
         public static UniTask<T> LoadAssetInstanceTaskAsync<T>(
             this AssetReferenceT<T> assetReference,
