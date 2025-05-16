@@ -7,7 +7,7 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.Address
 #endif
 
     using System.Linq;
-    using UniModules.Editor.OdinTools.GameEditor.Categories;
+    using GameEditor.Categories;
     using UnityEditor;
     using System;
     using System.Collections.Generic;
