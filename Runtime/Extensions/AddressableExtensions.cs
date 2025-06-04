@@ -756,8 +756,7 @@ namespace UniGame.AddressableTools.Runtime
             IProgress<float> progress = null)
             where T : Object
         {
-            if (lifeTime.IsTerminated)
-                return default(T);
+            if (lifeTime.IsTerminated) return default(T);
             
             if (assetReference == null || assetReference.RuntimeKeyIsValid() == false)
             {
@@ -919,12 +918,30 @@ namespace UniGame.AddressableTools.Runtime
             return handle;
         }
 
+        private static async UniTask WaitWhileCachingReadyAsync(CancellationToken cancellationToken = default)
+        {
+            if (Caching.ready) return;
+
+            while (Caching.ready == false && cancellationToken.IsCancellationRequested == false)
+            {
+                await UniTask.WaitForEndOfFrame(cancellationToken);
+            }
+        }
+
         private static async UniTask<AddressableLoadResult> LoadAssetTaskWithProgressAsync<T>(
             this string reference,
             bool downloadDependencies = false,
             CancellationToken token = default,
             IProgress<float> progress = null)
         {
+            
+#if !UNITY_WEBGL
+            if (Caching.ready == false)
+            {
+                await WaitWhileCachingReadyAsync(token);
+            }
+#endif
+            
             if (downloadDependencies)
             {
                 await DownloadDependenciesTaskAsync(reference, true, token, progress);
