@@ -288,6 +288,25 @@ namespace UniGame.AddressableTools.Runtime
                 activateOnSpawn,
                 progress);
         }
+        
+        public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(
+            this AssetReferenceT<T> assetReference,
+            ILifeTime lifeTime,
+            bool destroyInstanceWithLifetime,
+            Action<T> assetResult,
+            bool downloadDependencies = false,
+            bool activateOnSpawn = true,
+            IProgress<float> progress = null)
+            where T : Object
+        {
+            var reference = assetReference as AssetReference;
+            var asset =await LoadAssetInstanceTaskAsync<T>(reference, lifeTime,
+                destroyInstanceWithLifetime,downloadDependencies,
+                activateOnSpawn,
+                progress);
+            assetResult?.Invoke(asset);
+            return asset;
+        }
 
         public static async UniTask<T> LoadAssetInstanceTaskAsync<T>(
             this AssetReference assetReference,
