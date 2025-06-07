@@ -123,7 +123,6 @@ namespace UniGame.AddressableAtlases
             if (atlas)
             {
                 atlasAction(atlas);
-                GameLog.Log($"ATLAS: Register NEW TAG : {tag}", Color.magenta);
             }
             else
             {

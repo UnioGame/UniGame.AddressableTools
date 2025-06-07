@@ -1,6 +1,4 @@
 ﻿using System;
-using UniCore.Runtime.ProfilerTools;
-using UniModules.Editor;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
@@ -24,7 +22,7 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
                 Debug.LogError(e);
             }
 
-            GameLog.Log("Addressables Library Cache Removed");
+            Debug.Log("Addressables Library Cache Removed");
         }
 
         [MenuItem("UniGame/Addressables/Clean Default Context Builder")]
@@ -39,7 +37,7 @@ namespace UniModules.UniGame.AddressableExtensions.Editor
             RemoveLibraryCache();
             RemoveStreamingCache();
             CleanPlayerContent(null);
-            GameLog.Log("Addressables Cache Removed");
+            Debug.Log("Addressables Cache Removed");
         }
         
         public static void CleanPlayerContent(IDataBuilder builder)

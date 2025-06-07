@@ -1,5 +1,4 @@
-﻿using UniCore.Runtime.ProfilerTools;
-using UniGame.Context.Runtime;
+﻿using UniGame.Context.Runtime;
 
 namespace UniGame.AddressableTools.Runtime
 {
@@ -13,6 +12,7 @@ namespace UniGame.AddressableTools.Runtime
     using UniGame.Runtime.ObjectPool.Extensions;
     using Core.Runtime;
     using Core.Runtime.Extension;
+    using UniCore.Runtime.ProfilerTools;
     using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
@@ -117,10 +117,6 @@ namespace UniGame.AddressableTools.Runtime
 
         public static void UnloadReference(this AssetReference reference)
         {
-#if UNITY_EDITOR
-            var targetAsset = reference.editorAsset;
-            GameLog.Log($"UNLOAD AssetReference {targetAsset?.name} : {reference.AssetGUID}");
-#endif
             // if(reference.Asset is IDisposable disposable)
             //     disposable.Dispose();
             //
@@ -319,7 +315,7 @@ namespace UniGame.AddressableTools.Runtime
         {
             if (assetReference.RuntimeKeyIsValid() == false)
             {
-                GameLog.Log("[LoadAssetInstanceTaskAsync] AssetReference key is NULL",Color.red);
+                GameLog.Log($"[LoadAssetInstanceTaskAsync] AssetReference key {assetReference.AssetGUID} is NULL");
                 return default;
             }
             
@@ -393,7 +389,7 @@ namespace UniGame.AddressableTools.Runtime
         {
             if (string.IsNullOrEmpty(reference))
             {
-                GameLog.Log("[LoadAssetInstanceTaskAsync] AssetReference key is NULL",Color.red);
+                GameLog.Log($"[SpawnObjectAsync<T>] {typeof(T).Name} AssetReference key is NULL");
                 return default;
             }
             
@@ -405,7 +401,7 @@ namespace UniGame.AddressableTools.Runtime
             
             if (!result.Success)
             {
-                GameLog.Log($"[LoadAssetInstanceTaskAsync] load {reference} failed {result.Error}",Color.red);
+                GameLog.LogError($"[SpawnObjectAsync<T>] {typeof(T).Name} AssetReference {reference} load error {result.Error}");
                 return default;
             }
 
@@ -488,7 +484,7 @@ namespace UniGame.AddressableTools.Runtime
         {
             if (string.IsNullOrEmpty(reference))
             {
-                GameLog.Log("[LoadAssetInstanceTaskAsync] AssetReference key is NULL",Color.red);
+                GameLog.LogError("[SpawnObjectsAsync] AssetReference key is NULL");
                 return default;
             }
             
