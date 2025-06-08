@@ -9,7 +9,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     using UniModules.Editor;
     using UnityEditor;
     using UnityEditor.SceneManagement;
-    using UniModules.UniGame.Core.Editor.EditorProcessors;
+    using global::UniGame.Core.Editor;
     using UnityEngine;
 
     [CreateAssetMenu(menuName = "UniGame/Addressables/" + nameof(AddressablesDependenciesConfiguration))]
