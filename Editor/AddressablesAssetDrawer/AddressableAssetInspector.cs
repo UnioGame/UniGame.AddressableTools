@@ -8,7 +8,7 @@ namespace UniGame.AddressableTools.Editor
     using System.Reflection;
     using UniModules.Editor;
     using UniModules.UniCore.EditorTools.Editor.PropertiesDrawers;
-    using UniModules.UniCore.Runtime.Utils;
+    using UniGame.Runtime.Utils;
     using UniModules.UniGame.AddressableTools.Runtime.Attributes;
     using UniModules.UniGame.Editor.DrawersTools;
     using UnityEditor;

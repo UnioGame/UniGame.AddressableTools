@@ -1,7 +1,7 @@
 ﻿namespace UniGame.AddressableTools.Runtime
 {
     
-    using UniModules.UniGame.Core.Runtime.DataFlow.Extensions;
+    using Core.Runtime;
     using UnityEngine;
 
 #if ODIN_INSPECTOR

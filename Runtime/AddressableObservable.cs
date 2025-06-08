@@ -3,12 +3,13 @@
     using System;
     using Cysharp.Threading.Tasks;
     using Abstract;
-    using UniModules.UniCore.Runtime.DataFlow;
+    using Runtime.DataFlow;
     using AddressableTools.Runtime;
     using Core.Runtime;
     using Core.Runtime.Extension;
-    using UniModules.UniGame.Core.Runtime.Rx;
-    using UniRx;
+    using R3;
+    using Runtime.Rx;
+     
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 
@@ -20,7 +21,6 @@
         where TData : Object
         where TApi : class
     {
-        
         private TAddressable _reference;
         private LifeTimeDefinition _lifeTime;
         private ReactiveValue<TApi> _addressableObservable;

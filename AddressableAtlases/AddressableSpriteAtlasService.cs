@@ -14,7 +14,7 @@ namespace UniGame.AddressableAtlases
     using Abstract;
     using Cysharp.Threading.Tasks;
     using global::UniGame.AddressableTools.Runtime;
-    using UniModules.UniCore.Runtime.DataFlow;
+    using Runtime.DataFlow;
     using UnityEngine;
     using UnityEngine.U2D;
     

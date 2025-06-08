@@ -7,7 +7,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window;
     using Sirenix.OdinInspector;
     using Sirenix.OdinInspector.Editor;
-    using UniModules.UniCore.Runtime.DataFlow;
+    using global::UniGame.Runtime.DataFlow;
     using UnityEditor;
     
     public class AddressablesDependenciesWindow : OdinEditorWindow

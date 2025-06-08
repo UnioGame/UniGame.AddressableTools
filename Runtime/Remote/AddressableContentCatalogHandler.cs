@@ -1,19 +1,22 @@
 ﻿using System.Linq;
 using Cysharp.Threading.Tasks;
-using UniRx;
+ 
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Remote
 {
+    using global::UniGame.Runtime.Rx;
+    using R3;
+
     public class AddressableContentCatalogHandler
     {
         public const string REMOTE_KEY = "AddressablesMainContentCatalogRemoteHash";
         public const string LOCAL_KEY  = "AddressablesMainContentCatalogCacheHash";
 
-        private BoolReactiveProperty _isReady;
-        private BoolReactiveProperty _isCatalogUpdated;
+        private BoolReactiveValue _isReady;
+        private BoolReactiveValue _isCatalogUpdated;
     
         private string _remoteUri;
         private string _localUri;
@@ -21,9 +24,9 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Remote
 
         private float lastTime;
     
-        public IReadOnlyReactiveProperty<bool> IsReady => _isReady;
+        public ReadOnlyReactiveProperty<bool> IsReady => _isReady;
     
-        public IReadOnlyReactiveProperty<bool> IsCatalogUpdated => _isCatalogUpdated;
+        public ReadOnlyReactiveProperty<bool> IsCatalogUpdated => _isCatalogUpdated;
 
         public async UniTask UpdateResourceLocations()
         {
