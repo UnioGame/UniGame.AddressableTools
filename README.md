@@ -37,15 +37,22 @@ A comprehensive toolkit for working with Unity Addressables system, providing co
 
 The module is part of UniGame.CoreModules and is automatically included in the project.
 
+Add the following dependencies to your `Packages/manifest.json` file:
+
+```json
+  "dependencies": {
+    "com.unigame.addressablestools" : "https://github.com/UnioGame/unigame.addressables.git",
+  }
+```
+
 ### Dependencies
+
 ```json
 {
-  "com.unigame.neuecc.unirx": "7.1.2",
-  "com.unigame.neuecc.unitask": "2.2.5",
-  "com.unity.addressables": "1.20.0",
-  "com.unigame.unicore": "2022.0.0",
-  "com.unity.editorcoroutines": "1.0.0",
-  "com.unigame.rx": "2022.0.0"
+    "com.unity.addressables": "2.6.0",
+    "com.cysharp.unitask" : "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.unigame.unicore": "https://github.com/UnioGame/unigame.core.git",
+    "com.unigame.rx": "https://github.com/UnioGame/unigame.rx.git"
 }
 ```
 
