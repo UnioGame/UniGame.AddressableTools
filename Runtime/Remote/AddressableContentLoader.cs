@@ -1,4 +1,4 @@
-﻿namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Remote
+﻿namespace UniGame.AddressableTools.Runtime
 {
 	using System;
 	using System.Collections.Generic;

@@ -3,10 +3,13 @@
     using UnityEngine.U2D;
     using System;
     using System.Collections.Generic;
-    using Sirenix.OdinInspector;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 
+#if ODIN_INSPECTOR
+    using Sirenix.OdinInspector;
+#endif
+    
 #if UNITY_EDITOR
     using UniModules.UniGame.AddressableExtensions.Editor;
     using UniModules.Editor;
@@ -19,14 +22,16 @@
     {
         #region inspector
 
+#if ODIN_INSPECTOR
         [HideLabel]
         [InlineProperty]
+#endif
         public AddressableAtlasSettings settings = new();
 
         #endregion
         
 #if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.Button]
+        [Button]
 #endif
         public void Reimport()
         {

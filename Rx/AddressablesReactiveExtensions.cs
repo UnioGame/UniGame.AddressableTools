@@ -1,10 +1,11 @@
-﻿using UniGame.Addressables.Reactive.Abstract;
+﻿using UniGame.AddressableTools.Runtime;
 using UniGame.Core.Runtime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniGame.Addressables.Reactive
+namespace UniGame.AddressableTools.Reactive
 {
+    using Runtime;
     using Object = UnityEngine.Object;
 
     public static class AddressablesReactiveExtensions 

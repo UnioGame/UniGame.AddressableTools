@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.AddressableAssets;
 
-namespace UniGame.Addressables.Reactive.Abstract
+namespace UniGame.AddressableTools.Runtime
 {
     public interface IAddressableObservable<TData> : 
         IObservable<TData>, 

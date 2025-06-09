@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UniModules.UniGame.AddressableTools.Runtime.Attributes
+namespace UniGame.AddressableTools.Runtime
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class DrawAssetReferenceAttribute : PropertyAttribute

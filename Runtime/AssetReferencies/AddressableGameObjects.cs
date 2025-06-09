@@ -1,4 +1,4 @@
-﻿namespace Game.Runtime.Services.AddressablesSource
+﻿namespace UniGame.MetaBackend.Runtime.AddressablesSource
 {
     using System;
     using System.Collections.Generic;

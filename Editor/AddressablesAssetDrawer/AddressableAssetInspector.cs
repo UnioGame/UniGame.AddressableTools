@@ -9,7 +9,7 @@ namespace UniGame.AddressableTools.Editor
     using UniModules.Editor;
     using UniModules.UniCore.EditorTools.Editor.PropertiesDrawers;
     using UniGame.Runtime.Utils;
-    using UniModules.UniGame.AddressableTools.Runtime.Attributes;
+    using Runtime;
     using UniModules.UniGame.Editor.DrawersTools;
     using UnityEditor;
     using UnityEngine;

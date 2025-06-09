@@ -1,8 +1,7 @@
 ﻿namespace UniGame.AddressableAtlases
 {
     using System;
-    using Core.Runtime;
-    using Runtime.DataFlow;
+    using UniGame.Runtime.DataFlow;
     using UnityEngine.U2D;
 
     [Serializable]

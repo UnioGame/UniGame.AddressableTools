@@ -1,15 +1,13 @@
-﻿namespace UniGame.Addressables.Reactive
+﻿namespace UniGame.AddressableTools.Reactive
 {
     using System;
     using Cysharp.Threading.Tasks;
-    using Abstract;
-    using Runtime.DataFlow;
-    using AddressableTools.Runtime;
     using Core.Runtime;
     using Core.Runtime.Extension;
     using R3;
-    using Runtime.Rx;
-     
+    using Runtime;
+    using UniGame.Runtime.DataFlow;
+    using UniGame.Runtime.Rx;
     using UnityEngine;
     using UnityEngine.AddressableAssets;
 

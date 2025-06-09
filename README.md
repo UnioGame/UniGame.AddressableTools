@@ -20,12 +20,11 @@ A comprehensive toolkit for working with Unity Addressables system, providing co
 ### Core Features
 - ✅ Simplified work with Addressable resources
 - ✅ Automatic resource lifecycle management
-- ✅ Typed resource references
+- ✅ Typed resource references 
+- ✅ R3 lib support
 - ✅ Object pooling system
 - ✅ Sprite atlas support
 - ✅ Reactive extensions for asynchronous work
-- ✅ Dependency analysis tools
-- ✅ Remote content and updates
 
 ### Editor Tools
 - ✅ Addressable resource dependency analyzer
@@ -44,6 +43,8 @@ Add the following dependencies to your `Packages/manifest.json` file:
     "com.unigame.addressablestools" : "https://github.com/UnioGame/unigame.addressables.git",
   }
 ```
+
+To enable RX/R3 support add the following script define symbols to your project: "UNIGAME_RX_ENABLED"
 
 ### Dependencies
 

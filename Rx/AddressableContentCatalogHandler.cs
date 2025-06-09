@@ -2,31 +2,23 @@
 using Cysharp.Threading.Tasks;
  
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Remote
+namespace UniGame.AddressableTools.Runtime
 {
-    using global::UniGame.Runtime.Rx;
-    using R3;
+    using Addressables = UnityEngine.AddressableAssets.Addressables;
 
     public class AddressableContentCatalogHandler
     {
         public const string REMOTE_KEY = "AddressablesMainContentCatalogRemoteHash";
         public const string LOCAL_KEY  = "AddressablesMainContentCatalogCacheHash";
 
-        private BoolReactiveValue _isReady;
-        private BoolReactiveValue _isCatalogUpdated;
-    
         private string _remoteUri;
         private string _localUri;
         private string _localHash;
-
         private float lastTime;
-    
-        public ReadOnlyReactiveProperty<bool> IsReady => _isReady;
-    
-        public ReadOnlyReactiveProperty<bool> IsCatalogUpdated => _isCatalogUpdated;
+        private bool _isReady = false;
+        private bool _isCatalogUpdated = false;
 
         public async UniTask UpdateResourceLocations()
         {
@@ -55,14 +47,14 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Remote
                 var www = UnityWebRequest.Get(_localUri);
                 var wwwResult = await www.SendWebRequest().ToUniTask();
                 _localHash = wwwResult.downloadHandler.text;
-                _isReady.Value     = true;
+                _isReady     = true;
             }
         
         }
 
         public async UniTask<bool> CheckForUpdates()
         {
-            if (_isReady.Value == false) {
+            if (_isReady == false) {
                 await UpdateResourceLocations();
             }
         
@@ -71,10 +63,10 @@ namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Runtime.Remote
             var remoteHash = result.downloadHandler.text;
 
             if (remoteHash != _localHash) {
-                _isCatalogUpdated.Value = false;
+                _isCatalogUpdated = false;
             }
 
-            return _isCatalogUpdated.Value;
+            return _isCatalogUpdated;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UniGame.AddressableAtlases.Abstract
+namespace UniGame.AddressableAtlases.Runtime
 {
     public interface IAddressableAtlasesState
     {
