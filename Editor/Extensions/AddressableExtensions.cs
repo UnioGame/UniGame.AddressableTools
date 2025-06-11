@@ -6,10 +6,8 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace UniModules.UniGame.AddressableExtensions.Editor
+namespace UniGame.AddressableTools.Editor
 {
-    using System.Linq;
-
     public static class AddressableExtensions
     {
         public static AssetReferenceGameObject PrefabToAssetReference(this Component source)

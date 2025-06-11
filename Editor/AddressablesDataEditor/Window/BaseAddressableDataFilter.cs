@@ -1,10 +1,10 @@
 ﻿#if ODIN_INSPECTOR
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+namespace UniGame.AddressableTools.Editor
 {
     using System;
     using System.Collections.Generic;
-    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
+    using global::UniGame.AddressableTools.Editor;
 
     [Serializable]
     public class BaseAddressableDataFilter : IAddressableDataFilter

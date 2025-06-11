@@ -1,6 +1,6 @@
 #if ODIN_INSPECTOR
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window
+namespace UniGame.AddressableTools.Editor.Window
 {
     using System;
     using Sirenix.OdinInspector;

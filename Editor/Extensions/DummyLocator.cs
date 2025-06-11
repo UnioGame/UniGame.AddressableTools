@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
-namespace UniModules.UniGame.AddressableExtensions.Editor
+namespace UniGame.AddressableTools.Editor
 {
     public class DummyLocator : IResourceLocator
     {

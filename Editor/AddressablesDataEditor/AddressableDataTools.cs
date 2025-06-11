@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using UniModules.Editor;
-using UniModules.UniGame.AddressableExtensions.Editor;
-using UnityEditor;
-using UnityEditor.AddressableAssets.Settings;
-using UnityEditor.AddressableAssets.Settings.GroupSchemas;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.ResourceLocations;
-using Object = UnityEngine.Object;
-
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
+﻿namespace UniGame.AddressableTools.Editor
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using UniModules;
+    using UniModules.Editor;
+    using UnityEditor;
+    using UnityEditor.AddressableAssets.Settings;
+    using UnityEditor.AddressableAssets.Settings.GroupSchemas;
+    using UnityEngine.AddressableAssets;
+    using UnityEngine.ResourceManagement.ResourceLocations;
+    using Object = UnityEngine.Object;
+    
     public static class AddressableDataTools
     {
         public const string localBuildPath = "com.unity.addressables";

@@ -3,11 +3,11 @@ using UnityEditor;
 
 #if ODIN_INSPECTOR
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window
+namespace UniGame.AddressableTools.Editor.Window
 {
     using System;
     using Sirenix.OdinInspector;
-    using UniModules.UniGame.AddressableExtensions.Editor;
+    using global::UniGame.AddressableTools.Editor;
 
     [Serializable]
     public class SingleAssetDependenciesView

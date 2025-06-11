@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using Object = UnityEngine.Object;
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
+namespace UniGame.AddressableTools.Editor
 {
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;

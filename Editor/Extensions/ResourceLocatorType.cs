@@ -1,4 +1,4 @@
-namespace UniModules.UniGame.AddressableExtensions.Editor
+namespace UniGame.AddressableTools.Editor
 {
     public enum ResourceLocatorType
     {

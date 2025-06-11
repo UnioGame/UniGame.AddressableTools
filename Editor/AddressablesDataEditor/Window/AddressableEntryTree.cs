@@ -1,4 +1,4 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+﻿namespace UniGame.AddressableTools.Editor
 {
     using System.Linq;
     using UnityEditor;
@@ -6,7 +6,7 @@
 
     using System;
     using System.Collections.Generic;
-    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
+    using global::UniGame.AddressableTools.Editor;
 
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;

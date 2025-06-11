@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
+using UniGame.AddressableTools.Editor;
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+namespace UniGame.AddressableTools.Editor
 {
     [Serializable]
     public class LocalToRemoteDependenciesFilter : BaseAddressableDataFilter

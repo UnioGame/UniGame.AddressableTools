@@ -1,16 +1,16 @@
 ﻿#if ODIN_INSPECTOR
 
-namespace UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor
+namespace UniGame.AddressableTools.Editor
 {
 #if ODIN_INSPECTOR
     using Sirenix.OdinInspector;
 #endif
 
     using System.Linq;
-    using GameEditor.Categories;
     using UnityEditor;
     using System;
     using System.Collections.Generic;
+    using UniModules.GameEditor.Categories;
     using Object = UnityEngine.Object;
 
     [Serializable]

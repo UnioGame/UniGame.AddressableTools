@@ -4,8 +4,10 @@ using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace UniModules.UniGame.AddressableExtensions.Editor
+namespace UniGame.AddressableTools.Editor
 {
+    using UniModules;
+
     public static class AddressablesCleaner
     {
         public const string AddressablesCachePath     = "./Library/com.unity.addressables";

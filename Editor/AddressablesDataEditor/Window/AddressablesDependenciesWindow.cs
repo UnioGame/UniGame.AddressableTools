@@ -2,9 +2,9 @@
 #if UNITY_EDITOR
 
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+namespace UniGame.AddressableTools.Editor
 {
-    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor.Window;
+    using global::UniGame.AddressableTools.Editor.Window;
     using Sirenix.OdinInspector;
     using Sirenix.OdinInspector.Editor;
     using global::UniGame.Runtime.DataFlow;

@@ -1,7 +1,7 @@
-﻿namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+﻿namespace UniGame.AddressableTools.Editor
 {
     using System.Collections.Generic;
-    using UniModules.UniGame.CoreModules.UniGame.AddressableTools.Editor.AddressablesDataEditor;
+    using global::UniGame.AddressableTools.Editor;
 
     public interface IAddressableDataFilter
     {

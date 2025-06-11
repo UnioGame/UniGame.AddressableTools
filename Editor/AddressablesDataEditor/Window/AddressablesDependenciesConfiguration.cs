@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 #if ODIN_INSPECTOR
 
-namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
+namespace UniGame.AddressableTools.Editor
 {
     using Sirenix.OdinInspector;
     using System.IO;
@@ -10,6 +10,7 @@ namespace UniModules.UniGame.AddressableTools.Editor.AddressablesDependecies
     using UnityEditor;
     using UnityEditor.SceneManagement;
     using global::UniGame.Core.Editor;
+    using UniModules;
     using UnityEngine;
 
     [CreateAssetMenu(menuName = "UniGame/Addressables/" + nameof(AddressablesDependenciesConfiguration))]
